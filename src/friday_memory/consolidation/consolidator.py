@@ -168,6 +168,4 @@ class LLMConsolidator:
 
     @staticmethod
     def _end_checkpoint(log_store: LogStore) -> str:
-        if hasattr(log_store, "current_checkpoint"):
-            return log_store.current_checkpoint()
-        return ""
+        return log_store.current_checkpoint()

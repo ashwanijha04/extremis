@@ -25,6 +25,10 @@ class LogStore(Protocol):
 
     def set_checkpoint(self, checkpoint: str) -> None: ...
 
+    def current_checkpoint(self) -> str:
+        """Return a checkpoint string pointing to the current end of the log."""
+        ...
+
 
 @runtime_checkable
 class MemoryStore(Protocol):

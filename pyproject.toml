@@ -7,27 +7,40 @@ name = "friday-memory"
 version = "0.1.0"
 description = "Layered memory platform for AI agents — log-first, RL-scored, consolidation-backed"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.11"
+authors = [{ name = "Ashwani Jha", email = "ashwanijha04@gmail.com" }]
+keywords = ["memory", "ai", "agents", "mcp", "rag", "embeddings"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Repository = "https://github.com/ashwanijha04/friday-memory"
+
 dependencies = [
     "pydantic>=2.0",
     "pydantic-settings>=2.0",
     "sentence-transformers>=3.0",
     "numpy>=1.26",
     "anthropic>=0.40",
-    # Postgres (optional, for consolidated store)
-    "asyncpg>=0.29",
-    # SQLite vector search
-    "sqlite-vec>=0.1",
 ]
 
 [project.optional-dependencies]
 mcp = ["mcp>=1.0"]
+postgres = ["asyncpg>=0.29"]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "ruff>=0.4",
     "mypy>=1.10",
 ]
+all = ["friday-memory[mcp,postgres]"]
 
 [project.scripts]
 friday-memory-mcp = "friday_memory.mcp.server:main"
