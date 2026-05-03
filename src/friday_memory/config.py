@@ -6,13 +6,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Config(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="FRIDAY_", env_file=".env")
 
-    # Storage paths
+    # Storage backend: "sqlite" (default, local) or "postgres"
+    store: str = "sqlite"
+
+    # Storage paths (sqlite)
     friday_home: str = "~/.friday"
     log_dir: str = ""          # defaults to {friday_home}/log at runtime
     local_db_path: str = ""    # defaults to {friday_home}/local.db at runtime
 
-    # Consolidated store
-    postgres_url: str = "postgresql://localhost/friday"
+    # Postgres — used when store = "postgres"
+    postgres_url: str = ""
 
     # Embeddings
     embedder: str = "sentence-transformers/all-MiniLM-L6-v2"

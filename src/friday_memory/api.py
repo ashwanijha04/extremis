@@ -18,6 +18,18 @@ from .types import (
 )
 
 
+def _build_store(config: Config) -> MemoryStore:
+    """Select and initialise the memory store from config."""
+    if config.store == "postgres":
+        if not config.postgres_url:
+            raise ValueError(
+                "FRIDAY_STORE=postgres requires FRIDAY_POSTGRES_URL to be set."
+            )
+        from .storage.postgres import PostgresMemoryStore
+        return PostgresMemoryStore(config.postgres_url, config)
+    return SQLiteMemoryStore(config.resolved_local_db_path(), config)
+
+
 class FridayMemory:
     """
     The three methods agents actually call: remember, recall, report_outcome.
@@ -33,9 +45,7 @@ class FridayMemory:
     ) -> None:
         self._config = config or Config()
         self._log = log or FileLogStore(self._config.resolved_log_dir())
-        self._local = local or SQLiteMemoryStore(
-            self._config.resolved_local_db_path(), self._config
-        )
+        self._local = local or _build_store(self._config)
         self._embedder = embedder or SentenceTransformerEmbedder(self._config.embedder)
 
     def remember(
