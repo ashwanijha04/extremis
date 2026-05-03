@@ -232,9 +232,32 @@ def create_server(config: Config | None = None) -> FastMCP:
 
 
 def main() -> None:
+    import argparse
+    import os
+
+    parser = argparse.ArgumentParser(description="Friday Memory MCP server")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "sse"],
+        default=os.environ.get("FRIDAY_TRANSPORT", "stdio"),
+        help="Transport mode: stdio (default, for Claude Desktop/Code) or sse (HTTP server)",
+    )
+    parser.add_argument(
+        "--host", default="127.0.0.1", help="Host for SSE mode (default: 127.0.0.1)"
+    )
+    parser.add_argument(
+        "--port", type=int, default=8765, help="Port for SSE mode (default: 8765)"
+    )
+    args = parser.parse_args()
+
     logging.basicConfig(level=logging.INFO)
     server = create_server()
-    server.run()
+
+    if args.transport == "sse":
+        log.info("Starting friday-memory MCP server on http://%s:%d", args.host, args.port)
+        server.run(transport="sse", host=args.host, port=args.port)
+    else:
+        server.run(transport="stdio")
 
 
 if __name__ == "__main__":
