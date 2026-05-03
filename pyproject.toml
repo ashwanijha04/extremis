@@ -29,6 +29,9 @@ dev = [
     "mypy>=1.10",
 ]
 
+[project.scripts]
+friday-memory-mcp = "friday_memory.mcp.server:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/friday_memory"]
 
