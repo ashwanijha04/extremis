@@ -56,9 +56,19 @@ class SQLiteMemoryStore:
     def _init_schema(self) -> None:
         schema_path = Path(__file__).parent.parent / "migrations" / "001_initial_sqlite.sql"
         self._conn.executescript(schema_path.read_text())
+        # Add namespace column to existing DBs that predate this field
+        try:
+            self._conn.execute("ALTER TABLE memories ADD COLUMN namespace TEXT NOT NULL DEFAULT 'default'")
+        except sqlite3.OperationalError:
+            pass  # column already exists
         self._conn.commit()
 
+    @property
+    def _ns(self) -> str:
+        return self._config.namespace
+
     def store(self, memory: Memory) -> Memory:
+        memory = memory.model_copy(update={"namespace": self._ns})
         embedding_blob = (
             np.array(memory.embedding, dtype=np.float32).tobytes()
             if memory.embedding
@@ -67,13 +77,13 @@ class SQLiteMemoryStore:
         self._conn.execute(
             """
             INSERT OR REPLACE INTO memories (
-                id, layer, content, embedding, score, confidence,
+                id, namespace, layer, content, embedding, score, confidence,
                 metadata, source_memory_ids,
                 validity_start, validity_end,
                 created_at, last_accessed_at, access_count,
                 do_not_consolidate
             ) VALUES (
-                ?, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?, ?, ?, ?,
                 ?, ?,
                 ?, ?,
                 ?, ?, ?,
@@ -82,6 +92,7 @@ class SQLiteMemoryStore:
             """,
             (
                 str(memory.id),
+                memory.namespace,
                 memory.layer.value,
                 memory.content,
                 embedding_blob,
@@ -102,7 +113,8 @@ class SQLiteMemoryStore:
 
     def get(self, memory_id: UUID) -> Optional[Memory]:
         row = self._conn.execute(
-            "SELECT * FROM memories WHERE id = ?", (str(memory_id),)
+            "SELECT * FROM memories WHERE id = ? AND namespace = ?",
+            (str(memory_id), self._ns),
         ).fetchone()
         return _row_to_memory(row) if row else None
 
@@ -117,16 +129,17 @@ class SQLiteMemoryStore:
         query_norm = np.linalg.norm(query_vec)
 
         layer_filter = ""
-        params: list = []
+        params: list = [self._ns]
         if layers:
             placeholders = ",".join("?" * len(layers))
             layer_filter = f"AND layer IN ({placeholders})"
-            params = [l.value for l in layers]
+            params += [l.value for l in layers]
 
         rows = self._conn.execute(
             f"""
             SELECT * FROM memories
-            WHERE embedding IS NOT NULL
+            WHERE namespace = ?
+              AND embedding IS NOT NULL
               AND validity_end IS NULL
               {layer_filter}
             """,
@@ -172,16 +185,16 @@ class SQLiteMemoryStore:
 
     def update_score(self, memory_id: UUID, delta: float) -> None:
         self._conn.execute(
-            "UPDATE memories SET score = score + ? WHERE id = ?",
-            (delta, str(memory_id)),
+            "UPDATE memories SET score = score + ? WHERE id = ? AND namespace = ?",
+            (delta, str(memory_id), self._ns),
         )
         self._conn.commit()
 
     def supersede(self, old_id: UUID, new_memory: Memory) -> None:
         now = _now_iso()
         self._conn.execute(
-            "UPDATE memories SET validity_end = ? WHERE id = ?",
-            (now, str(old_id)),
+            "UPDATE memories SET validity_end = ? WHERE id = ? AND namespace = ?",
+            (now, str(old_id), self._ns),
         )
         self.store(new_memory)
 
@@ -192,13 +205,13 @@ class SQLiteMemoryStore:
     ) -> list[Memory]:
         if layer:
             rows = self._conn.execute(
-                "SELECT * FROM memories WHERE layer = ? AND validity_end IS NULL ORDER BY created_at DESC LIMIT ?",
-                (layer.value, limit),
+                "SELECT * FROM memories WHERE namespace = ? AND layer = ? AND validity_end IS NULL ORDER BY created_at DESC LIMIT ?",
+                (self._ns, layer.value, limit),
             ).fetchall()
         else:
             rows = self._conn.execute(
-                "SELECT * FROM memories WHERE validity_end IS NULL ORDER BY created_at DESC LIMIT ?",
-                (limit,),
+                "SELECT * FROM memories WHERE namespace = ? AND validity_end IS NULL ORDER BY created_at DESC LIMIT ?",
+                (self._ns, limit),
             ).fetchall()
         return [_row_to_memory(r) for r in rows]
 

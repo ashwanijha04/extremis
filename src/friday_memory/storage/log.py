@@ -15,8 +15,10 @@ class FileLogStore:
     fsync on every write for durability.
     """
 
-    def __init__(self, log_dir: str) -> None:
-        self._dir = Path(log_dir).expanduser()
+    def __init__(self, log_dir: str, namespace: str = "default") -> None:
+        base = Path(log_dir).expanduser()
+        # Each namespace gets its own subdirectory: log_dir/{namespace}/
+        self._dir = base / namespace if namespace != "default" else base
         self._dir.mkdir(parents=True, exist_ok=True)
 
     def _path_for(self, date: datetime) -> Path:

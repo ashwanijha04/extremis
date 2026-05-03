@@ -9,6 +9,11 @@ class Config(BaseSettings):
     # Storage backend: "sqlite" (default, local) or "postgres"
     store: str = "sqlite"
 
+    # Namespace — isolates one user/agent's memories from another.
+    # Set FRIDAY_NAMESPACE=<user_id> to get per-user isolation on a shared server.
+    # Defaults to "default" (single-user / single-agent use).
+    namespace: str = "default"
+
     # Storage paths (sqlite)
     friday_home: str = "~/.friday"
     log_dir: str = ""          # defaults to {friday_home}/log at runtime
@@ -16,6 +21,11 @@ class Config(BaseSettings):
 
     # Postgres — used when store = "postgres"
     postgres_url: str = ""
+
+    # Attention scorer thresholds
+    attention_full_threshold: int = 75
+    attention_standard_threshold: int = 50
+    attention_minimal_threshold: int = 25
 
     # Embeddings
     embedder: str = "sentence-transformers/all-MiniLM-L6-v2"

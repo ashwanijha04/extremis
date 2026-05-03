@@ -7,15 +7,27 @@ from uuid import UUID
 from .config import Config
 from .embeddings.sentence_transformers import SentenceTransformerEmbedder
 from .interfaces import Embedder, LogStore, MemoryStore
+from .observer.observer import HeuristicObserver
+from .scorer.attention import AttentionScorer
+from .storage.kg import SQLiteKGStore
 from .storage.log import FileLogStore
 from .storage.sqlite import SQLiteMemoryStore
 from .types import (
+    AttentionResult,
+    EntityResult,
+    EntityType,
     FeedbackSignal,
+    KGAttribute,
     LogEntry,
     Memory,
     MemoryLayer,
+    Observation,
+    ObservationPriority,
     RecallResult,
+    Relationship,
 )
+
+_NEGATIVE_WEIGHT_MULTIPLIER = 1.5  # match friday-saas asymmetric RL weighting
 
 
 def _build_store(config: Config) -> MemoryStore:
@@ -44,9 +56,15 @@ class FridayMemory:
         embedder: Optional[Embedder] = None,
     ) -> None:
         self._config = config or Config()
-        self._log = log or FileLogStore(self._config.resolved_log_dir())
+        self._log = log or FileLogStore(
+            self._config.resolved_log_dir(),
+            namespace=self._config.namespace,
+        )
         self._local = local or _build_store(self._config)
         self._embedder = embedder or SentenceTransformerEmbedder(self._config.embedder)
+        self._kg = SQLiteKGStore(self._config.resolved_local_db_path(), self._config)
+        self._observer = HeuristicObserver(namespace=self._config.namespace)
+        self._attention = AttentionScorer(self._config)
 
     def remember(
         self,
@@ -128,13 +146,12 @@ class FridayMemory:
         success: bool,
         weight: float = 1.0,
     ) -> None:
-        """RL signal. Adjusts utility scores on the referenced memories."""
-        signal = FeedbackSignal(
-            memory_ids=memory_ids,
-            success=success,
-            weight=weight,
-        )
-        delta = weight if signal.success else -weight
+        """
+        RL signal. Adjusts utility scores on the referenced memories.
+        Negative signals are amplified by 1.5× (mirrors human memory asymmetry).
+        """
+        FeedbackSignal(memory_ids=memory_ids, success=success, weight=weight)
+        delta = weight if success else -(weight * _NEGATIVE_WEIGHT_MULTIPLIER)
         for mid in memory_ids:
             self._local.update_score(mid, delta)
 
@@ -163,8 +180,74 @@ class FridayMemory:
         )
         return self._local.store(memory)
 
+    # ------------------------------------------------------------------ #
+    # Knowledge graph
+    # ------------------------------------------------------------------ #
+
+    def kg_add_entity(
+        self,
+        name: str,
+        type: EntityType,
+        metadata: Optional[dict] = None,
+    ):
+        return self._kg.add_entity(name, type, metadata)
+
+    def kg_add_relationship(
+        self,
+        from_entity: str,
+        to_entity: str,
+        rel_type: str,
+        weight: float = 1.0,
+        metadata: Optional[dict] = None,
+    ):
+        return self._kg.add_relationship(from_entity, to_entity, rel_type, weight, metadata)
+
+    def kg_add_attribute(self, entity: str, key: str, value: str):
+        return self._kg.add_attribute(entity, key, value)
+
+    def kg_query(self, name: str) -> Optional[EntityResult]:
+        return self._kg.query_entity(name)
+
+    def kg_traverse(self, name: str, depth: int = 2) -> list[EntityResult]:
+        return self._kg.traverse(name, depth)
+
+    # ------------------------------------------------------------------ #
+    # Observer
+    # ------------------------------------------------------------------ #
+
+    def observe(self, conversation_id: str = "default") -> list[Observation]:
+        """Compress recent log entries for conversation_id into priority observations."""
+        all_entries = self._log.read_since(None)
+        entries = [e for e in all_entries if e.conversation_id == conversation_id]
+        return self._observer.compress(entries)
+
+    # ------------------------------------------------------------------ #
+    # Attention scoring
+    # ------------------------------------------------------------------ #
+
+    def score_attention(
+        self,
+        message: str,
+        sender: str = "",
+        channel: str = "dm",
+        owner_ids: Optional[set[str]] = None,
+        allowlist: Optional[set[str]] = None,
+        context: Optional[dict] = None,
+    ) -> AttentionResult:
+        return self._attention.score(
+            message, sender=sender, channel=channel,
+            owner_ids=owner_ids, allowlist=allowlist, context=context,
+        )
+
+    # ------------------------------------------------------------------ #
+    # Internal accessors (used by consolidator, MCP server, tests)
+    # ------------------------------------------------------------------ #
+
     def get_local_store(self) -> MemoryStore:
         return self._local
 
     def get_log(self) -> LogStore:
         return self._log
+
+    def get_kg(self) -> SQLiteKGStore:
+        return self._kg

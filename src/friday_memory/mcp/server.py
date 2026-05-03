@@ -34,7 +34,7 @@ from mcp.server.fastmcp import FastMCP
 from ..api import FridayMemory
 from ..config import Config
 from ..consolidation.consolidator import LLMConsolidator
-from ..types import MemoryLayer
+from ..types import EntityType, MemoryLayer
 
 log = logging.getLogger(__name__)
 
@@ -227,6 +227,175 @@ def create_server(config: Config | None = None) -> FastMCP:
         except Exception as exc:
             log.exception("Consolidation failed")
             return f"Consolidation failed: {exc}"
+
+    # ------------------------------------------------------------------ #
+    # Tool 6 — knowledge graph: add entity / relationship / attribute
+    # ------------------------------------------------------------------ #
+    @mcp.tool()
+    def memory_kg_write(
+        operation: str,
+        name: str,
+        entity_type: str = "concept",
+        from_entity: str = "",
+        to_entity: str = "",
+        rel_type: str = "",
+        weight: float = 1.0,
+        key: str = "",
+        value: str = "",
+        metadata: str = "{}",
+    ) -> str:
+        """
+        Write to the knowledge graph.
+
+        operation: "add_entity" | "add_relationship" | "add_attribute"
+
+        add_entity:
+          name        — entity name (e.g. "Alice")
+          entity_type — person | org | project | group | concept | other
+
+        add_relationship:
+          from_entity — source entity name
+          to_entity   — target entity name
+          rel_type    — relationship label (e.g. "works_at", "friend", "owns")
+          weight      — confidence 0.0–1.0 (default 1.0)
+
+        add_attribute:
+          name  — entity name
+          key   — attribute key (e.g. "phone", "timezone", "tone")
+          value — attribute value
+        """
+        import json as _json
+        meta = _json.loads(metadata) if metadata and metadata != "{}" else {}
+        if operation == "add_entity":
+            try:
+                etype = EntityType(entity_type)
+            except ValueError:
+                return f"Unknown entity_type '{entity_type}'. Valid: {[e.value for e in EntityType]}"
+            entity = mem.kg_add_entity(name, etype, meta)
+            return f"Entity [{entity.type.value}] '{entity.name}' added (namespace={cfg.namespace})"
+
+        elif operation == "add_relationship":
+            if not from_entity or not to_entity or not rel_type:
+                return "add_relationship requires: from_entity, to_entity, rel_type"
+            rel = mem.kg_add_relationship(from_entity, to_entity, rel_type, weight, meta)
+            return f"Relationship {rel.from_entity} —[{rel.rel_type}]→ {rel.to_entity} (weight={rel.weight})"
+
+        elif operation == "add_attribute":
+            if not key or not value:
+                return "add_attribute requires: name (entity), key, value"
+            attr = mem.kg_add_attribute(name, key, value)
+            return f"Attribute '{attr.key}' = '{attr.value}' set on '{attr.entity}'"
+
+        return f"Unknown operation '{operation}'. Valid: add_entity, add_relationship, add_attribute"
+
+    # ------------------------------------------------------------------ #
+    # Tool 7 — knowledge graph: query
+    # ------------------------------------------------------------------ #
+    @mcp.tool()
+    def memory_kg_query(name: str, traverse_depth: int = 0) -> str:
+        """
+        Query the knowledge graph for an entity and its connections.
+
+        Args:
+            name:           Entity name to look up.
+            traverse_depth: BFS depth (0 = entity + direct connections only,
+                            2 = two hops out). Keep ≤ 3 to avoid large results.
+        """
+        if traverse_depth > 0:
+            results = mem.kg_traverse(name, depth=traverse_depth)
+        else:
+            result = mem.kg_query(name)
+            results = [result] if result else []
+
+        if not results:
+            return f"No entity found for '{name}'."
+
+        lines = []
+        for er in results:
+            lines.append(f"[{er.entity.type.value}] {er.entity.name}")
+            if er.entity.metadata:
+                lines.append(f"  metadata: {er.entity.metadata}")
+            for rel in er.relationships:
+                arrow = "→" if rel.from_entity == er.entity.name else "←"
+                other = rel.to_entity if rel.from_entity == er.entity.name else rel.from_entity
+                lines.append(f"  {arrow} [{rel.rel_type}] {other}  w={rel.weight:.1f}")
+            for attr in er.attributes:
+                lines.append(f"  {attr.key}: {attr.value}")
+            lines.append("")
+        return "\n".join(lines).strip()
+
+    # ------------------------------------------------------------------ #
+    # Tool 8 — observe: compress log entries to priority observations
+    # ------------------------------------------------------------------ #
+    @mcp.tool()
+    def memory_observe(conversation_id: str = "default") -> str:
+        """
+        Compress recent log entries for a conversation into priority-tagged observations.
+
+        Classifies each log entry as:
+          🔴 CRITICAL — decisions, errors, deadlines, reward signals
+          🟡 CONTEXT  — reasons, insights, learnings
+          🟢 INFO     — everything else
+
+        Returns a markdown block suitable for injecting into context.
+        No LLM call — pure heuristic, runs instantly.
+
+        Args:
+            conversation_id: Which conversation's entries to compress.
+        """
+        from ..observer.observer import HeuristicObserver
+        observations = mem.observe(conversation_id)
+        if not observations:
+            return f"No log entries found for conversation '{conversation_id}'."
+        return HeuristicObserver.format_markdown(observations)
+
+    # ------------------------------------------------------------------ #
+    # Tool 9 — attention scorer
+    # ------------------------------------------------------------------ #
+    @mcp.tool()
+    def memory_score_attention(
+        message: str,
+        sender: str = "",
+        channel: str = "dm",
+        owner_ids: str = "",
+        allowlist: str = "",
+        ongoing: bool = False,
+        already_answered: bool = False,
+    ) -> str:
+        """
+        Score an incoming message to decide how much attention to give it.
+
+        Returns a score (0–100) and a processing level:
+          full     — engage fully
+          standard — engage, balanced response
+          minimal  — brief acknowledgement only
+          ignore   — skip this message
+
+        Use this before deciding whether to generate a full response, especially
+        in group chat or broadcast contexts where not every message warrants a reply.
+
+        Args:
+            message:          The incoming message text.
+            sender:           Sender identifier (user ID, phone number, etc.)
+            channel:          "dm" | "group" | "broadcast"
+            owner_ids:        Comma-separated sender IDs that always get full attention.
+            allowlist:        Comma-separated sender IDs with elevated base score.
+            ongoing:          True if this is part of an ongoing conversation thread.
+            already_answered: True if someone else already replied.
+        """
+        owners = {s.strip() for s in owner_ids.split(",") if s.strip()}
+        allowed = {s.strip() for s in allowlist.split(",") if s.strip()}
+        ctx = {"ongoing": ongoing, "already_answered": already_answered}
+
+        result = mem.score_attention(
+            message, sender=sender, channel=channel,
+            owner_ids=owners, allowlist=allowed, context=ctx,
+        )
+        return (
+            f"Score: {result.score}/100  Level: {result.level}\n"
+            f"Reason: {result.reason}\n"
+            f"Breakdown: {result.breakdown}"
+        )
 
     return mcp
 

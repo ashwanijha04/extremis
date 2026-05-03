@@ -8,15 +8,21 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 
+# ------------------------------------------------------------------ #
+# Core memory types
+# ------------------------------------------------------------------ #
+
 class MemoryLayer(str, Enum):
     EPISODIC = "episodic"
     SEMANTIC = "semantic"
     PROCEDURAL = "procedural"
     IDENTITY = "identity"
+    WORKING = "working"
 
 
 class Memory(BaseModel):
     id: UUID = Field(default_factory=uuid4)
+    namespace: str = "default"
     layer: MemoryLayer
     content: str
     embedding: Optional[list[float]] = None
@@ -34,6 +40,7 @@ class Memory(BaseModel):
 
 class LogEntry(BaseModel):
     id: UUID = Field(default_factory=uuid4)
+    namespace: str = "default"
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     role: str  # user | assistant | system
     content: str
@@ -61,3 +68,75 @@ class FeedbackSignal(BaseModel):
     weight: float = 1.0
     context: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# ------------------------------------------------------------------ #
+# Knowledge Graph types
+# ------------------------------------------------------------------ #
+
+class EntityType(str, Enum):
+    PERSON = "person"
+    ORG = "org"
+    PROJECT = "project"
+    GROUP = "group"
+    CONCEPT = "concept"
+    OTHER = "other"
+
+
+class Entity(BaseModel):
+    id: int = 0
+    namespace: str = "default"
+    name: str
+    type: EntityType
+    metadata: dict = Field(default_factory=dict)
+
+
+class Relationship(BaseModel):
+    id: int = 0
+    namespace: str = "default"
+    from_entity: str
+    to_entity: str
+    rel_type: str
+    weight: float = 1.0
+    metadata: dict = Field(default_factory=dict)
+
+
+class KGAttribute(BaseModel):
+    id: int = 0
+    namespace: str = "default"
+    entity: str
+    key: str
+    value: str
+
+
+class EntityResult(BaseModel):
+    entity: Entity
+    relationships: list[Relationship] = Field(default_factory=list)
+    attributes: list[KGAttribute] = Field(default_factory=list)
+
+
+# ------------------------------------------------------------------ #
+# Observer / attention types
+# ------------------------------------------------------------------ #
+
+class ObservationPriority(str, Enum):
+    CRITICAL = "critical"   # 🔴 decisions, errors, deadlines
+    CONTEXT = "context"     # 🟡 reasons, insights, learnings
+    INFO = "info"           # 🟢 everything else
+
+
+class Observation(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    namespace: str = "default"
+    content: str
+    priority: ObservationPriority
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    conversation_id: Optional[str] = None
+    tags: list[str] = Field(default_factory=list)
+
+
+class AttentionResult(BaseModel):
+    score: int              # 0–100
+    level: str              # full | standard | minimal | ignore
+    reason: str
+    breakdown: dict = Field(default_factory=dict)
