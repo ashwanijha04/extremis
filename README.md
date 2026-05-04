@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧠 friday-memory
+# 🧠 lore-ai
 
 **Layered, learning memory for AI agents**
 
@@ -8,8 +8,8 @@
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![PyPI](https://img.shields.io/pypi/v/friday-memory?logo=pypi&logoColor=white&color=orange)](https://pypi.org/project/friday-memory)
-[![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/friday-memory/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/friday-memory/actions)
+[![PyPI](https://img.shields.io/pypi/v/lore-ai?logo=pypi&logoColor=white&color=orange)](https://pypi.org/project/lore-ai)
+[![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/lore-ai/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/lore-ai/actions)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
 
 <br/>
@@ -25,9 +25,9 @@
 
 ---
 
-## What is friday-memory?
+## What is lore-ai?
 
-Most AI agents forget everything the moment the conversation ends. friday-memory gives agents a durable, layered memory that **learns from feedback** — the more you use it, the better it gets at surfacing what matters.
+Most AI agents forget everything the moment the conversation ends. lore-ai gives agents a durable, layered memory that **learns from feedback** — the more you use it, the better it gets at surfacing what matters.
 
 It handles the hard parts so you don't have to:
 
@@ -120,7 +120,7 @@ Memories that have been marked useful (`+1`) surface above equally relevant but 
 
 ### Knowledge graph
 
-Beyond embeddings, friday-memory maintains a structured graph of entities and relationships:
+Beyond embeddings, lore-ai maintains a structured graph of entities and relationships:
 
 ```python
 mem.kg_add_entity("Alice", EntityType.PERSON)
@@ -163,16 +163,16 @@ Compresses raw log entries into priority-tagged observations — free, no LLM:
 
 ```bash
 # Core: SQLite + sentence-transformers (local embeddings, no API key needed)
-pip install friday-memory
+pip install lore-ai
 
 # + MCP server for Claude Desktop / Claude Code
-pip install "friday-memory[mcp]"
+pip install "lore-ai[mcp]"
 
 # + Postgres consolidated store (requires pgvector)
-pip install "friday-memory[postgres]"
+pip install "lore-ai[postgres]"
 
 # Everything
-pip install "friday-memory[all]"
+pip install "lore-ai[all]"
 ```
 
 **Requires Python 3.11+**
@@ -184,7 +184,7 @@ pip install "friday-memory[all]"
 ## Quick start
 
 ```python
-from friday_memory import FridayMemory, MemoryLayer
+from lore_ai import FridayMemory, MemoryLayer
 
 # Defaults to ~/.friday/ — zero config needed
 mem = FridayMemory()
@@ -210,7 +210,7 @@ useful_ids = [r.memory.id for r in results[:2]]
 mem.report_outcome(useful_ids, success=True)
 
 # ── Knowledge graph ──────────────────────────────────────────
-from friday_memory.types import EntityType
+from lore_ai.types import EntityType
 
 mem.kg_add_entity("User", EntityType.PERSON)
 mem.kg_add_entity("Friday", EntityType.PROJECT)
@@ -226,7 +226,7 @@ print(attention.level)   # → "full"
 print(attention.score)   # → 85
 
 # ── Consolidation ────────────────────────────────────────────
-from friday_memory.consolidation import LLMConsolidator
+from lore_ai.consolidation import LLMConsolidator
 
 consolidator = LLMConsolidator(mem._config, mem._embedder)
 result = consolidator.run_pass(mem.get_log(), mem.get_local_store(), mem.get_local_store())
@@ -240,7 +240,7 @@ print(f"{result.memories_created} memories extracted from logs")
 ### Claude Desktop
 
 ```bash
-pip install "friday-memory[mcp]"
+pip install "lore-ai[mcp]"
 ```
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
@@ -248,8 +248,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "friday-memory": {
-      "command": "friday-memory-mcp",
+    "lore-ai": {
+      "command": "lore-ai-mcp",
       "env": {
         "FRIDAY_HOME": "~/.friday",
         "ANTHROPIC_API_KEY": "sk-ant-..."
@@ -264,7 +264,7 @@ Restart Claude Desktop. **Nine tools** appear automatically.
 ### Claude Code
 
 ```bash
-claude mcp add friday-memory friday-memory-mcp \
+claude mcp add lore-ai lore-ai-mcp \
   --env FRIDAY_HOME=~/.friday \
   --env ANTHROPIC_API_KEY=sk-ant-...
 ```
@@ -272,7 +272,7 @@ claude mcp add friday-memory friday-memory-mcp \
 ### SSE / HTTP mode (for non-Claude integrations)
 
 ```bash
-friday-memory-mcp --transport sse --port 8765
+lore-ai-mcp --transport sse --port 8765
 ```
 
 ### Available MCP tools
@@ -293,7 +293,7 @@ friday-memory-mcp --transport sse --port 8765
 
 ## Multi-user / namespace isolation
 
-friday-memory supports two isolation models:
+lore-ai supports two isolation models:
 
 **Instance-level** — each user runs their own process with their own `FRIDAY_HOME`. This is what Claude Desktop does naturally.
 
@@ -301,14 +301,14 @@ friday-memory supports two isolation models:
 
 ```bash
 # User A
-FRIDAY_NAMESPACE=user_alice friday-memory-mcp
+FRIDAY_NAMESPACE=user_alice lore-ai-mcp
 
 # User B — completely separate memory, same database
-FRIDAY_NAMESPACE=user_bob friday-memory-mcp
+FRIDAY_NAMESPACE=user_bob lore-ai-mcp
 ```
 
 ```python
-from friday_memory import FridayMemory, Config
+from lore_ai import FridayMemory, Config
 
 mem = FridayMemory(config=Config(namespace="user_alice"))
 ```
@@ -326,7 +326,7 @@ FRIDAY_HOME=~/.friday  # DB at ~/.friday/local.db
 ### Postgres + pgvector (for scale / multi-device)
 
 ```bash
-pip install "friday-memory[postgres]"
+pip install "lore-ai[postgres]"
 FRIDAY_STORE=postgres
 FRIDAY_POSTGRES_URL=postgresql://user:pass@host/friday
 ```
@@ -358,7 +358,7 @@ All settings via environment variables (prefix `FRIDAY_`) or a `.env` file:
 
 ## How it compares
 
-| | friday-memory | Raw vector DB | LangChain Memory | Mem0 |
+| | lore-ai | Raw vector DB | LangChain Memory | Mem0 |
 |--|--------------|--------------|-----------------|------|
 | Zero infra (local) | ✅ | ❌ needs server | ✅ | ❌ hosted |
 | Layered memory types | ✅ 5 layers | ❌ | ⚠️ basic | ⚠️ basic |
@@ -376,8 +376,8 @@ All settings via environment variables (prefix `FRIDAY_`) or a `.env` file:
 ## Project structure
 
 ```
-friday-memory/
-├── src/friday_memory/
+lore-ai/
+├── src/lore_ai/
 │   ├── api.py                  ← FridayMemory (the public API)
 │   ├── config.py               ← Config (all settings, env var driven)
 │   ├── types.py                ← Memory, LogEntry, Entity, Observation, ...
@@ -413,5 +413,5 @@ friday-memory/
 ---
 
 <div align="center">
-  <sub>If friday-memory saves you from building yet another RAG pipeline, consider giving it a ⭐</sub>
+  <sub>If lore-ai saves you from building yet another RAG pipeline, consider giving it a ⭐</sub>
 </div>

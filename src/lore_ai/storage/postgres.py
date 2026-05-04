@@ -36,7 +36,7 @@ class PostgresMemoryStore:
     Ranking (cosine × utility × recency) runs in SQL — no Python loop over rows.
 
     Requires:
-        pip install "friday-memory[postgres]"
+        pip install "lore-ai[postgres]"
     and a running Postgres with pgvector:
         CREATE EXTENSION vector;
     """
@@ -48,7 +48,7 @@ class PostgresMemoryStore:
             from pgvector.psycopg2 import register_vector
         except ImportError:
             raise ImportError(
-                "Postgres store requires: pip install 'friday-memory[postgres]'"
+                "Postgres store requires: pip install 'lore-ai[postgres]'"
             ) from None
 
         self._config = config

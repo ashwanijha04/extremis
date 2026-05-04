@@ -5,8 +5,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from friday_memory.storage.log import FileLogStore
-from friday_memory.types import MemoryLayer
+from lore_ai.storage.log import FileLogStore
+from lore_ai.types import MemoryLayer
 
 
 class TestRemember:
@@ -38,7 +38,7 @@ class TestRecall:
         assert MemoryLayer.PROCEDURAL in layers
 
     def test_identity_always_returned(self, api):
-        api.remember_now("User is Ashwani", layer=MemoryLayer.IDENTITY, confidence=1.0)
+        api.remember_now("User is a software engineer", layer=MemoryLayer.IDENTITY, confidence=1.0)
         results = api.recall("random unrelated query", limit=10)
         layers = [r.memory.layer for r in results]
         assert MemoryLayer.IDENTITY in layers

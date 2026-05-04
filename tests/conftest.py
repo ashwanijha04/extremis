@@ -6,12 +6,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from friday_memory.api import FridayMemory
-from friday_memory.config import Config
-from friday_memory.storage.kg import SQLiteKGStore
-from friday_memory.storage.log import FileLogStore
-from friday_memory.storage.sqlite import SQLiteMemoryStore
-from friday_memory.types import Memory, MemoryLayer
+from lore_ai.api import FridayMemory
+from lore_ai.config import Config
+from lore_ai.storage.kg import SQLiteKGStore
+from lore_ai.storage.log import FileLogStore
+from lore_ai.storage.sqlite import SQLiteMemoryStore
+from lore_ai.types import Memory, MemoryLayer
 
 
 # ------------------------------------------------------------------ #

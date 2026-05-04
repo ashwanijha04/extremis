@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from friday_memory.config import Config
-from friday_memory.scorer.attention import AttentionScorer
+from lore_ai.config import Config
+from lore_ai.scorer.attention import AttentionScorer
 
 
 @pytest.fixture

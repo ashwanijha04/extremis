@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from friday_memory.types import LogEntry, MemoryLayer
+from lore_ai.types import LogEntry, MemoryLayer
 from .conftest import make_memory
 
 
@@ -47,7 +47,7 @@ class TestFileLogStore:
         assert len(log_store.read_since(None)) == 3
 
     def test_entries_survive_reopen(self, tmp_config):
-        from friday_memory.storage.log import FileLogStore
+        from lore_ai.storage.log import FileLogStore
         store1 = FileLogStore(tmp_config.resolved_log_dir(), namespace=tmp_config.namespace)
         store1.append(LogEntry(role="user", content="persisted", conversation_id="c1"))
 
@@ -134,7 +134,7 @@ class TestSQLiteMemoryStore:
         assert len(mem_store.list_recent(limit=4)) == 4
 
     def test_memories_survive_reopen(self, tmp_config):
-        from friday_memory.storage.sqlite import SQLiteMemoryStore
+        from lore_ai.storage.sqlite import SQLiteMemoryStore
         s1 = SQLiteMemoryStore(tmp_config.resolved_local_db_path(), tmp_config)
         mem = make_memory("persisted content")
         s1.store(mem)

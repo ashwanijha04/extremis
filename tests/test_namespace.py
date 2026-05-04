@@ -3,10 +3,10 @@ from __future__ import annotations
 
 import pytest
 
-from friday_memory.api import FridayMemory
-from friday_memory.config import Config
-from friday_memory.storage.kg import SQLiteKGStore
-from friday_memory.types import EntityType, MemoryLayer
+from lore_ai.api import FridayMemory
+from lore_ai.config import Config
+from lore_ai.storage.kg import SQLiteKGStore
+from lore_ai.types import EntityType, MemoryLayer
 from .conftest import make_memory
 
 
@@ -76,8 +76,8 @@ class TestMemoryNamespaceIsolation:
 
 class TestLogNamespaceIsolation:
     def test_logs_in_separate_directories(self, tmp_path, mock_embedder):
-        from friday_memory.storage.log import FileLogStore
-        from friday_memory.types import LogEntry
+        from lore_ai.storage.log import FileLogStore
+        from lore_ai.types import LogEntry
 
         cfg_a = Config(
             friday_home=str(tmp_path),
@@ -102,7 +102,7 @@ class TestLogNamespaceIsolation:
 
 class TestKGNamespaceIsolation:
     def test_entities_isolated_by_namespace(self, tmp_path):
-        from friday_memory.config import Config
+        from lore_ai.config import Config
 
         cfg_a = Config(
             friday_home=str(tmp_path),
@@ -118,7 +118,7 @@ class TestKGNamespaceIsolation:
         assert kg_b.query_entity("Alice Corp") is None
 
     def test_relationships_isolated(self, tmp_path):
-        from friday_memory.config import Config
+        from lore_ai.config import Config
 
         cfg_a = Config(
             friday_home=str(tmp_path),

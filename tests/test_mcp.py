@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from friday_memory.types import MemoryLayer
+from lore_ai.types import MemoryLayer
 
 
 class TestMCPTools:
@@ -46,7 +46,7 @@ class TestMCPTools:
         assert MemoryLayer.PROCEDURAL in [r.memory.layer for r in results]
 
     def test_remember_writes_to_log(self, api, tmp_config):
-        from friday_memory.storage.log import FileLogStore
+        from lore_ai.storage.log import FileLogStore
         api.remember("User mentioned they hate meetings", conversation_id="c3")
         log = FileLogStore(tmp_config.resolved_log_dir(), namespace=tmp_config.namespace)
         entries = log.read_since(None)
@@ -59,7 +59,7 @@ class TestMCPTools:
         assert mem.validity_end is not None
 
     def test_kg_roundtrip(self, api):
-        from friday_memory.types import EntityType
+        from lore_ai.types import EntityType
         api.kg_add_entity("Alice", EntityType.PERSON)
         api.kg_add_attribute("Alice", "timezone", "Asia/Dubai")
         result = api.kg_query("Alice")

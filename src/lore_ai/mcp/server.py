@@ -4,8 +4,8 @@ Friday Memory MCP server.
 Add to claude_desktop_config.json:
 
   "mcpServers": {
-    "friday-memory": {
-      "command": "friday-memory-mcp",
+    "lore-ai": {
+      "command": "lore-mcp",
       "env": { "FRIDAY_HOME": "~/.friday" }
     }
   }
@@ -13,8 +13,8 @@ Add to claude_desktop_config.json:
 Or with a custom db path:
 
   "mcpServers": {
-    "friday-memory": {
-      "command": "friday-memory-mcp",
+    "lore-ai": {
+      "command": "lore-mcp",
       "env": {
         "FRIDAY_LOCAL_DB_PATH": "/path/to/local.db",
         "FRIDAY_LOG_DIR": "/path/to/logs"
@@ -44,7 +44,7 @@ def create_server(config: Config | None = None) -> FastMCP:
     mem = FridayMemory(config=cfg)
 
     mcp = FastMCP(
-        "friday-memory",
+        "lore-ai",
         instructions=(
             "Use these tools to give yourself persistent memory across conversations. "
             "Call memory_recall at the start of every conversation to retrieve relevant context. "
@@ -423,7 +423,7 @@ def main() -> None:
     server = create_server()
 
     if args.transport == "sse":
-        log.info("Starting friday-memory MCP server on http://%s:%d", args.host, args.port)
+        log.info("Starting lore-ai MCP server on http://%s:%d", args.host, args.port)
         server.run(transport="sse", host=args.host, port=args.port)
     else:
         server.run(transport="stdio")

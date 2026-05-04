@@ -8,11 +8,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from friday_memory.config import Config
-from friday_memory.consolidation.consolidator import LLMConsolidator
-from friday_memory.storage.log import FileLogStore
-from friday_memory.storage.sqlite import SQLiteMemoryStore
-from friday_memory.types import LogEntry, MemoryLayer
+from lore_ai.config import Config
+from lore_ai.consolidation.consolidator import LLMConsolidator
+from lore_ai.storage.log import FileLogStore
+from lore_ai.storage.sqlite import SQLiteMemoryStore
+from lore_ai.types import LogEntry, MemoryLayer
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ def make_llm_response(memories: list[dict]) -> MagicMock:
 
 class TestLLMConsolidator:
     def _make_consolidator(self, config, embedder):
-        with patch("friday_memory.consolidation.consolidator.anthropic.Anthropic"):
+        with patch("lore_ai.consolidation.consolidator.anthropic.Anthropic"):
             c = LLMConsolidator(config, embedder)
         return c
 
