@@ -8,9 +8,9 @@
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![PyPI](https://img.shields.io/badge/pypi-coming%20soon-orange?logo=pypi&logoColor=white)](https://pypi.org)
+[![PyPI](https://img.shields.io/pypi/v/friday-memory?logo=pypi&logoColor=white&color=orange)](https://pypi.org/project/friday-memory)
+[![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/friday-memory/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/friday-memory/actions)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
-[![Status](https://img.shields.io/badge/status-alpha-yellow)](https://github.com/ashwanijha04/friday-memory)
 
 <br/>
 

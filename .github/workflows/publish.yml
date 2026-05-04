@@ -1,0 +1,44 @@
+name: Publish to PyPI
+
+# Triggers on a git tag like v0.1.0
+# CI must pass first — the `needs: ci` gate enforces this.
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml   # reuse the full CI job
+
+  publish:
+    name: Build and publish
+    needs: ci                          # only runs if CI is green
+    runs-on: ubuntu-latest
+    environment: pypi                  # requires a "pypi" environment in repo settings
+    permissions:
+      id-token: write                  # required for PyPI trusted publisher (no API key needed)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build wheel and sdist
+        run: python -m build
+
+      - name: Verify the build
+        run: |
+          pip install twine
+          twine check dist/*
+          echo "--- dist contents ---"
+          ls -lh dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # No API token needed — uses OIDC trusted publisher

@@ -1,105 +1,83 @@
-"""MCP server tool tests — no network, no LLM."""
-
+"""MCP server tool tests — no network, no LLM. Uses shared conftest fixtures."""
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch
 
 import pytest
 
-from friday_memory.api import FridayMemory
-from friday_memory.config import Config
-from friday_memory.storage.log import FileLogStore
-from friday_memory.storage.sqlite import SQLiteMemoryStore
-from friday_memory.types import Memory, MemoryLayer
+from friday_memory.types import MemoryLayer
 
 
-@pytest.fixture
-def config(tmp_path):
-    return Config(
-        friday_home=str(tmp_path),
-        log_dir=str(tmp_path / "log"),
-        local_db_path=str(tmp_path / "local.db"),
-    )
+class TestMCPTools:
+    """Verify the logic the MCP tool functions delegate to."""
 
-
-@pytest.fixture
-def mock_embedder():
-    e = MagicMock()
-    e.embed.return_value = [0.1] * 384
-    e.embed_batch.return_value = [[0.1] * 384]
-    e.dim = 384
-    return e
-
-
-@pytest.fixture
-def memory_api(config, mock_embedder):
-    return FridayMemory(config=config, embedder=mock_embedder)
-
-
-class TestMemoryAPIViaTools:
-    """Test the FridayMemory API directly (same logic the MCP tools call)."""
-
-    def test_remember_and_recall(self, memory_api):
-        memory_api.remember("User is building a WhatsApp AI", conversation_id="c1")
-        results = memory_api.recall("WhatsApp", limit=5)
-        assert len(results) >= 1
+    def test_remember_and_recall(self, api):
+        api.remember("User is building a WhatsApp AI", conversation_id="c1")
+        results = api.recall("WhatsApp", limit=5)
         assert any("WhatsApp" in r.memory.content for r in results)
 
-    def test_remember_now_direct_write(self, memory_api):
-        mem = memory_api.remember_now(
+    def test_remember_now_direct_write(self, api):
+        mem = api.remember_now(
             "User's flight departs Thursday at 06:00",
             layer=MemoryLayer.EPISODIC,
             confidence=0.99,
         )
         assert mem.layer == MemoryLayer.EPISODIC
-        assert mem.confidence == 0.99
+        assert mem.confidence == pytest.approx(0.99)
+        assert api.get_local_store().get(mem.id) is not None
 
-        retrieved = memory_api.get_local_store().get(mem.id)
-        assert retrieved is not None
+    def test_report_positive_outcome_adjusts_score(self, api):
+        mem = api.remember_now("Prefer concise answers", layer=MemoryLayer.PROCEDURAL)
+        api.report_outcome([mem.id], success=True, weight=2.0)
+        updated = api.get_local_store().get(mem.id)
+        assert updated.score == pytest.approx(2.0)
 
-    def test_report_outcome_adjusts_score(self, memory_api):
-        mem = memory_api.remember_now("Prefer concise answers", layer=MemoryLayer.PROCEDURAL)
-        original_score = mem.score
+    def test_report_negative_outcome_has_asymmetric_weight(self, api):
+        """Negative signals use 1.5× multiplier — not −1.0 but −1.5."""
+        mem = api.remember_now("Bad approach", layer=MemoryLayer.PROCEDURAL)
+        api.report_outcome([mem.id], success=False, weight=1.0)
+        updated = api.get_local_store().get(mem.id)
+        assert updated.score == pytest.approx(-1.5)
 
-        memory_api.report_outcome([mem.id], success=True, weight=2.0)
+    def test_procedural_returned_regardless_of_query(self, api):
+        api.remember_now("Always check deadline before suggesting", layer=MemoryLayer.PROCEDURAL)
+        api.remember("Some unrelated episodic fact", conversation_id="c2")
+        results = api.recall("weather in Dubai", limit=5)
+        assert MemoryLayer.PROCEDURAL in [r.memory.layer for r in results]
 
-        updated = memory_api.get_local_store().get(mem.id)
-        assert updated is not None
-        assert updated.score == original_score + 2.0
-
-    def test_report_negative_outcome(self, memory_api):
-        mem = memory_api.remember_now("User likes long answers", layer=MemoryLayer.PROCEDURAL)
-        memory_api.report_outcome([mem.id], success=False, weight=1.0)
-
-        updated = memory_api.get_local_store().get(mem.id)
-        assert updated is not None
-        assert updated.score == -1.0
-
-    def test_recall_returns_procedural_always(self, memory_api):
-        memory_api.remember_now("Always check deadline before suggesting", layer=MemoryLayer.PROCEDURAL)
-        memory_api.remember("Some unrelated episodic fact", conversation_id="c2")
-
-        # Query something unrelated — procedural should still come back
-        results = memory_api.recall("weather in Dubai", limit=5)
-        layers = [r.memory.layer for r in results]
-        assert MemoryLayer.PROCEDURAL in layers
-
-    def test_remember_writes_to_log(self, memory_api, config):
-        memory_api.remember("User mentioned they hate meetings", conversation_id="c3")
-
-        log_store = FileLogStore(config.resolved_log_dir())
-        entries = log_store.read_since(None)
-        assert len(entries) >= 1
+    def test_remember_writes_to_log(self, api, tmp_config):
+        from friday_memory.storage.log import FileLogStore
+        api.remember("User mentioned they hate meetings", conversation_id="c3")
+        log = FileLogStore(tmp_config.resolved_log_dir(), namespace=tmp_config.namespace)
+        entries = log.read_since(None)
         assert any("hate meetings" in e.content for e in entries)
 
-    def test_remember_now_with_expiry(self, memory_api):
+    def test_remember_now_with_expiry_stored(self, api):
         from datetime import timedelta
         expiry = datetime.now(tz=timezone.utc) + timedelta(hours=2)
-        mem = memory_api.remember_now(
-            "User is in a meeting until 3pm",
-            layer=MemoryLayer.WORKING,
-            expires_at=expiry,
-        )
+        mem = api.remember_now("User is in a meeting until 3pm", layer=MemoryLayer.WORKING, expires_at=expiry)
         assert mem.validity_end is not None
+
+    def test_kg_roundtrip(self, api):
+        from friday_memory.types import EntityType
+        api.kg_add_entity("Alice", EntityType.PERSON)
+        api.kg_add_attribute("Alice", "timezone", "Asia/Dubai")
+        result = api.kg_query("Alice")
+        assert result is not None
+        assert result.entity.name == "Alice"
+        attr_map = {a.key: a.value for a in result.attributes}
+        assert attr_map["timezone"] == "Asia/Dubai"
+
+    def test_attention_scorer_via_api(self, api):
+        result = api.score_attention("URGENT the server is down!", channel="dm")
+        assert result.score > 50
+        assert result.level in ("full", "standard")
+
+    def test_observe_compresses_log(self, api):
+        api.remember("We decided to launch tomorrow", conversation_id="obs_test")
+        api.remember("The build failed with an error", conversation_id="obs_test")
+        api.remember("Nice weather today", conversation_id="obs_test")
+
+        observations = api.observe("obs_test")
+        priorities = {o.priority.value for o in observations}
+        assert "critical" in priorities
