@@ -2,9 +2,7 @@
 
 # 🧠 lore-ai
 
-**Layered, learning memory for AI agents**
-
-*Log-first · RL-scored · Consolidation-backed · Backend-agnostic · MCP-ready*
+**Memory that gets smarter the more your agent uses it**
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -12,38 +10,55 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/lore-ai/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/lore-ai/actions)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
 
-<br/>
-
-> Add persistent, learning memory to any AI agent — local, self-hosted, or cloud.  
-> Same API regardless of where your vectors live.
-
-<br/>
-
-[**How it works**](#how-it-works) · [**Install**](#install) · [**Quick start**](#quick-start) · [**Backends**](#storage-backends) · [**Hosted API**](#hosted-api) · [**MCP**](#mcp-setup) · [**Migrate**](#migrating-backends) · [**Config**](#configuration)
-
 </div>
 
 ---
 
-## What is lore-ai?
+## The problem
 
-Most AI agents forget everything the moment the conversation ends. lore-ai gives agents a durable, layered memory that **learns from feedback** and works with any vector store you already have.
+Every team building an AI agent hits the same wall.
 
-**Three ways to use it — same API for all three:**
+Your agent forgets everything the moment a conversation ends. So you add memory. You set up a vector database, write chunking logic, figure out retrieval ranking, handle stale entries, add multi-user isolation. Three weeks later you've built a half-working RAG pipeline and still haven't shipped the actual feature.
+
+And even when you ship it — **it doesn't learn**. Every memory is treated identically. The fact your agent recalled a hundred times and the user loved sits next to one it got wrong once. Nothing improves. There's no feedback loop. You're running the same dumb cosine search forever.
+
+The other problem is lock-in. Your vectors are in Pinecone. Moving them means re-embedding everything, rewriting your retrieval logic, and hoping nothing breaks.
+
+lore-ai solves all three.
+
+---
+
+## What lore-ai does
+
+**1. Memory that improves with use.**
+Every time a recalled memory leads to a good outcome, its utility score goes up. Bad outcomes push it down — with 1.5× weight, because mistakes should sting more than wins (that's how human memory works). Over time, the most useful memories naturally surface first, not just the most similar ones.
+
+**2. No RAG pipeline to build.**
+One `pip install`. Two lines of config. lore-ai handles embedding, storage, retrieval ranking, consolidation, and the knowledge graph. You call `remember()` and `recall()`. That's it.
+
+**3. Switch backends without rewriting anything.**
+SQLite locally. Postgres in staging. Pinecone in production. One env var. If you want out of Pinecone, `lore-migrate --from pinecone --to postgres` moves everything — and re-embeds if you're switching models too.
 
 ```python
-# 1. Local (zero infra, great for development)
+# Local — zero infra
 from lore_ai import FridayMemory
 mem = FridayMemory()
 
-# 2. Bring your own backend (Pinecone, Chroma, Postgres, ...)
+# Your existing vector store — no migration needed
 from lore_ai import FridayMemory, Config
 mem = FridayMemory(config=Config(store="pinecone", pinecone_api_key="..."))
 
-# 3. Hosted cloud (no local setup, no model download)
+# Hosted — no model download, no local DB
 from lore_ai import HostedClient
 mem = HostedClient(api_key="lore_sk_...")
+
+# All three have identical method signatures
+mem.remember("User is building a WhatsApp AI", conversation_id="c1")
+results = mem.recall("what is the user building?")
+mem.report_outcome([r.memory.id for r in results], success=True)
 ```
+
+---
 
 ---
 
