@@ -156,11 +156,18 @@ class SQLiteMemoryStore:
             final_rank = self._rank(relevance, row["score"], row["created_at"])
 
             if final_rank >= min_score:
+                from .recall_reason import build_reason
+                mem = _row_to_memory(row)
                 results.append(
                     RecallResult(
-                        memory=_row_to_memory(row),
+                        memory=mem,
                         relevance=float(relevance),
                         final_rank=float(final_rank),
+                        reason=build_reason(
+                            float(relevance), row["score"],
+                            row["access_count"], row["created_at"],
+                            mem.layer,
+                        ),
                     )
                 )
 

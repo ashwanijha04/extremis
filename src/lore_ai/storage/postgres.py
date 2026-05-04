@@ -166,15 +166,22 @@ class PostgresMemoryStore:
             )
             rows = cur.fetchall()
 
+        from .recall_reason import build_reason
         results = []
         for row in rows:
             if float(row["final_rank"]) < min_score:
                 continue
+            mem = _row_to_memory(row)
             results.append(
                 RecallResult(
-                    memory=_row_to_memory(row),
+                    memory=mem,
                     relevance=float(row["relevance"]),
                     final_rank=float(row["final_rank"]),
+                    reason=build_reason(
+                        float(row["relevance"]), float(row["score"]),
+                        int(row["access_count"]), row["created_at"],
+                        mem.layer,
+                    ),
                 )
             )
 

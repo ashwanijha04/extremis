@@ -52,6 +52,7 @@ class RecallResult(BaseModel):
     memory: Memory
     relevance: float   # raw cosine similarity
     final_rank: float  # relevance × utility × recency
+    reason: str = ""   # human-readable explanation of why this memory ranked here
 
 
 class ConsolidationResult(BaseModel):

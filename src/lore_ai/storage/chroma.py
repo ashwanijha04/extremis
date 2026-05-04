@@ -154,8 +154,18 @@ class ChromaMemoryStore:
             final_rank = self._rank(relevance, utility_score, metadata["created_at"])
 
             if final_rank >= min_score:
+                from .recall_reason import build_reason
                 mem = _meta_to_memory(doc_id, document, metadata, utility_score)
-                results.append(RecallResult(memory=mem, relevance=relevance, final_rank=final_rank))
+                results.append(RecallResult(
+                    memory=mem,
+                    relevance=relevance,
+                    final_rank=final_rank,
+                    reason=build_reason(
+                        relevance, utility_score,
+                        int(metadata.get("access_count", 0)),
+                        metadata["created_at"], mem.layer,
+                    ),
+                ))
 
         results.sort(key=lambda r: r.final_rank, reverse=True)
         top = results[:limit]

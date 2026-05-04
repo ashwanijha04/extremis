@@ -28,34 +28,138 @@ lore-ai solves all three.
 
 ---
 
-## What lore-ai does
+## What makes lore-ai different
 
-**1. Memory that improves with use.**
-Every time a recalled memory leads to a good outcome, its utility score goes up. Bad outcomes push it down — with 1.5× weight, because mistakes should sting more than wins (that's how human memory works). Over time, the most useful memories naturally surface first, not just the most similar ones.
+### 1. Memory that forgets intelligently
 
-**2. No RAG pipeline to build.**
-One `pip install`. Two lines of config. lore-ai handles embedding, storage, retrieval ranking, consolidation, and the knowledge graph. You call `remember()` and `recall()`. That's it.
+Every competitor focuses on storing memory. Nobody talks about forgetting.
 
-**3. Switch backends without rewriting anything.**
-SQLite locally. Postgres in staging. Pinecone in production. One env var. If you want out of Pinecone, `lore-migrate --from pinecone --to postgres` moves everything — and re-embeds if you're switching models too.
+Human memory doesn't keep everything forever — unimportant things fade, important things strengthen. Agents with infinite, flat memory become slow and noisy over time. Intelligent forgetting is the hard problem nobody is solving.
+
+lore-ai does two things here: **recency decay** (old memories rank lower automatically) and **asymmetric RL weighting** (negative feedback hurts 1.5× more than positive feedback helps, because mistakes should leave a stronger mark). The result is a memory that naturally surfaces what matters and buries what doesn't.
+
+```python
+mem = FridayMemory(config=Config(
+    recency_half_life_days=30,  # episodic memories halve in rank every 30 days
+    rl_alpha=0.8,               # strong RL signal — useful things stick, useless things fade
+))
+
+# This memory will rank lower in every future search
+mem.report_outcome([bad_memory_id], success=False, weight=1.0)
+# → score decreases by 1.5 (not 1.0 — the asymmetry is intentional)
+```
+
+---
+
+### 2. Memory that explains itself
+
+Agents make decisions based on memory. But *why* did it recall that specific memory? Without explainability, agents are black boxes and enterprises won't ship them.
+
+Every `recall()` result includes a plain-English reason:
+
+```python
+results = mem.recall("what does the user prefer?")
+
+for r in results:
+    print(r.memory.content)
+    print(r.reason)
+
+# "User prefers concise answers, no filler words"
+# → "similarity 0.91 · score +4.0 · used 8× · 3d old"
+
+# "User prefers dark mode in all UIs"
+# → "semantic (always included) · similarity 0.73 · score +1.0 · used 3× · 12d old"
+
+# "User once mentioned preferring email over Slack"
+# → "similarity 0.54 · score -1.5 · first recall · 45d old"
+```
+
+The reason tells you: how semantically relevant it was, how much feedback has validated it, how many times it's been used, and how old it is. Auditable. Debuggable. Enterprise-ready.
+
+---
+
+### 3. Cross-agent shared memory
+
+Right now memory is per-agent. But the next wave of AI is **agent teams** — a research agent, a writing agent, a review agent, all working together. They need a shared brain.
+
+lore-ai's namespace model already supports this. Multiple agents can read from and write to the same memory pool:
+
+```python
+# All three agents share the same memory namespace
+research = FridayMemory(config=Config(namespace="team_alpha"))
+writer   = FridayMemory(config=Config(namespace="team_alpha"))
+reviewer = FridayMemory(config=Config(namespace="team_alpha"))
+
+# Research agent stores what it found
+research.remember("GPT-4 outperforms Claude on math benchmarks by 12%")
+research.remember("Source: Stanford HAI report, April 2026")
+
+# Writing agent recalls it without any extra wiring
+results = writer.recall("GPT-4 performance data")
+# → [GPT-4 outperforms Claude on math benchmarks by 12%]
+# → [Source: Stanford HAI report, April 2026]
+
+# Knowledge graph is shared too
+research.kg_add_entity("Stanford HAI", EntityType.ORG)
+research.kg_add_relationship("Stanford HAI", "HAI Report", "published")
+print(writer.kg_query("Stanford HAI"))  # same graph
+```
+
+---
+
+### 4. No RAG pipeline to build
+
+One `pip install`. Two lines of config. lore-ai handles embedding, storage, retrieval ranking, consolidation, and the knowledge graph. You call `remember()` and `recall()`.
 
 ```python
 # Local — zero infra
 from lore_ai import FridayMemory
 mem = FridayMemory()
 
-# Your existing vector store — no migration needed
-from lore_ai import FridayMemory, Config
+# Your existing vector store
 mem = FridayMemory(config=Config(store="pinecone", pinecone_api_key="..."))
 
-# Hosted — no model download, no local DB
+# Fully hosted — no model download, no local DB
 from lore_ai import HostedClient
 mem = HostedClient(api_key="lore_sk_...")
 
-# All three have identical method signatures
+# Same three lines work for all three
 mem.remember("User is building a WhatsApp AI", conversation_id="c1")
 results = mem.recall("what is the user building?")
 mem.report_outcome([r.memory.id for r in results], success=True)
+```
+
+---
+
+### 5. Backend portability — no lock-in
+
+Your vectors in Pinecone. Your team moves to Chroma. Your product needs Postgres. One command, everything migrates — and re-embeds automatically if you're switching models:
+
+```bash
+lore-migrate --from pinecone --to postgres \
+  --source-pinecone-api-key pk_... \
+  --dest-postgres-url postgresql://...
+
+# Switching to OpenAI embeddings at the same time
+lore-migrate --from sqlite --to chroma \
+  --dest-embedder text-embedding-3-small
+```
+
+---
+
+### Coming soon
+
+**Memory health dashboard** — freshness score, contradiction count, retrieval hit rate, coverage gaps. Memory observability nobody is building yet.
+
+**Domain profiles** — pre-built memory configurations for common agent types:
+```python
+# Coming in v0.2
+from lore_ai.profiles import SalesAgent, CodingAgent, SupportAgent
+
+mem = FridayMemory(profile=SalesAgent())
+# Knows to remember: customer names, deal stage, objections, preferences
+# Knows to forget: small talk after 7 days, meeting logistics after 24h
+# Attention: high for "budget", "decision maker", "timeline"
 ```
 
 ---
