@@ -34,12 +34,31 @@ def _build_store(config: Config) -> MemoryStore:
     """Select and initialise the memory store from config."""
     if config.store == "postgres":
         if not config.postgres_url:
-            raise ValueError(
-                "FRIDAY_STORE=postgres requires FRIDAY_POSTGRES_URL to be set."
-            )
+            raise ValueError("LORE_STORE=postgres requires LORE_POSTGRES_URL to be set.")
         from .storage.postgres import PostgresMemoryStore
         return PostgresMemoryStore(config.postgres_url, config)
+    if config.store == "chroma":
+        from .storage.chroma import ChromaMemoryStore
+        return ChromaMemoryStore(config.resolved_chroma_path(), config)
+    if config.store == "pinecone":
+        if not config.pinecone_api_key:
+            raise ValueError("LORE_STORE=pinecone requires LORE_PINECONE_API_KEY to be set.")
+        from .storage.pinecone_store import PineconeMemoryStore
+        return PineconeMemoryStore(
+            config.pinecone_api_key,
+            config.pinecone_index,
+            config,
+            score_db_path=config.resolved_pinecone_score_db(),
+        )
     return SQLiteMemoryStore(config.resolved_local_db_path(), config)
+
+
+def _build_embedder(config: Config) -> Embedder:
+    """Select embedder based on model name."""
+    if config.embedder.startswith("text-embedding"):
+        from .embeddings.openai import OpenAIEmbedder
+        return OpenAIEmbedder(config.embedder, config.openai_api_key or None)
+    return SentenceTransformerEmbedder(config.embedder)
 
 
 class FridayMemory:
@@ -61,7 +80,7 @@ class FridayMemory:
             namespace=self._config.namespace,
         )
         self._local = local or _build_store(self._config)
-        self._embedder = embedder or SentenceTransformerEmbedder(self._config.embedder)
+        self._embedder = embedder or _build_embedder(self._config)
         self._kg = SQLiteKGStore(self._config.resolved_local_db_path(), self._config)
         self._observer = HeuristicObserver(namespace=self._config.namespace)
         self._attention = AttentionScorer(self._config)

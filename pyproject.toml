@@ -32,19 +32,24 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-mcp = ["mcp>=1.0"]
+mcp      = ["mcp>=1.0"]
 postgres = ["psycopg2-binary>=2.9", "pgvector>=0.3"]
+chroma   = ["chromadb>=0.5"]
+pinecone = ["pinecone>=3.0"]
+openai   = ["openai>=1.0"]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "pytest-cov>=5.0",
     "ruff>=0.4",
     "mypy>=1.10",
+    "chromadb>=0.5",   # needed to run chroma tests in CI
 ]
-all = ["lore-ai[mcp,postgres]"]
+all = ["lore-ai[mcp,postgres,chroma,pinecone,openai]"]
 
 [project.scripts]
-lore-ai-mcp = "lore_ai.mcp.server:main"
+lore-mcp     = "lore_ai.mcp.server:main"
+lore-migrate = "lore_ai.migrate:cli"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/lore_ai"]
