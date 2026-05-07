@@ -214,6 +214,22 @@
     }
     .tool-desc { color: var(--muted); font-size: .85rem; }
 
+    /* ── Python warning ── */
+    .python-warning {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: rgba(240,192,64,.06);
+      border: 1px solid rgba(240,192,64,.3);
+      border-radius: 10px; padding: 1.1rem 1.25rem;
+      margin-bottom: 1.5rem; font-size: .88rem; line-height: 1.7;
+      color: var(--text);
+    }
+    .python-warning-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: .1rem; }
+    .python-warning code {
+      font-family: 'JetBrains Mono', monospace; font-size: .82rem;
+      background: rgba(255,255,255,.07); padding: .1rem .35rem; border-radius: 3px;
+    }
+    .python-warning a { color: var(--accent2); }
+
     /* ── Privacy ── */
     .privacy-grid {
       display: grid;
@@ -298,7 +314,7 @@
   </div>
   <div style="margin-top:2rem; display:flex; justify-content:center;">
     <div class="install">
-      <code id="install-cmd">pip install extremis</code>
+      <code id="install-cmd">pip3.11 install extremis</code>
       <button class="copy-btn" onclick="copy()">copy</button>
     </div>
   </div>
@@ -335,15 +351,35 @@
 <!-- Install & quickstart -->
 <section id="install">
   <h2>Install</h2>
-  <p class="section-sub">Requires Python 3.11+. No API key needed for the core library.</p>
-  <pre><span class="cm"># Core — local SQLite, sentence-transformers (no API key)</span>
-pip install extremis
+  <p class="section-sub">No API key needed. No account required.</p>
+
+  <div class="python-warning">
+    <span class="python-warning-icon">⚠️</span>
+    <div>
+      <strong>Requires Python 3.11+.</strong>
+      If <code>pip install extremis</code> says "no matching distribution found", your default
+      <code>python3</code> is older. Check: <code>python3 --version</code>
+      <br/><br/>
+      <strong>macOS fix:</strong> <code>brew install python@3.11</code> then use
+      <code>pip3.11 install extremis</code>
+      <br/>
+      <strong>Linux:</strong> <code>sudo apt install python3.11 python3.11-pip</code>
+      &nbsp;·&nbsp;
+      <strong>Windows:</strong> <a href="https://python.org/downloads" target="_blank">python.org/downloads</a>
+    </div>
+  </div>
+
+  <pre><span class="cm"># First: confirm you have Python 3.11+</span>
+python3.11 --version
+
+<span class="cm"># Core — local SQLite, sentence-transformers (no API key)</span>
+pip3.11 install extremis
 
 <span class="cm"># + MCP server for Claude Desktop / Code</span>
-pip install <span class="str">"extremis[mcp]"</span>
+pip3.11 install <span class="str">"extremis[mcp]"</span>
 
 <span class="cm"># + Postgres, Chroma, Pinecone, OpenAI embeddings, hosted server</span>
-pip install <span class="str">"extremis[all]"</span></pre>
+pip3.11 install <span class="str">"extremis[all]"</span></pre>
 
   <div style="margin-top:2rem;">
     <h3 style="font-size:1.1rem; margin-bottom:1rem; font-weight:600;">Quick start</h3>
@@ -566,7 +602,7 @@ pip install <span class="str">"extremis[mcp]"</span>
 
 <script>
 function copy() {
-  navigator.clipboard.writeText('pip install extremis');
+  navigator.clipboard.writeText('pip3.11 install extremis');
   const btn = document.querySelector('.copy-btn');
   btn.textContent = 'copied!';
   setTimeout(() => btn.textContent = 'copy', 1500);

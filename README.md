@@ -283,36 +283,48 @@ Compresses raw log entries into priority-tagged observations — no LLM, runs in
 
 ## Install
 
-> **Requires Python 3.11+** — if `pip install extremis` says "no matching distribution", your default `python3` is older.
-> Fix: `brew install python@3.11` then use `/opt/homebrew/bin/pip3.11 install extremis`
+> **Requires Python 3.11+**
+>
+> If `pip install extremis` says **"no matching distribution found"** — your default `pip` points to Python 3.9 or older. This is common on macOS.
+>
+> **Check your version:** `python3 --version`
+>
+> | Platform | Fix |
+> |----------|-----|
+> | macOS | `brew install python@3.11` then use `pip3.11` |
+> | Linux | `sudo apt install python3.11 python3.11-pip` |
+> | Windows | [python.org/downloads](https://python.org/downloads) |
 
 ```bash
+# Confirm you have Python 3.11+
+python3.11 --version
+
 # Core — SQLite + local sentence-transformers (no API key needed)
-pip install extremis
+pip3.11 install extremis
 
 # + MCP server (Claude Desktop / Code)
-pip install "extremis[mcp]"
+pip3.11 install "extremis[mcp]"
 
 # + Postgres backend
-pip install "extremis[postgres]"
+pip3.11 install "extremis[postgres]"
 
 # + Chroma backend
-pip install "extremis[chroma]"
+pip3.11 install "extremis[chroma]"
 
 # + Pinecone backend
-pip install "extremis[pinecone]"
+pip3.11 install "extremis[pinecone]"
 
 # + OpenAI embeddings (swap out the 90 MB model download)
-pip install "extremis[openai]"
+pip3.11 install "extremis[openai]"
 
 # + Hosted API server
-pip install "extremis[server]"
+pip3.11 install "extremis[server]"
 
 # + Python SDK for hosted cloud
-pip install "extremis[client]"
+pip3.11 install "extremis[client]"
 
 # Everything
-pip install "extremis[all]"
+pip3.11 install "extremis[all]"
 ```
 
 **Requires Python 3.11+**
@@ -384,7 +396,7 @@ EXTREMIS_FRIDAY_HOME=~/.extremis   # DB at ~/.extremis/local.db
 ### Postgres + pgvector — production scale, ranking in SQL
 
 ```bash
-pip install "extremis[postgres]"
+pip3.11 install "extremis[postgres]"
 EXTREMIS_STORE=postgres
 EXTREMIS_POSTGRES_URL=postgresql://user:pass@host/extremis
 ```
@@ -394,7 +406,7 @@ Requires `CREATE EXTENSION vector;` in your database. Schema migrates automatica
 ### Chroma — local vector DB, great for teams
 
 ```bash
-pip install "extremis[chroma]"
+pip3.11 install "extremis[chroma]"
 EXTREMIS_STORE=chroma
 EXTREMIS_CHROMA_PATH=~/.extremis/chroma
 ```
@@ -402,7 +414,7 @@ EXTREMIS_CHROMA_PATH=~/.extremis/chroma
 ### Pinecone — serverless hosted vectors
 
 ```bash
-pip install "extremis[pinecone]"
+pip3.11 install "extremis[pinecone]"
 EXTREMIS_STORE=pinecone
 EXTREMIS_PINECONE_API_KEY=pk_...
 EXTREMIS_PINECONE_INDEX=extremis
@@ -419,7 +431,7 @@ pc.create_index("extremis", dimension=384, metric="cosine",
 ### OpenAI embeddings — no model download
 
 ```bash
-pip install "extremis[openai]"
+pip3.11 install "extremis[openai]"
 EXTREMIS_EMBEDDER=text-embedding-3-small
 OPENAI_API_KEY=sk-...
 EXTREMIS_EMBEDDING_DIM=1536
@@ -434,7 +446,7 @@ Works with any storage backend. Removes the 90 MB local model download.
 Move all memories between backends in one command. extremis re-embeds automatically if the source and destination use different embedding models.
 
 ```bash
-pip install "extremis[chroma,pinecone]"
+pip3.11 install "extremis[chroma,pinecone]"
 
 # Escape Pinecone lock-in → local SQLite
 extremis-migrate --from pinecone --to sqlite \
@@ -464,7 +476,7 @@ Run extremis as a service — your users call it with an API key, all compute ha
 ### Self-host in 2 minutes
 
 ```bash
-pip install "extremis[server]"
+pip3.11 install "extremis[server]"
 
 # Generate an API key
 extremis-server create-key --namespace alice --label "prod"
@@ -548,7 +560,7 @@ docker run -p 8000:8000 \
 ### Claude Desktop
 
 ```bash
-pip install "extremis[mcp]"
+pip3.11 install "extremis[mcp]"
 ```
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
