@@ -61,7 +61,7 @@ def _build_embedder(config: Config) -> Embedder:
     return SentenceTransformerEmbedder(config.embedder)
 
 
-class Memory:
+class Extremis:
     """
     The three methods agents actually call: remember, recall, report_outcome.
     Plus remember_now for time-sensitive direct writes.

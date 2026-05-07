@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from extremis.api import Memory
+from extremis.api import Extremis
 from extremis.config import Config
 from extremis.storage.kg import SQLiteKGStore
 from extremis.types import EntityType, MemoryLayer
@@ -18,7 +18,7 @@ def ns_a(tmp_path, mock_embedder):
         local_db_path=str(tmp_path / "shared.db"),
         namespace="alice",
     )
-    return Memory(config=cfg, embedder=mock_embedder)
+    return Extremis(config=cfg, embedder=mock_embedder)
 
 
 @pytest.fixture
@@ -29,7 +29,7 @@ def ns_b(tmp_path, mock_embedder):
         local_db_path=str(tmp_path / "shared.db"),
         namespace="bob",
     )
-    return Memory(config=cfg, embedder=mock_embedder)
+    return Extremis(config=cfg, embedder=mock_embedder)
 
 
 class TestMemoryNamespaceIsolation:

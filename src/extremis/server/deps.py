@@ -6,13 +6,13 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, Header, status
 
-from ..api import Memory
+from ..api import Extremis
 from ..config import Config
 from .auth import KeyStore
 
 # ── singletons ───────────────────────────────────────────────────────────────
 _key_store: KeyStore | None = None
-_instances: dict[str, Memory] = {}
+_instances: dict[str, Extremis] = {}
 _server_config: Config | None = None
 
 
@@ -42,12 +42,13 @@ Namespace = Annotated[str, Depends(_get_namespace)]
 
 # ── per-namespace Memory instance (cached) ──────────────────────────────
 
-def get_memory(namespace: Namespace) -> Memory:
+def get_memory(namespace: Namespace) -> Extremis:
     if namespace not in _instances:
         assert _server_config is not None
         cfg = _server_config.model_copy(update={"namespace": namespace})
-        _instances[namespace] = Memory(config=cfg)
+        _instances[namespace] = Extremis(config=cfg)
     return _instances[namespace]
 
 
-Memory = Annotated[Memory, Depends(get_memory)]
+# Type alias used in route signatures: Memory = the injected Extremis instance
+Memory = Annotated[Extremis, Depends(get_memory)]

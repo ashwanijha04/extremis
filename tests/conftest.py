@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from extremis.api import Memory
+from extremis.api import Extremis
 from extremis.config import Config
 from extremis.storage.kg import SQLiteKGStore
 from extremis.storage.log import FileLogStore
@@ -54,7 +54,7 @@ def kg_store(tmp_config):
 
 @pytest.fixture
 def api(tmp_config, mock_embedder):
-    return Memory(config=tmp_config, embedder=mock_embedder)
+    return Extremis(config=tmp_config, embedder=mock_embedder)
 
 
 # ------------------------------------------------------------------ #

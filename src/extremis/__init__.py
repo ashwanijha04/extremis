@@ -1,10 +1,10 @@
-from .api import Memory
+from .api import Extremis
 from .client import HostedClient
 from .config import Config
 from .types import FeedbackSignal, LogEntry, Memory, MemoryLayer, RecallResult
 
 __all__ = [
-    "Memory",
+    "Extremis",
     "HostedClient",
     "Config",
     "Memory",

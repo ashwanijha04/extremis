@@ -31,7 +31,7 @@ from uuid import UUID
 
 from mcp.server.fastmcp import FastMCP
 
-from ..api import Memory
+from ..api import Extremis
 from ..config import Config
 from ..consolidation.consolidator import LLMConsolidator
 from ..types import EntityType, MemoryLayer
@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 
 def create_server(config: Config | None = None) -> FastMCP:
     cfg = config or Config()
-    mem = Memory(config=cfg)
+    mem = Extremis(config=cfg)
 
     mcp = FastMCP(
         "extremis",

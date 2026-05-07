@@ -48,9 +48,16 @@ def client(tmp_path, key_store, mock_embedder):
         namespace="test_ns",
     )
 
-    # Patch the embedder so no model is downloaded
-    with patch("extremis.api._build_embedder", return_value=mock_embedder):
+    # Skip the lifespan entirely — manually init deps with test fixtures.
+    from contextlib import asynccontextmanager
+
+    @asynccontextmanager
+    async def test_lifespan(app):
         deps.init(key_store, server_cfg)
+        yield
+
+    with patch("extremis.api._build_embedder", return_value=mock_embedder), \
+         patch("extremis.server.app.lifespan", test_lifespan):
         deps._instances.clear()
         app = create_app()
         with TestClient(app) as c:
