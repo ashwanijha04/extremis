@@ -9,6 +9,38 @@ from ..config import Config
 from ..types import Memory, MemoryLayer, RecallResult
 
 
+def _parse_source_ids(val: object) -> list[UUID]:
+    """
+    Parse source_memory_ids from Postgres.
+
+    Handles three cases:
+      - Normal: list of uuid.UUID objects (psycopg2 UUID[] native)
+      - String UUIDs: list of UUID-formatted strings
+      - Corrupted: old code stored json.dumps([...]) into UUID[] column,
+        producing a one-element array containing a JSON string like '[]'.
+    """
+    if not val:
+        return []
+    result: list[UUID] = []
+    for x in val:
+        s = str(x).strip()
+        try:
+            result.append(UUID(s))
+        except ValueError:
+            # Might be a JSON-encoded list stored as a single array element
+            try:
+                parsed = json.loads(s)
+                if isinstance(parsed, list):
+                    for u in parsed:
+                        try:
+                            result.append(UUID(str(u)))
+                        except ValueError:
+                            pass
+            except (json.JSONDecodeError, TypeError):
+                pass  # skip unparseable garbage
+    return result
+
+
 def _row_to_memory(row: dict) -> Memory:
     return Memory(
         id=UUID(str(row["id"])),
@@ -18,7 +50,7 @@ def _row_to_memory(row: dict) -> Memory:
         score=float(row["score"]),
         confidence=float(row["confidence"]),
         metadata=row["metadata"] if isinstance(row["metadata"], dict) else json.loads(row["metadata"]),
-        source_memory_ids=[UUID(str(x)) for x in (row["source_memory_ids"] or [])],
+        source_memory_ids=_parse_source_ids(row["source_memory_ids"]),
         validity_start=row["validity_start"],
         validity_end=row["validity_end"],
         created_at=row["created_at"],
