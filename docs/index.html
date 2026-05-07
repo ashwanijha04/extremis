@@ -478,8 +478,10 @@ mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</sp
   <p class="section-sub">Claude Desktop and Claude Code supported out of the box.</p>
   <div class="mcp-grid">
     <div>
-      <pre><span class="cm"># 1. Install</span>
-pip install <span class="str">"extremis[mcp]"</span>
+      <pre><span class="cm"># Requires Python 3.11+  (check: python3.11 --version)</span>
+
+<span class="cm"># 1. Install</span>
+pip3.11 install <span class="str">"extremis[mcp]"</span>
 
 <span class="cm"># 2. Add to Claude Desktop config</span>
 <span class="cm"># ~/Library/Application Support/Claude/</span>
@@ -487,7 +489,7 @@ pip install <span class="str">"extremis[mcp]"</span>
 {
   <span class="str">"mcpServers"</span>: {
     <span class="str">"extremis"</span>: {
-      <span class="str">"command"</span>: <span class="str">"extremis-mcp"</span>
+      <span class="str">"command"</span>: <span class="str">"/opt/homebrew/bin/extremis-mcp"</span>
     }
   }
 }
