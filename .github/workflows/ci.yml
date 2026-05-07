@@ -30,7 +30,7 @@ jobs:
           python-version: "3.11"
       - name: Install with dev deps
         run: pip install -e ".[dev]"
-      - run: mypy src/friday_memory --ignore-missing-imports
+      - run: mypy src/extremis --ignore-missing-imports
 
   test:
     name: Tests (Python ${{ matrix.python-version }})
@@ -49,7 +49,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           pytest tests/ -v --tb=short \
-            --cov=friday_memory \
+            --cov=extremis \
             --cov-report=term-missing \
             --cov-fail-under=70
       - name: Upload coverage
