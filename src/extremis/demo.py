@@ -51,13 +51,42 @@ def run_demo() -> None:
     p(f"{DIM}Layered memory · RL scoring · Knowledge graph · Attention{RESET}")
 
     # ── import ────────────────────────────────────────────────────────────────
+    import os
+    import tempfile
+
+    # Suppress model-loading noise — irrelevant for a demo
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+    os.environ.setdefault("HF_HUB_VERBOSITY", "error")
+    import logging as _logging
+    import warnings as _warnings
+
+    _warnings.filterwarnings("ignore")
+    _logging.getLogger("huggingface_hub").setLevel(_logging.ERROR)
+    _logging.getLogger("sentence_transformers").setLevel(_logging.ERROR)
+    _logging.getLogger("transformers").setLevel(_logging.ERROR)
+
     p()
     print("Loading…", end="", flush=True)
 
     from extremis import Extremis, MemoryLayer
+    from extremis.config import Config
     from extremis.types import EntityType
 
-    mem = Extremis()
+    # Use a fresh temp dir so the demo is isolated from existing ~/.extremis/ data
+    _demo_home = tempfile.mkdtemp(prefix="extremis-demo-")
+    mem = Extremis(config=Config(extremis_home=_demo_home))
+
+    # Warm up the embedder silently (suppresses the tqdm loading bar)
+    import io as _io
+    import sys as _sys
+
+    _old_stderr = _sys.stderr
+    _sys.stderr = _io.StringIO()
+    try:
+        mem._embedder.embed("warmup")
+    finally:
+        _sys.stderr = _old_stderr
+
     print(f"\r{GREEN}✓{RESET} extremis ready" + " " * 20)
 
     # ── 1. Store memories ─────────────────────────────────────────────────────
