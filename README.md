@@ -386,6 +386,34 @@ print(f"{r.memories_created} facts extracted from logs")
 
 All backends share the same API. Swap with one env var.
 
+### Don't want anything stored locally?
+
+Three options — all work out of the box:
+
+| Option | Local footprint | Cost |
+|--------|----------------|------|
+| **Postgres on Supabase / Neon** | None | Free tier available |
+| **Pinecone** | RL score sidecar only (~KB) | Free tier available |
+| **HostedClient** (your own server) | None at all | Your hosting cost |
+
+**Quickest: free Postgres on Supabase**
+```bash
+# 1. Create project at supabase.com, grab the connection string
+# 2. Enable pgvector: run "CREATE EXTENSION vector;" in the SQL editor
+pip3.11 install "extremis[postgres]"
+EXTREMIS_STORE=postgres EXTREMIS_POSTGRES_URL=postgresql://... python3.11 your_app.py
+```
+
+**Zero footprint: HostedClient**
+```python
+from extremis import HostedClient
+# deploy extremis-server on Railway/Fly/Render, point at it
+mem = HostedClient(api_key="extremis_sk_...", base_url="https://your-server.railway.app")
+# nothing written locally — not even the embedding model
+```
+
+---
+
 ### SQLite — default, zero infrastructure
 
 ```bash

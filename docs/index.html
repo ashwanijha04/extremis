@@ -214,6 +214,34 @@
     }
     .tool-desc { color: var(--muted); font-size: .85rem; }
 
+    /* ── Storage grid ── */
+    .storage-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+    .storage-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: border-color .2s;
+    }
+    .storage-card:hover { border-color: var(--accent2); }
+    .storage-local { border-color: rgba(61,220,132,.25); }
+    .storage-card h3 { font-size: .95rem; font-weight: 600; margin: .5rem 0 .4rem; }
+    .storage-card p { color: var(--muted); font-size: .85rem; line-height: 1.6; }
+    .storage-card pre { font-size: .78rem !important; padding: .75rem !important; }
+    .storage-badge {
+      display: inline-block;
+      font-size: .7rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+      padding: .15rem .5rem; border-radius: 4px;
+      background: rgba(61,220,132,.12); color: var(--green);
+    }
+    .storage-badge-cloud {
+      background: rgba(78,205,196,.12); color: var(--accent2);
+    }
+
     /* ── Python warning ── */
     .python-warning {
       display: flex; gap: 1rem; align-items: flex-start;
@@ -469,6 +497,61 @@ mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</sp
         <tr><td>Open source (MIT)</td><td class="yes">✓</td><td class="partial">Partial</td><td class="yes">✓</td><td class="no">✗</td></tr>
       </tbody>
     </table>
+  </div>
+</section>
+
+<!-- Where does data live -->
+<section id="storage">
+  <h2>Where does your data live?</h2>
+  <p class="section-sub">Local by default. Cloud when you need it. Nothing stored anywhere you didn't choose.</p>
+
+  <div class="storage-grid">
+
+    <div class="storage-card storage-local">
+      <div class="storage-badge">Default</div>
+      <h3>📁 Local SQLite</h3>
+      <p>Everything in <code>~/.extremis/</code> on your machine. Zero setup, zero cost, works offline.</p>
+      <pre style="margin-top:.75rem;"><span class="cm"># zero config needed</span>
+<span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">Extremis</span>
+mem <span class="op">=</span> <span class="fn">Extremis</span>()</pre>
+    </div>
+
+    <div class="storage-card">
+      <div class="storage-badge storage-badge-cloud">No local files</div>
+      <h3>🐘 Hosted Postgres</h3>
+      <p>Point at any cloud Postgres. <a href="https://supabase.com" target="_blank">Supabase</a> and <a href="https://neon.tech" target="_blank">Neon</a> both have free tiers with pgvector built in. Works from any machine.</p>
+      <pre style="margin-top:.75rem;">pip3.11 install <span class="str">"extremis[postgres]"</span>
+
+EXTREMIS_STORE<span class="op">=</span>postgres
+EXTREMIS_POSTGRES_URL<span class="op">=</span><span class="str">postgresql://...</span></pre>
+    </div>
+
+    <div class="storage-card">
+      <div class="storage-badge storage-badge-cloud">No local files</div>
+      <h3>📌 Pinecone</h3>
+      <p>Fully managed serverless vector store. Vectors live in Pinecone cloud. Free starter tier available.</p>
+      <pre style="margin-top:.75rem;">pip3.11 install <span class="str">"extremis[pinecone]"</span>
+
+EXTREMIS_STORE<span class="op">=</span>pinecone
+EXTREMIS_PINECONE_API_KEY<span class="op">=</span><span class="str">pk_...</span></pre>
+    </div>
+
+    <div class="storage-card">
+      <div class="storage-badge storage-badge-cloud">Zero footprint</div>
+      <h3>☁️ Hosted extremis server</h3>
+      <p>Deploy <code>extremis-server</code> on Railway, Fly, or Render. Use <code>HostedClient</code> — no model download, no local DB, nothing written to disk.</p>
+      <pre style="margin-top:.75rem;"><span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">HostedClient</span>
+mem <span class="op">=</span> <span class="fn">HostedClient</span>(
+  api_key<span class="op">=</span><span class="str">"extremis_sk_..."</span>,
+  base_url<span class="op">=</span><span class="str">"https://your-server.railway.app"</span>
+)</pre>
+    </div>
+
+  </div>
+
+  <div style="margin-top:1.5rem; padding:1rem 1.25rem; background:rgba(78,205,196,.05); border:1px solid rgba(78,205,196,.2); border-radius:8px; font-size:.88rem; color:var(--muted);">
+    All four options use the same API — <code style="font-family:monospace;">remember()</code>, <code style="font-family:monospace;">recall()</code>, <code style="font-family:monospace;">report_outcome()</code>.
+    Switch backends with one env var. Migrate between any two with <code style="font-family:monospace;">extremis-migrate</code>.
   </div>
 </section>
 
