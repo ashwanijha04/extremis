@@ -513,16 +513,35 @@ Run extremis as a service — your users call it with an API key, all compute ha
 
 Clicking this button deploys `extremis-server` **and** provisions a free Postgres database automatically via `render.yaml`. Memory lives in Render's managed Postgres — persistent across restarts and redeploys.
 
-After deploy, generate an API key:
-```bash
-# in Render's shell tab for the extremis service
-extremis-server create-key --namespace myapp --label prod
+**Getting your API key — check the logs, it's already there.**
+
+On first startup, extremis auto-generates a key and prints it in the server logs. In Render:
+1. Click your extremis service → **Logs** tab
+2. Look for the block that says `extremis — FIRST START`
+3. Copy the key that starts with `extremis_sk_...`
+
+```
+============================================================
+  extremis — FIRST START
+============================================================
+  No API keys found. Generated your first key:
+
+  extremis_sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+  Namespace: default
+  Store this key — it will NOT be shown again.
+============================================================
 ```
 
 Connect from anywhere with zero local footprint:
 ```python
 from extremis import HostedClient
 mem = HostedClient(api_key="extremis_sk_...", base_url="https://your-app.onrender.com")
+```
+
+To create additional keys (e.g. per user/namespace), use Render's Shell tab:
+```bash
+extremis-server create-key --namespace alice --label "alice prod"
 ```
 
 ### Deploy to Railway (manual — 3 steps)

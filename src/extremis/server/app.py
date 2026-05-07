@@ -46,6 +46,23 @@ async def lifespan(app: FastAPI):
     init(key_store, server_cfg)
 
     log.info("extremis server started  store=%s  home=%s", server_cfg.store, str(home))
+
+    # On first start, if no keys exist, auto-generate one and print it clearly.
+    # Users find this in their hosting provider's logs tab (Render, Railway, Fly, etc.)
+    existing = key_store.list_keys()
+    if not existing:
+        first_key = key_store.create("default", "auto-generated on first start")
+        print("\n" + "=" * 60, flush=True)
+        print("  extremis — FIRST START", flush=True)
+        print("=" * 60, flush=True)
+        print("  No API keys found. Generated your first key:\n", flush=True)
+        print(f"  {first_key}\n", flush=True)
+        print("  Namespace: default", flush=True)
+        print("  Store this key — it will NOT be shown again.", flush=True)
+        print("\n  To create more keys:", flush=True)
+        print("    extremis-server create-key --namespace alice --label prod", flush=True)
+        print("=" * 60 + "\n", flush=True)
+
     yield
     key_store.close()
 

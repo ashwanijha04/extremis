@@ -555,11 +555,17 @@ EXTREMIS_PINECONE_API_KEY<span class="op">=</span><span class="str">pk_...</span
         </a>
         <span style="font-size:.78rem; color:var(--muted);">or <a href="https://railway.app" target="_blank" style="color:var(--muted);">Railway</a> / <a href="https://fly.io" target="_blank" style="color:var(--muted);">Fly.io</a> (manual setup)</span>
       </div>
-      <pre style="margin-top:.75rem;"><span class="cm"># After deploy, your client:</span>
-<span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">HostedClient</span>
+      <p style="margin-top:.6rem; font-size:.8rem; color:var(--muted);">
+        <strong style="color:var(--text);">Getting your API key:</strong>
+        On first startup, extremis prints a key in the server logs.
+        Go to your service → <strong>Logs</strong> tab → look for
+        <code style="font-family:monospace;">extremis — FIRST START</code>.
+        The key starts with <code style="font-family:monospace;">extremis_sk_...</code>.
+      </p>
+      <pre style="margin-top:.75rem;"><span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">HostedClient</span>
 mem <span class="op">=</span> <span class="fn">HostedClient</span>(
-  api_key<span class="op">=</span><span class="str">"extremis_sk_..."</span>,
-  base_url<span class="op">=</span><span class="str">"https://your-app.railway.app"</span>
+  api_key<span class="op">=</span><span class="str">"extremis_sk_..."</span>,  <span class="cm"># from logs</span>
+  base_url<span class="op">=</span><span class="str">"https://your-app.onrender.com"</span>
 )</pre>
     </div>
 
