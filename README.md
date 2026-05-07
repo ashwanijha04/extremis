@@ -54,7 +54,7 @@ mem.report_outcome([bad_memory_id], success=False, weight=1.0)
 
 ### 2. Memory that explains itself
 
-Agents make decisions based on memory. But *why* did it recall that specific memory? Without explainability you're guessing, and debugging is painful.
+Agents make decisions based on memory. But *why* did it recall that specific memory? Without explainability you're guessing, debugging is painful, and auditing is impossible.
 
 Every `recall()` result includes a plain-English reason:
 
@@ -75,7 +75,7 @@ for r in results:
 # → "similarity 0.54 · score -1.5 · first recall · 45d old"
 ```
 
-The reason tells you: how semantically relevant it was, how much feedback has validated it, how many times it's been used, and how old it is.
+The reason tells you: how semantically relevant it was, how much feedback has validated it, how many times it's been used, and how old it is. Auditable. Debuggable.
 
 ---
 
