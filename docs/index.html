@@ -53,6 +53,10 @@
     .nav-links { display: flex; gap: 1.5rem; align-items: center; }
     .nav-links a { color: var(--muted); font-size: .9rem; transition: color .15s; }
     .nav-links a:hover { color: var(--text); text-decoration: none; }
+    @media (max-width: 640px) {
+      .nav-links .hide-mobile { display: none; }
+      nav { padding: 0 1rem; }
+    }
     .btn-sm {
       background: var(--accent); color: #fff !important;
       padding: .4rem 1rem; border-radius: 6px;
@@ -63,9 +67,11 @@
 
     /* ── Sections ── */
     section { max-width: 960px; margin: 0 auto; padding: 5rem 2rem; }
+    @media (max-width: 640px) { section { padding: 3rem 1.25rem; } }
 
     /* ── Hero ── */
     .hero { text-align: center; padding-top: 6rem; padding-bottom: 4rem; }
+    @media (max-width: 640px) { .hero { padding-top: 3.5rem; padding-bottom: 2rem; } }
     .badge {
       display: inline-flex; align-items: center; gap: .5rem;
       background: rgba(124,106,247,.12); border: 1px solid rgba(124,106,247,.3);
@@ -83,6 +89,10 @@
       margin: 0 auto 2.5rem;
     }
     .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; align-items: center; }
+      .hero-actions a { width: 100%; text-align: center; }
+    }
     .btn-primary {
       background: var(--accent); color: #fff;
       padding: .75rem 1.75rem; border-radius: 8px;
@@ -104,10 +114,15 @@
       display: inline-flex; align-items: center; gap: 1rem;
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 10px; padding: .85rem 1.5rem;
+      max-width: 100%;
     }
     .install code {
       font-family: 'JetBrains Mono', monospace;
       font-size: .95rem; color: var(--accent2);
+    }
+    @media (max-width: 640px) {
+      .install { padding: .75rem 1rem; gap: .75rem; }
+      .install code { font-size: .85rem; }
     }
     .copy-btn {
       background: none; border: 1px solid var(--border);
@@ -146,6 +161,7 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: .85rem; overflow-x: auto; line-height: 1.7;
     }
+    @media (max-width: 640px) { pre { font-size: .78rem; padding: 1rem; border-radius: 8px; } }
     .kw   { color: #c792ea; }
     .fn   { color: #82aaff; }
     .str  { color: #c3e88d; }
@@ -192,6 +208,10 @@
       font-size: .8rem; color: var(--accent2); white-space: nowrap;
       min-width: 160px;
     }
+    @media (max-width: 480px) {
+      .tool-list li { flex-direction: column; gap: .25rem; }
+      .tool-name { min-width: unset; }
+    }
     .tool-desc { color: var(--muted); font-size: .85rem; }
 
     /* ── Footer ── */
@@ -222,9 +242,9 @@
 <nav>
   <div class="nav-logo">🧠 <span>extremis</span></div>
   <div class="nav-links">
-    <a href="#how">How it works</a>
-    <a href="#install">Install</a>
-    <a href="#mcp">MCP</a>
+    <a href="#how" class="hide-mobile">How it works</a>
+    <a href="#install" class="hide-mobile">Install</a>
+    <a href="#mcp" class="hide-mobile">MCP</a>
     <a href="https://github.com/ashwanijha04/extremis" target="_blank">GitHub</a>
     <a href="https://pypi.org/project/extremis" target="_blank" class="btn-sm">PyPI ↗</a>
   </div>
