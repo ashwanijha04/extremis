@@ -25,7 +25,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .auth import KeyStore
+from .auth import make_key_store
 from .deps import init
 from .routes import health, kg, memories
 
@@ -42,8 +42,15 @@ async def lifespan(app: FastAPI):
     from ..config import Config
 
     server_cfg = Config()
-    key_store = KeyStore(str(home / "keys.db"))
+    # Use Postgres key store when store=postgres so keys survive restarts.
+    # Falls back to SQLite for local development.
+    key_store = make_key_store(server_cfg)
     init(key_store, server_cfg)
+
+    log.info(
+        "key store: %s",
+        "postgres" if server_cfg.store == "postgres" and server_cfg.postgres_url else "sqlite",
+    )
 
     log.info("extremis server started  store=%s  home=%s", server_cfg.store, str(home))
 
@@ -123,8 +130,14 @@ def main() -> None:
 
     args = parser.parse_args()
 
+    def _cli_store():
+        """Get key store for CLI commands — respects EXTREMIS_STORE env var."""
+        from ..config import Config
+
+        return make_key_store(Config())
+
     if args.cmd == "create-key":
-        store = KeyStore(str(Path(_SERVER_HOME).expanduser() / "keys.db"))
+        store = _cli_store()
         key = store.create(args.namespace, args.label)
         store.close()
         print(f"\nAPI key created for namespace '{args.namespace}':")
@@ -133,7 +146,7 @@ def main() -> None:
         return
 
     if args.cmd == "list-keys":
-        store = KeyStore(str(Path(_SERVER_HOME).expanduser() / "keys.db"))
+        store = _cli_store()
         keys = store.list_keys(args.namespace or None)
         store.close()
         if not keys:
@@ -149,7 +162,7 @@ def main() -> None:
         return
 
     if args.cmd == "revoke-key":
-        store = KeyStore(str(Path(_SERVER_HOME).expanduser() / "keys.db"))
+        store = _cli_store()
         ok = store.revoke(args.key_hash)
         store.close()
         print("Revoked." if ok else "Key not found.")

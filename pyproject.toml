@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "extremis"
-version = "0.1.9"
+version = "0.2.0"
 description = "Layered memory platform for AI agents — log-first, RL-scored, consolidation-backed"
 readme = "README.md"
 license = { file = "LICENSE" }
