@@ -116,15 +116,17 @@ def run_demo() -> None:
     # ── 3. RL scoring ─────────────────────────────────────────────────────────
     header("3 / 4  RL scoring  →  apply feedback, watch ranking shift")
 
-    concise = next(r for r in results if "concise" in r.memory.content)
-    filler_id = concise.memory.id
+    # Recall all memories without limit so we can find our demo targets
+    all_results = mem.recall("how should I respond to this user?", limit=20)
 
-    p(f'  {GREEN}+1  +1{RESET}  "concise answers" confirmed useful twice')
-    mem.report_outcome([filler_id], success=True, weight=1.0)
-    mem.report_outcome([filler_id], success=True, weight=1.0)
+    concise = next((r for r in all_results if "concise" in r.memory.content), None)
+    dark = next((r for r in all_results if "dark mode" in r.memory.content), None)
 
-    # Find dark mode and mark it less useful
-    dark = next((r for r in results if "dark mode" in r.memory.content), None)
+    if concise:
+        p(f'  {GREEN}+1  +1{RESET}  "concise answers" confirmed useful twice')
+        mem.report_outcome([concise.memory.id], success=True, weight=1.0)
+        mem.report_outcome([concise.memory.id], success=True, weight=1.0)
+
     if dark:
         p(f'  {RED}-1     {RESET}  "dark mode" not relevant to this query')
         mem.report_outcome([dark.memory.id], success=False, weight=1.0)
