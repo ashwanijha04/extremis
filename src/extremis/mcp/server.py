@@ -415,8 +415,7 @@ def create_server(config: Config | None = None) -> FastMCP:
           minimal  — brief acknowledgement only
           ignore   — skip this message
 
-        Use this before deciding whether to generate a full response, especially
-        in group chat or broadcast contexts where not every message warrants a reply.
+        Pure heuristic — no DB access, no LLM, returns instantly.
 
         Args:
             message:          The incoming message text.
@@ -427,11 +426,16 @@ def create_server(config: Config | None = None) -> FastMCP:
             ongoing:          True if this is part of an ongoing conversation thread.
             already_answered: True if someone else already replied.
         """
+        # Attention scoring is stateless — create scorer directly without
+        # triggering a DB connection via get_memory().
+        from ..scorer.attention import AttentionScorer
+
+        scorer = AttentionScorer(cfg)
         owners = {s.strip() for s in owner_ids.split(",") if s.strip()}
         allowed = {s.strip() for s in allowlist.split(",") if s.strip()}
         ctx = {"ongoing": ongoing, "already_answered": already_answered}
 
-        result = mem.score_attention(
+        result = scorer.score(
             message,
             sender=sender,
             channel=channel,
@@ -440,7 +444,8 @@ def create_server(config: Config | None = None) -> FastMCP:
             context=ctx,
         )
         return (
-            f"Score: {result.score}/100  Level: {result.level}\nReason: {result.reason}\nBreakdown: {result.breakdown}"
+            f"Score: {result.score}/100  Level: {result.level}\n"
+            f"Reason: {result.reason}"
         )
 
     return mcp

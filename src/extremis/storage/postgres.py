@@ -48,7 +48,7 @@ class PostgresMemoryStore:
             raise ImportError("Postgres store requires: pip install 'extremis[postgres]'") from None
 
         self._config = config
-        self._conn = psycopg2.connect(url)
+        self._conn = psycopg2.connect(url, connect_timeout=10)
         self._conn.autocommit = False
 
         # Enable pgvector BEFORE register_vector() — it needs the type to exist
