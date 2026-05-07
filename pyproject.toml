@@ -54,6 +54,7 @@ all = ["extremis[mcp,postgres,chroma,pinecone,openai,server,client]"]
 extremis-mcp     = "extremis.mcp.server:main"
 extremis-migrate = "extremis.migrate:cli"
 extremis-server  = "extremis.server.app:main"
+extremis-demo    = "extremis.demo:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/extremis"]
