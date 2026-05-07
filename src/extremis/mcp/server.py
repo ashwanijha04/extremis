@@ -443,10 +443,7 @@ def create_server(config: Config | None = None) -> FastMCP:
             allowlist=allowed,
             context=ctx,
         )
-        return (
-            f"Score: {result.score}/100  Level: {result.level}\n"
-            f"Reason: {result.reason}"
-        )
+        return f"Score: {result.score}/100  Level: {result.level}\nReason: {result.reason}"
 
     return mcp
 

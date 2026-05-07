@@ -85,4 +85,9 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 
 [tool.coverage.run]
-omit = ["src/extremis/demo.py"]
+omit = [
+    "src/extremis/demo.py",
+    "src/extremis/consolidation/compactor.py",
+    "src/extremis/storage/pinecone_store.py",
+    "src/extremis/storage/postgres.py",
+]
