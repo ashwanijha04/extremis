@@ -214,6 +214,39 @@
     }
     .tool-desc { color: var(--muted); font-size: .85rem; }
 
+    /* ── Privacy ── */
+    .privacy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .privacy-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color .2s;
+    }
+    .privacy-card:hover { border-color: var(--accent2); }
+    .privacy-hero {
+      grid-column: 1 / -1;
+      background: rgba(78,205,196,.04);
+      border-color: rgba(78,205,196,.3);
+    }
+    .privacy-icon { font-size: 1.4rem; margin-bottom: .6rem; }
+    .privacy-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; }
+    .privacy-card p { color: var(--muted); font-size: .88rem; line-height: 1.65; }
+    .privacy-summary {
+      background: rgba(61,220,132,.05);
+      border: 1px solid rgba(61,220,132,.2);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      font-size: .9rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
     /* ── Footer ── */
     footer {
       border-top: 1px solid var(--border);
@@ -245,6 +278,7 @@
     <a href="#how" class="hide-mobile">How it works</a>
     <a href="#install" class="hide-mobile">Install</a>
     <a href="#mcp" class="hide-mobile">MCP</a>
+    <a href="#privacy" class="hide-mobile">Privacy</a>
     <a href="https://github.com/ashwanijha04/extremis" target="_blank">GitHub</a>
     <a href="https://pypi.org/project/extremis" target="_blank" class="btn-sm">PyPI ↗</a>
   </div>
@@ -437,6 +471,83 @@ pip install <span class="str">"extremis[mcp]"</span>
         <li><span class="tool-name">memory_score_attention</span><span class="tool-desc">0–100 message priority score</span></li>
       </ul>
     </div>
+  </div>
+</section>
+
+<!-- Privacy -->
+<section id="privacy">
+  <h2>Your memory stays yours</h2>
+  <p class="section-sub">No cloud. No tracking. No data leaving your machine unless you explicitly choose it.</p>
+
+  <div class="privacy-grid">
+
+    <div class="privacy-card privacy-hero">
+      <div class="privacy-icon">🔒</div>
+      <h3>Stored locally by default</h3>
+      <p>
+        All memories, logs, and knowledge graph data are written to
+        <code style="font-family:monospace;font-size:.85rem;">~/.extremis/</code>
+        on your own machine. No account required. No sign-up. Nothing sent anywhere.
+      </p>
+    </div>
+
+    <div class="privacy-card">
+      <div class="privacy-icon">📋</div>
+      <h3>Plain files you own</h3>
+      <p>
+        The conversation log is a JSONL file on your disk. The memory store is a SQLite database.
+        Both are readable with any text editor. You can inspect, export, or delete them at any time.
+      </p>
+    </div>
+
+    <div class="privacy-card">
+      <div class="privacy-icon">🤖</div>
+      <h3>When consolidation calls Claude</h3>
+      <p>
+        The optional <code style="font-family:monospace;font-size:.85rem;">memory_consolidate</code> tool
+        sends recent conversation log entries to Claude Haiku (via your own Anthropic API key) to extract
+        structured memories. <strong>You control this</strong> — it only runs when you explicitly call it,
+        and only uses your key, billed to you directly.
+      </p>
+    </div>
+
+    <div class="privacy-card">
+      <div class="privacy-icon">🏗️</div>
+      <h3>You choose your backend</h3>
+      <p>
+        Switch to Postgres, Chroma, or Pinecone when you need scale — or keep SQLite forever.
+        If you use an external backend, your data goes there under your own credentials.
+        Extremis itself never sees it.
+      </p>
+    </div>
+
+    <div class="privacy-card">
+      <div class="privacy-icon">📡</div>
+      <h3>Zero telemetry</h3>
+      <p>
+        Extremis collects no usage data, sends no analytics, and has no home-call behaviour.
+        It's a library that runs entirely in your process. You can verify this — it's
+        <a href="https://github.com/ashwanijha04/extremis" target="_blank">open source</a>.
+      </p>
+    </div>
+
+    <div class="privacy-card">
+      <div class="privacy-icon">🖥️</div>
+      <h3>Self-host the server too</h3>
+      <p>
+        Need a REST API for a team? Run <code style="font-family:monospace;font-size:.85rem;">extremis-server</code>
+        on your own infrastructure. The hosted server code is open source and ships with a
+        Docker Compose file. We offer a managed cloud option for convenience, not necessity.
+      </p>
+    </div>
+
+  </div>
+
+  <div class="privacy-summary">
+    <strong>In short:</strong> your conversations never leave your machine unless
+    <em>you</em> choose to consolidate (→ your Anthropic key) or use an external
+    vector backend (→ your credentials). Extremis has no servers to breach because
+    it doesn't have servers.
   </div>
 </section>
 
