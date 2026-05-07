@@ -11,6 +11,12 @@
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
 [![Cloud](https://img.shields.io/badge/hosted%20cloud-waitlist-blue)](https://github.com/ashwanijha04/extremis/issues/1)
 
+<br/>
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ashwanijha04/extremis)
+
+<sub>One click · auto-provisions Postgres · memory persists across restarts</sub>
+
 </div>
 
 ---
