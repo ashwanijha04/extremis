@@ -465,10 +465,14 @@ def main() -> None:
     server = create_server()
 
     if args.transport == "sse":
+        import os
+
+        os.environ.setdefault("HOST", args.host)
+        os.environ.setdefault("PORT", str(args.port))
         log.info("Starting extremis MCP server on http://%s:%d", args.host, args.port)
-        server.run(transport="sse", host=args.host, port=args.port)
+        server.run(transport="sse")  # type: ignore[call-arg]
     else:
-        server.run(transport="stdio")
+        server.run(transport="stdio")  # type: ignore[call-arg]
 
 
 if __name__ == "__main__":

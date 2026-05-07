@@ -55,17 +55,6 @@ class MemoryStore(Protocol):
         limit: int = 50,
     ) -> list[Memory]: ...
 
-    def find_similar(
-        self,
-        embedding: list[float],
-        layer: MemoryLayer,
-        threshold: float = 0.85,
-        limit: int = 3,
-        exclude_id: Optional[UUID] = None,
-    ) -> list[tuple[Memory, float]]:
-        """Return (memory, cosine_similarity) pairs above threshold, sorted desc."""
-        ...
-
 
 @runtime_checkable
 class Embedder(Protocol):

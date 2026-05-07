@@ -169,7 +169,10 @@ class LLMCompactor:
             system=_COMPACTION_SYSTEM,
             messages=[{"role": "user", "content": f"Memories to review:\n\n{memory_list}"}],
         )
-        raw = response.content[0].text.strip()
+        text_block = next((b for b in response.content if hasattr(b, "text")), None)
+        if text_block is None:
+            return []
+        raw = text_block.text.strip()  # type: ignore[union-attr]
         if raw.startswith("```"):
             parts = raw.split("```")
             raw = parts[1].lstrip("json").strip() if len(parts) > 1 else raw
