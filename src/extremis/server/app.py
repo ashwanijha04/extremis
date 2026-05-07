@@ -54,6 +54,20 @@ async def lifespan(app: FastAPI):
 
     log.info("extremis server started  store=%s  home=%s", server_cfg.store, str(home))
 
+    # Pre-warm: create the default Extremis instance and load the embedding model
+    # at startup so the first API call doesn't time out doing this lazily.
+    log.info("Pre-warming Extremis instance and embedding model…")
+    from ..api import Extremis
+    from ..server.deps import _instances
+
+    _default = Extremis(config=server_cfg.model_copy(update={"namespace": "default"}))
+    try:
+        _default._embedder.embed("warmup")
+        log.info("Embedding model loaded ✓")
+    except Exception as exc:
+        log.warning("Embedder warmup failed (non-fatal): %s", exc)
+    _instances["default"] = _default
+
     # On first start, if no keys exist, auto-generate one and print it clearly.
     # Users find this in their hosting provider's logs tab (Render, Railway, Fly, etc.)
     existing = key_store.list_keys()
