@@ -50,6 +50,12 @@ class PostgresMemoryStore:
         self._config = config
         self._conn = psycopg2.connect(url)
         self._conn.autocommit = False
+
+        # Enable pgvector BEFORE register_vector() — it needs the type to exist
+        with self._conn.cursor() as cur:
+            cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
+        self._conn.commit()
+
         register_vector(self._conn)
         self._init_schema()
 
