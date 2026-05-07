@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 # Core memory types
 # ------------------------------------------------------------------ #
 
+
 class MemoryLayer(str, Enum):
     EPISODIC = "episodic"
     SEMANTIC = "semantic"
@@ -49,9 +50,9 @@ class LogEntry(BaseModel):
 
 class RecallResult(BaseModel):
     memory: Memory
-    relevance: float   # raw cosine similarity
+    relevance: float  # raw cosine similarity
     final_rank: float  # relevance × utility × recency
-    reason: str = ""   # human-readable explanation of why this memory ranked here
+    reason: str = ""  # human-readable explanation of why this memory ranked here
 
 
 class ConsolidationResult(BaseModel):
@@ -73,6 +74,7 @@ class FeedbackSignal(BaseModel):
 # ------------------------------------------------------------------ #
 # Knowledge Graph types
 # ------------------------------------------------------------------ #
+
 
 class EntityType(str, Enum):
     PERSON = "person"
@@ -119,10 +121,11 @@ class EntityResult(BaseModel):
 # Observer / attention types
 # ------------------------------------------------------------------ #
 
+
 class ObservationPriority(str, Enum):
-    CRITICAL = "critical"   # 🔴 decisions, errors, deadlines
-    CONTEXT = "context"     # 🟡 reasons, insights, learnings
-    INFO = "info"           # 🟢 everything else
+    CRITICAL = "critical"  # 🔴 decisions, errors, deadlines
+    CONTEXT = "context"  # 🟡 reasons, insights, learnings
+    INFO = "info"  # 🟢 everything else
 
 
 class Observation(BaseModel):
@@ -136,7 +139,7 @@ class Observation(BaseModel):
 
 
 class AttentionResult(BaseModel):
-    score: int              # 0–100
-    level: str              # full | standard | minimal | ignore
+    score: int  # 0–100
+    level: str  # full | standard | minimal | ignore
     reason: str
     breakdown: dict = Field(default_factory=dict)

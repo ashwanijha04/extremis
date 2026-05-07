@@ -13,6 +13,7 @@ Python:
     from extremis.migrate import Migrator
     result = Migrator().run(source_store, dest_store, source_embedder, dest_embedder)
 """
+
 from __future__ import annotations
 
 import logging
@@ -43,10 +44,10 @@ class Migrator:
 
     def run(
         self,
-        source,           # MemoryStore
-        dest,             # MemoryStore
+        source,  # MemoryStore
+        dest,  # MemoryStore
         source_embedder=None,  # Embedder | None
-        dest_embedder=None,    # Embedder | None
+        dest_embedder=None,  # Embedder | None
         batch_size: int = 100,
         dry_run: bool = False,
     ) -> MigrationResult:
@@ -92,9 +93,7 @@ class Migrator:
             if len(batch) < batch_size:
                 break
 
-        result.duration_seconds = round(
-            (datetime.now(tz=timezone.utc) - start).total_seconds(), 2
-        )
+        result.duration_seconds = round((datetime.now(tz=timezone.utc) - start).total_seconds(), 2)
         log.info(
             "Migration complete: %d migrated, %d skipped, %d re-embedded in %.1fs",
             result.memories_migrated,
@@ -117,6 +116,7 @@ def _embedder_name(embedder) -> str:
 # CLI
 # ------------------------------------------------------------------ #
 
+
 def cli() -> None:
     import argparse
 
@@ -125,12 +125,16 @@ def cli() -> None:
         description="Migrate extremis memories between storage backends",
     )
     parser.add_argument(
-        "--from", dest="source", required=True,
+        "--from",
+        dest="source",
+        required=True,
         choices=["sqlite", "postgres", "chroma", "pinecone"],
         help="Source backend",
     )
     parser.add_argument(
-        "--to", dest="dest", required=True,
+        "--to",
+        dest="dest",
+        required=True,
         choices=["sqlite", "postgres", "chroma", "pinecone"],
         help="Destination backend",
     )
@@ -152,8 +156,7 @@ def cli() -> None:
     parser.add_argument("--dest-pinecone-index", default="extremis")
 
     # Embedder override
-    parser.add_argument("--dest-embedder", default="",
-                        help="Re-embed with this model (e.g. text-embedding-3-small)")
+    parser.add_argument("--dest-embedder", default="", help="Re-embed with this model (e.g. text-embedding-3-small)")
 
     args = parser.parse_args()
 
@@ -173,7 +176,8 @@ def cli() -> None:
         dest_embedder = _make_embedder(args.dest_embedder)
 
     result = Migrator().run(
-        source_store, dest_store,
+        source_store,
+        dest_store,
         source_embedder=source_embedder,
         dest_embedder=dest_embedder,
         dry_run=args.dry_run,
@@ -193,18 +197,22 @@ def cli() -> None:
 def _make_store(backend: str, args, config: Config, role: str):
     if backend == "sqlite":
         from .storage.sqlite import SQLiteMemoryStore
+
         path = getattr(args, f"{role}_path") or config.resolved_local_db_path()
         return SQLiteMemoryStore(path, config)
     elif backend == "postgres":
         from .storage.postgres import PostgresMemoryStore
+
         url = getattr(args, f"{role}_postgres_url") or config.postgres_url
         return PostgresMemoryStore(url, config)
     elif backend == "chroma":
         from .storage.chroma import ChromaMemoryStore
+
         path = getattr(args, f"{role}_path") or f"{config.extremis_home}/chroma"
         return ChromaMemoryStore(path, config)
     elif backend == "pinecone":
         from .storage.pinecone_store import PineconeMemoryStore
+
         api_key = getattr(args, f"{role}_pinecone_api_key")
         index = getattr(args, f"{role}_pinecone_index")
         return PineconeMemoryStore(api_key, index, config)
@@ -214,8 +222,10 @@ def _make_store(backend: str, args, config: Config, role: str):
 def _make_embedder(model: str):
     if model.startswith("text-embedding"):
         from .embeddings.openai import OpenAIEmbedder
+
         return OpenAIEmbedder(model)
     from .embeddings.sentence_transformers import SentenceTransformerEmbedder
+
     return SentenceTransformerEmbedder(model)
 
 

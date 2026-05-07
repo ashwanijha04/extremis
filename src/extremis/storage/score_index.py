@@ -6,6 +6,7 @@ efficiently (Pinecone charges per metadata write; Chroma doesn't support
 partial updates). This index lives next to the external store as a tiny
 SQLite file and owns the score column.
 """
+
 from __future__ import annotations
 
 import sqlite3
@@ -48,9 +49,7 @@ class SQLiteScoreIndex:
         self._conn.commit()
 
     def get_all(self) -> dict[str, float]:
-        rows = self._conn.execute(
-            "SELECT memory_id, score FROM scores WHERE namespace = ?", (self._ns,)
-        ).fetchall()
+        rows = self._conn.execute("SELECT memory_id, score FROM scores WHERE namespace = ?", (self._ns,)).fetchall()
         return {row[0]: row[1] for row in rows}
 
     def close(self) -> None:

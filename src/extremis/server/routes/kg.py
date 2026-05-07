@@ -10,7 +10,7 @@ router = APIRouter(tags=["knowledge-graph"])
 
 
 class KGWriteRequest(BaseModel):
-    operation: str                  # add_entity | add_relationship | add_attribute
+    operation: str  # add_entity | add_relationship | add_attribute
     name: str = ""
     entity_type: str = "concept"
     from_entity: str = ""
@@ -33,14 +33,13 @@ def kg_write(req: KGWriteRequest, mem: Memory) -> dict:
         entity = mem.kg_add_entity(req.name, EntityType(req.entity_type), req.metadata or None)
         return entity.model_dump(mode="json")
     elif req.operation == "add_relationship":
-        rel = mem.kg_add_relationship(
-            req.from_entity, req.to_entity, req.rel_type, req.weight, req.metadata or None
-        )
+        rel = mem.kg_add_relationship(req.from_entity, req.to_entity, req.rel_type, req.weight, req.metadata or None)
         return rel.model_dump(mode="json")
     elif req.operation == "add_attribute":
         attr = mem.kg_add_attribute(req.name, req.key, req.value)
         return attr.model_dump(mode="json")
     from fastapi import HTTPException
+
     raise HTTPException(400, detail=f"Unknown operation: {req.operation}")
 
 

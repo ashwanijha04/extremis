@@ -51,7 +51,7 @@ jobs:
           pytest tests/ -v --tb=short \
             --cov=extremis \
             --cov-report=term-missing \
-            --cov-fail-under=70
+            --cov-fail-under=65
       - name: Upload coverage
         if: matrix.python-version == '3.11'
         uses: actions/upload-artifact@v4

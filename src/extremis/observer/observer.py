@@ -9,6 +9,7 @@ Priority bands:
 
 No LLM required. Runs fast, zero cost.
 """
+
 from __future__ import annotations
 
 import re
@@ -29,9 +30,9 @@ _CRITICAL_PATTERNS = [
     r"\bblocker?\b|\bblocked\b",
     r"\bcritical\b",
     r"\bcrash(ed|ing)?\b",
-    r"\bdown\b",                     # "service is down"
-    r"\+1\b|-1\b",                   # reward signals
-    r"\bship(ped|ping)?\b",          # shipping decisions
+    r"\bdown\b",  # "service is down"
+    r"\+1\b|-1\b",  # reward signals
+    r"\bship(ped|ping)?\b",  # shipping decisions
     r"\blaunch(ed|ing)?\b",
     r"\bmerged?\b",
     r"\bdeployed?\b",

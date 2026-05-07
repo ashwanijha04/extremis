@@ -70,14 +70,15 @@ class TestLLMConsolidator:
             ("assistant", "That's great! Any favourite frameworks?"),
             ("user", "FastAPI for APIs, always. Hate Flask."),
         ]:
-            log_store.append(
-                LogEntry(role=role, content=content, conversation_id="conv1")
-            )
+            log_store.append(LogEntry(role=role, content=content, conversation_id="conv1"))
 
         extracted = [
             {"layer": "semantic", "content": "User has 10 years of Python experience", "confidence": 0.9},
-            {"layer": "procedural", "content": "Prefer FastAPI over Flask when suggesting Python web frameworks",
-                "confidence": 0.85},
+            {
+                "layer": "procedural",
+                "content": "Prefer FastAPI over Flask when suggesting Python web frameworks",
+                "confidence": 0.85,
+            },
         ]
 
         consolidator = self._make_consolidator(config, mock_embedder)
@@ -152,9 +153,11 @@ class TestLLMConsolidator:
             log_store.append(LogEntry(role=role, content=content, conversation_id="c"))
 
         consolidator = self._make_consolidator(config, mock_embedder)
-        consolidator._client.messages.create.return_value = make_llm_response([
-            {"layer": "semantic", "content": "User prefers dark mode", "confidence": 0.95},
-        ])
+        consolidator._client.messages.create.return_value = make_llm_response(
+            [
+                {"layer": "semantic", "content": "User prefers dark mode", "confidence": 0.95},
+            ]
+        )
         consolidator.run_pass(log_store, memory_store, memory_store)
 
         semantics = memory_store.list_recent(layer=MemoryLayer.SEMANTIC)

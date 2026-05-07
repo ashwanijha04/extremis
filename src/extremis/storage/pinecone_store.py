@@ -6,6 +6,7 @@ Pinecone namespaces map 1:1 to extremis namespaces.
 
 Install: pip install "extremis[pinecone]"
 """
+
 from __future__ import annotations
 
 import json
@@ -75,9 +76,7 @@ class PineconeMemoryStore:
         self._ns = config.namespace
         self._index = Pinecone(api_key=api_key).Index(index_name)
 
-        score_path = score_db_path or str(
-            Path(config.extremis_home).expanduser() / "pinecone_scores.db"
-        )
+        score_path = score_db_path or str(Path(config.extremis_home).expanduser() / "pinecone_scores.db")
         self._scores = SQLiteScoreIndex(score_path, self._ns)
 
     def store(self, memory: Memory) -> Memory:
@@ -85,7 +84,7 @@ class PineconeMemoryStore:
         metadata: dict = {
             "namespace": self._ns,
             "layer": memory.layer.value,
-            "content": memory.content,           # Pinecone metadata stores the text
+            "content": memory.content,  # Pinecone metadata stores the text
             "confidence": memory.confidence,
             "source_memory_ids": _LIST_SEP.join(str(s) for s in memory.source_memory_ids),
             "validity_start": memory.validity_start.isoformat(),
@@ -175,8 +174,7 @@ class PineconeMemoryStore:
         )
         scores_map = self._scores.get_all()
         memories = [
-            _meta_to_memory(m["id"], m["metadata"], scores_map.get(m["id"], 0.0))
-            for m in result.get("matches", [])
+            _meta_to_memory(m["id"], m["metadata"], scores_map.get(m["id"], 0.0)) for m in result.get("matches", [])
         ]
         memories.sort(key=lambda m: m.created_at, reverse=True)
         return memories

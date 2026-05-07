@@ -14,6 +14,7 @@ Docker:
     docker build -t extremis-server .
     docker run -p 8000:8000 -e EXTREMIS_STORE=postgres -e EXTREMIS_POSTGRES_URL=... extremis-server
 """
+
 from __future__ import annotations
 
 import logging
@@ -39,6 +40,7 @@ async def lifespan(app: FastAPI):
     home.mkdir(parents=True, exist_ok=True)
 
     from ..config import Config
+
     server_cfg = Config()
     key_store = KeyStore(str(home / "keys.db"))
     init(key_store, server_cfg)
@@ -64,8 +66,8 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(memories.router, prefix="/v1/memories")
-    app.include_router(kg.router,       prefix="/v1/kg")
-    app.include_router(health.router,   prefix="/v1")
+    app.include_router(kg.router, prefix="/v1/kg")
+    app.include_router(health.router, prefix="/v1")
 
     return app
 
@@ -74,6 +76,7 @@ app = create_app()
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
+
 
 def main() -> None:
     import argparse

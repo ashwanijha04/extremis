@@ -1,4 +1,5 @@
 """MCP server tool tests — no network, no LLM. Uses shared conftest fixtures."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -47,6 +48,7 @@ class TestMCPTools:
 
     def test_remember_writes_to_log(self, api, tmp_config):
         from extremis.storage.log import FileLogStore
+
         api.remember("User mentioned they hate meetings", conversation_id="c3")
         log = FileLogStore(tmp_config.resolved_log_dir(), namespace=tmp_config.namespace)
         entries = log.read_since(None)
@@ -54,12 +56,14 @@ class TestMCPTools:
 
     def test_remember_now_with_expiry_stored(self, api):
         from datetime import timedelta
+
         expiry = datetime.now(tz=timezone.utc) + timedelta(hours=2)
         mem = api.remember_now("User is in a meeting until 3pm", layer=MemoryLayer.WORKING, expires_at=expiry)
         assert mem.validity_end is not None
 
     def test_kg_roundtrip(self, api):
         from extremis.types import EntityType
+
         api.kg_add_entity("Alice", EntityType.PERSON)
         api.kg_add_attribute("Alice", "timezone", "Asia/Dubai")
         result = api.kg_query("Alice")

@@ -69,11 +69,7 @@ class SQLiteMemoryStore:
 
     def store(self, memory: Memory) -> Memory:
         memory = memory.model_copy(update={"namespace": self._ns})
-        embedding_blob = (
-            np.array(memory.embedding, dtype=np.float32).tobytes()
-            if memory.embedding
-            else None
-        )
+        embedding_blob = np.array(memory.embedding, dtype=np.float32).tobytes() if memory.embedding else None
         self._conn.execute(
             """
             INSERT OR REPLACE INTO memories (
@@ -157,6 +153,7 @@ class SQLiteMemoryStore:
 
             if final_rank >= min_score:
                 from .recall_reason import build_reason
+
                 mem = _row_to_memory(row)
                 results.append(
                     RecallResult(
@@ -164,8 +161,10 @@ class SQLiteMemoryStore:
                         relevance=float(relevance),
                         final_rank=float(final_rank),
                         reason=build_reason(
-                            float(relevance), row["score"],
-                            row["access_count"], row["created_at"],
+                            float(relevance),
+                            row["score"],
+                            row["access_count"],
+                            row["created_at"],
                             mem.layer,
                         ),
                     )
@@ -182,7 +181,7 @@ class SQLiteMemoryStore:
                 f"""
                 UPDATE memories
                 SET access_count = access_count + 1, last_accessed_at = ?
-                WHERE id IN ({','.join('?' * len(ids))})
+                WHERE id IN ({",".join("?" * len(ids))})
                 """,
                 [now] + ids,
             )

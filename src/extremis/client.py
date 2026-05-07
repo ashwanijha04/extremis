@@ -14,6 +14,7 @@ Usage:
     results = mem.recall("WhatsApp product")
     mem.report_outcome([r.memory.id for r in results], success=True)
 """
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -30,7 +31,7 @@ from .types import (
     RecallResult,
 )
 
-_CLOUD_URL = "https://api.extremis.com"   # not yet live — self-host with extremis-server
+_CLOUD_URL = "https://api.extremis.com"  # not yet live — self-host with extremis-server
 
 
 class HostedClient:
@@ -57,9 +58,7 @@ class HostedClient:
         try:
             import httpx
         except ImportError:
-            raise ImportError(
-                "HostedClient requires httpx: pip install 'extremis[client]'"
-            ) from None
+            raise ImportError("HostedClient requires httpx: pip install 'extremis[client]'") from None
 
         self._base = base_url.rstrip("/")
         self._http = httpx.Client(
@@ -77,12 +76,15 @@ class HostedClient:
         conversation_id: str = "default",
         metadata: Optional[dict] = None,
     ) -> None:
-        self._post("/v1/memories/remember", {
-            "content": content,
-            "role": role,
-            "conversation_id": conversation_id,
-            "metadata": metadata or {},
-        })
+        self._post(
+            "/v1/memories/remember",
+            {
+                "content": content,
+                "role": role,
+                "conversation_id": conversation_id,
+                "metadata": metadata or {},
+            },
+        )
 
     def recall(
         self,
@@ -91,12 +93,15 @@ class HostedClient:
         layers: Optional[list[MemoryLayer]] = None,
         min_score: float = 0.0,
     ) -> list[RecallResult]:
-        data = self._post("/v1/memories/recall", {
-            "query": query,
-            "limit": limit,
-            "layers": [layer.value for layer in layers] if layers else None,
-            "min_score": min_score,
-        })
+        data = self._post(
+            "/v1/memories/recall",
+            {
+                "query": query,
+                "limit": limit,
+                "layers": [layer.value for layer in layers] if layers else None,
+                "min_score": min_score,
+            },
+        )
         return [RecallResult(**r) for r in data["results"]]
 
     def report_outcome(
@@ -105,11 +110,14 @@ class HostedClient:
         success: bool,
         weight: float = 1.0,
     ) -> None:
-        self._post("/v1/memories/report", {
-            "memory_ids": [str(m) for m in memory_ids],
-            "success": success,
-            "weight": weight,
-        })
+        self._post(
+            "/v1/memories/report",
+            {
+                "memory_ids": [str(m) for m in memory_ids],
+                "success": success,
+                "weight": weight,
+            },
+        )
 
     def remember_now(
         self,
@@ -119,13 +127,16 @@ class HostedClient:
         confidence: float = 0.9,
         metadata: Optional[dict] = None,
     ) -> Memory:
-        data = self._post("/v1/memories/store", {
-            "content": content,
-            "layer": layer.value,
-            "confidence": confidence,
-            "expires_at": expires_at.isoformat() if expires_at else None,
-            "metadata": metadata or {},
-        })
+        data = self._post(
+            "/v1/memories/store",
+            {
+                "content": content,
+                "layer": layer.value,
+                "confidence": confidence,
+                "expires_at": expires_at.isoformat() if expires_at else None,
+                "metadata": metadata or {},
+            },
+        )
         return Memory(**data)
 
     def observe(self, conversation_id: str = "default") -> list[Observation]:
@@ -138,33 +149,46 @@ class HostedClient:
     # ── Knowledge graph ──────────────────────────────────────────────────────
 
     def kg_add_entity(self, name: str, type: EntityType, metadata: Optional[dict] = None):
-        return self._post("/v1/kg/write", {
-            "operation": "add_entity",
-            "name": name,
-            "entity_type": type.value,
-            "metadata": metadata or {},
-        })
+        return self._post(
+            "/v1/kg/write",
+            {
+                "operation": "add_entity",
+                "name": name,
+                "entity_type": type.value,
+                "metadata": metadata or {},
+            },
+        )
 
     def kg_add_relationship(
-        self, from_entity: str, to_entity: str, rel_type: str,
-        weight: float = 1.0, metadata: Optional[dict] = None,
+        self,
+        from_entity: str,
+        to_entity: str,
+        rel_type: str,
+        weight: float = 1.0,
+        metadata: Optional[dict] = None,
     ):
-        return self._post("/v1/kg/write", {
-            "operation": "add_relationship",
-            "from_entity": from_entity,
-            "to_entity": to_entity,
-            "rel_type": rel_type,
-            "weight": weight,
-            "metadata": metadata or {},
-        })
+        return self._post(
+            "/v1/kg/write",
+            {
+                "operation": "add_relationship",
+                "from_entity": from_entity,
+                "to_entity": to_entity,
+                "rel_type": rel_type,
+                "weight": weight,
+                "metadata": metadata or {},
+            },
+        )
 
     def kg_add_attribute(self, entity: str, key: str, value: str):
-        return self._post("/v1/kg/write", {
-            "operation": "add_attribute",
-            "name": entity,
-            "key": key,
-            "value": value,
-        })
+        return self._post(
+            "/v1/kg/write",
+            {
+                "operation": "add_attribute",
+                "name": entity,
+                "key": key,
+                "value": value,
+            },
+        )
 
     def kg_query(self, name: str) -> Optional[EntityResult]:
         data = self._post("/v1/kg/query", {"name": name, "traverse_depth": 0})
@@ -188,15 +212,18 @@ class HostedClient:
         context: Optional[dict] = None,
     ) -> AttentionResult:
         ctx = context or {}
-        data = self._get("/v1/attention/score", {
-            "message": message,
-            "sender": sender,
-            "channel": channel,
-            "owner_ids": ",".join(owner_ids or []),
-            "allowlist": ",".join(allowlist or []),
-            "ongoing": str(ctx.get("ongoing", False)).lower(),
-            "already_answered": str(ctx.get("already_answered", False)).lower(),
-        })
+        data = self._get(
+            "/v1/attention/score",
+            {
+                "message": message,
+                "sender": sender,
+                "channel": channel,
+                "owner_ids": ",".join(owner_ids or []),
+                "allowlist": ",".join(allowlist or []),
+                "ongoing": str(ctx.get("ongoing", False)).lower(),
+                "already_answered": str(ctx.get("already_answered", False)).lower(),
+            },
+        )
         return AttentionResult(**data)
 
     # ── HTTP helpers ─────────────────────────────────────────────────────────

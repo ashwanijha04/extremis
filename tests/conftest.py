@@ -1,4 +1,5 @@
 """Shared fixtures for all test modules."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -16,6 +17,7 @@ from extremis.types import Memory, MemoryLayer
 # ------------------------------------------------------------------ #
 # Config + storage fixtures
 # ------------------------------------------------------------------ #
+
 
 @pytest.fixture
 def tmp_config(tmp_path):
@@ -59,6 +61,7 @@ def api(tmp_config, mock_embedder):
 # ------------------------------------------------------------------ #
 # Helpers
 # ------------------------------------------------------------------ #
+
 
 def make_memory(
     content: str,

@@ -265,6 +265,7 @@ def create_server(config: Config | None = None) -> FastMCP:
           value — attribute value
         """
         import json as _json
+
         meta = _json.loads(metadata) if metadata and metadata != "{}" else {}
         if operation == "add_entity":
             try:
@@ -344,6 +345,7 @@ def create_server(config: Config | None = None) -> FastMCP:
             conversation_id: Which conversation's entries to compress.
         """
         from ..observer.observer import HeuristicObserver
+
         observations = mem.observe(conversation_id)
         if not observations:
             return f"No log entries found for conversation '{conversation_id}'."
@@ -388,13 +390,15 @@ def create_server(config: Config | None = None) -> FastMCP:
         ctx = {"ongoing": ongoing, "already_answered": already_answered}
 
         result = mem.score_attention(
-            message, sender=sender, channel=channel,
-            owner_ids=owners, allowlist=allowed, context=ctx,
+            message,
+            sender=sender,
+            channel=channel,
+            owner_ids=owners,
+            allowlist=allowed,
+            context=ctx,
         )
         return (
-            f"Score: {result.score}/100  Level: {result.level}\n"
-            f"Reason: {result.reason}\n"
-            f"Breakdown: {result.breakdown}"
+            f"Score: {result.score}/100  Level: {result.level}\nReason: {result.reason}\nBreakdown: {result.breakdown}"
         )
 
     return mcp
@@ -411,12 +415,8 @@ def main() -> None:
         default=os.environ.get("FRIDAY_TRANSPORT", "stdio"),
         help="Transport mode: stdio (default, for Claude Desktop/Code) or sse (HTTP server)",
     )
-    parser.add_argument(
-        "--host", default="127.0.0.1", help="Host for SSE mode (default: 127.0.0.1)"
-    )
-    parser.add_argument(
-        "--port", type=int, default=8765, help="Port for SSE mode (default: 8765)"
-    )
+    parser.add_argument("--host", default="127.0.0.1", help="Host for SSE mode (default: 127.0.0.1)")
+    parser.add_argument("--port", type=int, default=8765, help="Port for SSE mode (default: 8765)")
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)

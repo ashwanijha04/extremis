@@ -26,8 +26,9 @@ def score_attention(
     owners = {s.strip() for s in owner_ids.split(",") if s.strip()}
     allowed = {s.strip() for s in allowlist.split(",") if s.strip()}
     ctx = {"ongoing": ongoing, "already_answered": already_answered}
-    result = mem.score_attention(message, sender=sender, channel=channel,
-                                  owner_ids=owners, allowlist=allowed, context=ctx)
+    result = mem.score_attention(
+        message, sender=sender, channel=channel, owner_ids=owners, allowlist=allowed, context=ctx
+    )
     return result.model_dump()
 
 

@@ -1,4 +1,5 @@
 """Namespace isolation — two namespaces on the same DB must not see each other's data."""
+
 from __future__ import annotations
 
 import pytest

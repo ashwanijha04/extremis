@@ -1,4 +1,5 @@
 """FastAPI dependencies — auth, per-namespace Memory instances."""
+
 from __future__ import annotations
 
 from typing import Annotated
@@ -23,6 +24,7 @@ def init(key_store: KeyStore, server_config: Config) -> None:
 
 # ── auth dependency ───────────────────────────────────────────────────────────
 
+
 def _get_namespace(authorization: Annotated[str, Header()] = "") -> str:
     if not authorization.startswith("Bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing Bearer token")
@@ -40,6 +42,7 @@ Namespace = Annotated[str, Depends(_get_namespace)]
 
 
 # ── per-namespace Memory instance (cached) ──────────────────────────────
+
 
 def get_memory(namespace: Namespace) -> Extremis:
     if namespace not in _instances:

@@ -1,4 +1,5 @@
 """FileLogStore + SQLiteMemoryStore — core storage tests."""
+
 from __future__ import annotations
 
 import pytest
@@ -47,6 +48,7 @@ class TestFileLogStore:
 
     def test_entries_survive_reopen(self, tmp_config):
         from extremis.storage.log import FileLogStore
+
         store1 = FileLogStore(tmp_config.resolved_log_dir(), namespace=tmp_config.namespace)
         store1.append(LogEntry(role="user", content="persisted", conversation_id="c1"))
 
@@ -65,6 +67,7 @@ class TestSQLiteMemoryStore:
 
     def test_get_unknown_id_returns_none(self, mem_store):
         from uuid import uuid4
+
         assert mem_store.get(uuid4()) is None
 
     def test_search_returns_results(self, mem_store):
@@ -134,6 +137,7 @@ class TestSQLiteMemoryStore:
 
     def test_memories_survive_reopen(self, tmp_config):
         from extremis.storage.sqlite import SQLiteMemoryStore
+
         s1 = SQLiteMemoryStore(tmp_config.resolved_local_db_path(), tmp_config)
         mem = make_memory("persisted content")
         s1.store(mem)

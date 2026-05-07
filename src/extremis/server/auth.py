@@ -6,6 +6,7 @@ Keys are stored hashed (sha256). The plaintext is only shown once at creation.
 
 Storage: SQLite file at {server_home}/keys.db
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -73,9 +74,7 @@ class KeyStore:
         return row["namespace"]
 
     def revoke(self, key_hash: str) -> bool:
-        cursor = self._conn.execute(
-            "UPDATE api_keys SET revoked = 1 WHERE key_hash = ?", (key_hash,)
-        )
+        cursor = self._conn.execute("UPDATE api_keys SET revoked = 1 WHERE key_hash = ?", (key_hash,))
         self._conn.commit()
         return cursor.rowcount > 0
 
@@ -83,12 +82,12 @@ class KeyStore:
         if namespace:
             rows = self._conn.execute(
                 "SELECT key_hash, namespace, label, created_at, last_used, call_count, revoked "
-                "FROM api_keys WHERE namespace = ?", (namespace,)
+                "FROM api_keys WHERE namespace = ?",
+                (namespace,),
             ).fetchall()
         else:
             rows = self._conn.execute(
-                "SELECT key_hash, namespace, label, created_at, last_used, call_count, revoked "
-                "FROM api_keys"
+                "SELECT key_hash, namespace, label, created_at, last_used, call_count, revoked FROM api_keys"
             ).fetchall()
         return [dict(r) for r in rows]
 

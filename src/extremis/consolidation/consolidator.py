@@ -123,9 +123,7 @@ class LLMConsolidator:
     # ------------------------------------------------------------------ #
 
     def _extract(self, conv_id: str, entries: list[LogEntry]) -> list[dict]:
-        log_text = "\n".join(
-            f"[{e.role.upper()}] {e.content}" for e in entries
-        )
+        log_text = "\n".join(f"[{e.role.upper()}] {e.content}" for e in entries)
         user_msg = EXTRACTION_USER_TEMPLATE.format(
             conversation_id=conv_id,
             count=len(entries),

@@ -1,4 +1,5 @@
 """AttentionScorer — heuristic message priority tests."""
+
 from __future__ import annotations
 
 import pytest

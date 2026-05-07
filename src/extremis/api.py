@@ -33,14 +33,17 @@ def _build_store(config: Config) -> MemoryStore:
         if not config.postgres_url:
             raise ValueError("EXTREMIS_STORE=postgres requires EXTREMIS_POSTGRES_URL to be set.")
         from .storage.postgres import PostgresMemoryStore
+
         return PostgresMemoryStore(config.postgres_url, config)
     if config.store == "chroma":
         from .storage.chroma import ChromaMemoryStore
+
         return ChromaMemoryStore(config.resolved_chroma_path(), config)
     if config.store == "pinecone":
         if not config.pinecone_api_key:
             raise ValueError("EXTREMIS_STORE=pinecone requires EXTREMIS_PINECONE_API_KEY to be set.")
         from .storage.pinecone_store import PineconeMemoryStore
+
         return PineconeMemoryStore(
             config.pinecone_api_key,
             config.pinecone_index,
@@ -54,6 +57,7 @@ def _build_embedder(config: Config) -> Embedder:
     """Select embedder based on model name."""
     if config.embedder.startswith("text-embedding"):
         from .embeddings.openai import OpenAIEmbedder
+
         return OpenAIEmbedder(config.embedder, config.openai_api_key or None)
     return SentenceTransformerEmbedder(config.embedder)
 
@@ -251,8 +255,12 @@ class Extremis:
         context: Optional[dict] = None,
     ) -> AttentionResult:
         return self._attention.score(
-            message, sender=sender, channel=channel,
-            owner_ids=owner_ids, allowlist=allowlist, context=context,
+            message,
+            sender=sender,
+            channel=channel,
+            owner_ids=owner_ids,
+            allowlist=allowlist,
+            context=context,
         )
 
     # ------------------------------------------------------------------ #

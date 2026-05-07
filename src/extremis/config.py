@@ -17,26 +17,26 @@ class Config(BaseSettings):
 
     # ── SQLite ───────────────────────────────────────────────────────
     extremis_home: str = "~/.extremis"
-    log_dir: str = ""           # defaults to {extremis_home}/log
-    local_db_path: str = ""     # defaults to {extremis_home}/local.db
+    log_dir: str = ""  # defaults to {extremis_home}/log
+    local_db_path: str = ""  # defaults to {extremis_home}/local.db
 
     # ── Postgres ─────────────────────────────────────────────────────
     postgres_url: str = ""
 
     # ── Chroma ───────────────────────────────────────────────────────
-    chroma_path: str = ""       # defaults to {extremis_home}/chroma
+    chroma_path: str = ""  # defaults to {extremis_home}/chroma
 
     # ── Pinecone ─────────────────────────────────────────────────────
     pinecone_api_key: str = ""
     pinecone_index: str = "extremis"
-    pinecone_score_db: str = "" # defaults to {extremis_home}/pinecone_scores.db
+    pinecone_score_db: str = ""  # defaults to {extremis_home}/pinecone_scores.db
 
     # ── Embeddings ───────────────────────────────────────────────────
     # sentence-transformers model name  OR  OpenAI model name
     # e.g. "all-MiniLM-L6-v2" or "text-embedding-3-small"
     embedder: str = "all-MiniLM-L6-v2"
     embedding_dim: int = 384
-    openai_api_key: str = ""    # used when embedder = "text-embedding-*"
+    openai_api_key: str = ""  # used when embedder = "text-embedding-*"
 
     # ── Consolidation ────────────────────────────────────────────────
     consolidation_idle_minutes: int = 30

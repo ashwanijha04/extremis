@@ -1,4 +1,5 @@
 """HeuristicObserver — log compression and priority classification tests."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -147,7 +148,8 @@ class TestMetadata:
         assert obs[0].conversation_id == "conv_xyz"
 
     def test_role_preserved_as_tag(self, observer):
-        entry = LogEntry(role="assistant", content="I decided to help", conversation_id="c1",
-                         timestamp=datetime.now(tz=timezone.utc))
+        entry = LogEntry(
+            role="assistant", content="I decided to help", conversation_id="c1", timestamp=datetime.now(tz=timezone.utc)
+        )
         obs = observer.compress([entry])
         assert "assistant" in obs[0].tags

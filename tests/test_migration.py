@@ -1,4 +1,5 @@
 """Migration tests — SQLite ↔ Chroma round-trip, mocked embedder."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock
@@ -22,6 +23,7 @@ def sqlite_source(tmp_config):
 @pytest.fixture
 def chroma_dest(tmp_path, tmp_config):
     from extremis.storage.chroma import ChromaMemoryStore
+
     store = ChromaMemoryStore(str(tmp_path / "chroma_dest"), tmp_config)
     yield store
     store.close()
@@ -30,6 +32,7 @@ def chroma_dest(tmp_path, tmp_config):
 @pytest.fixture
 def chroma_source(tmp_path, tmp_config):
     from extremis.storage.chroma import ChromaMemoryStore
+
     store = ChromaMemoryStore(str(tmp_path / "chroma_source"), tmp_config)
     yield store
     store.close()

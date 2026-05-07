@@ -5,6 +5,7 @@ Ported and generalised from friday-saas/base/scripts/attention-scorer.py.
 Returns a score 0–100 and a processing level (full / standard / minimal / ignore).
 Zero LLM calls. Runs in microseconds.
 """
+
 from __future__ import annotations
 
 import unicodedata
@@ -14,16 +15,48 @@ from ..config import Config
 from ..types import AttentionResult
 
 _URGENT_KEYWORDS = [
-    "urgent", "asap", "emergency", "critical", "help", "broken", "down",
-    "p0", "p1", "outage", "fire", "immediately", "now",
+    "urgent",
+    "asap",
+    "emergency",
+    "critical",
+    "help",
+    "broken",
+    "down",
+    "p0",
+    "p1",
+    "outage",
+    "fire",
+    "immediately",
+    "now",
 ]
 _ACTION_KEYWORDS = [
-    "do", "please", "can you", "send", "build", "check", "fix", "create",
-    "review", "write", "update", "deploy", "run",
+    "do",
+    "please",
+    "can you",
+    "send",
+    "build",
+    "check",
+    "fix",
+    "create",
+    "review",
+    "write",
+    "update",
+    "deploy",
+    "run",
 ]
 _CASUAL_PATTERNS = [
-    "haha", "lol", "nice", "cool", "ok", "okay", "sure", "yep", "yeah", "nah",
-    "hm", "hmm",
+    "haha",
+    "lol",
+    "nice",
+    "cool",
+    "ok",
+    "okay",
+    "sure",
+    "yep",
+    "yeah",
+    "nah",
+    "hm",
+    "hmm",
 ]
 
 
@@ -33,8 +66,7 @@ def _is_single_emoji(text: str) -> bool:
         return False
     chars = [c for c in text if not unicodedata.category(c).startswith(("Cf", "Mn"))]
     return len(chars) <= 2 and all(
-        unicodedata.category(c) in ("So", "Sk", "Cn") or ord(c) > 0x1F000
-        for c in chars if c.strip()
+        unicodedata.category(c) in ("So", "Sk", "Cn") or ord(c) > 0x1F000 for c in chars if c.strip()
     )
 
 

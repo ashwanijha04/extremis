@@ -1,4 +1,5 @@
 """OpenAIEmbedder — fully mocked (no real API calls)."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -42,9 +43,7 @@ class TestOpenAIEmbedder:
 
     def test_embed_batch_batches_correctly(self):
         mock_client = MagicMock()
-        mock_client.embeddings.create.return_value = self._make_mock_response(
-            [[0.1] * 1536, [0.2] * 1536]
-        )
+        mock_client.embeddings.create.return_value = self._make_mock_response([[0.1] * 1536, [0.2] * 1536])
         with patch("openai.OpenAI", return_value=mock_client):
             e = OpenAIEmbedder("text-embedding-3-small", batch_size=2)
         result = e.embed_batch(["text 1", "text 2"])

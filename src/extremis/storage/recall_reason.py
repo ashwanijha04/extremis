@@ -1,4 +1,5 @@
 """Builds the human-readable 'reason' string on a RecallResult."""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone

@@ -10,6 +10,7 @@ Usage via config:
     EXTREMIS_EMBEDDER=text-embedding-3-small
     OPENAI_API_KEY=sk-...
 """
+
 from __future__ import annotations
 
 import os

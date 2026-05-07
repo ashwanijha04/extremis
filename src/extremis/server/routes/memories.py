@@ -69,8 +69,11 @@ def report(req: ReportRequest, mem: Memory) -> None:
 def store(req: RememberNowRequest, mem: Memory) -> dict:
     layer = MemoryLayer(req.layer)
     memory = mem.remember_now(
-        req.content, layer=layer, expires_at=req.expires_at,
-        confidence=req.confidence, metadata=req.metadata,
+        req.content,
+        layer=layer,
+        expires_at=req.expires_at,
+        confidence=req.confidence,
+        metadata=req.metadata,
     )
     return memory.model_dump(mode="json", exclude={"embedding"})
 
@@ -78,6 +81,7 @@ def store(req: RememberNowRequest, mem: Memory) -> dict:
 @router.post("/consolidate")
 def consolidate(mem: Memory) -> ConsolidateResponse:
     from ...consolidation.consolidator import LLMConsolidator
+
     consolidator = LLMConsolidator(mem._config, mem._embedder)
     result = consolidator.run_pass(mem.get_log(), mem.get_local_store(), mem.get_local_store())
     return ConsolidateResponse(

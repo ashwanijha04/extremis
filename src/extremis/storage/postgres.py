@@ -45,9 +45,7 @@ class PostgresMemoryStore:
             import psycopg2.extras
             from pgvector.psycopg2 import register_vector
         except ImportError:
-            raise ImportError(
-                "Postgres store requires: pip install 'extremis[postgres]'"
-            ) from None
+            raise ImportError("Postgres store requires: pip install 'extremis[postgres]'") from None
 
         self._config = config
         self._conn = psycopg2.connect(url)
@@ -63,6 +61,7 @@ class PostgresMemoryStore:
 
     def store(self, memory: Memory) -> Memory:
         import numpy as np
+
         embedding = np.array(memory.embedding, dtype=np.float32) if memory.embedding else None
 
         with self._conn.cursor() as cur:
@@ -165,6 +164,7 @@ class PostgresMemoryStore:
             rows = cur.fetchall()
 
         from .recall_reason import build_reason
+
         results = []
         for row in rows:
             if float(row["final_rank"]) < min_score:
@@ -176,8 +176,10 @@ class PostgresMemoryStore:
                     relevance=float(row["relevance"]),
                     final_rank=float(row["final_rank"]),
                     reason=build_reason(
-                        float(row["relevance"]), float(row["score"]),
-                        int(row["access_count"]), row["created_at"],
+                        float(row["relevance"]),
+                        float(row["score"]),
+                        int(row["access_count"]),
+                        row["created_at"],
                         mem.layer,
                     ),
                 )
@@ -248,4 +250,5 @@ class PostgresMemoryStore:
     @staticmethod
     def _dict_cursor():
         import psycopg2.extras
+
         return psycopg2.extras.RealDictCursor

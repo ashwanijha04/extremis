@@ -2,6 +2,7 @@
 SQLite knowledge graph — entities, relationships, attributes.
 Ported and generalised from friday-saas/base/scripts/knowledge-graph.py.
 """
+
 from __future__ import annotations
 
 import json
@@ -187,9 +188,7 @@ class SQLiteKGStore:
                 (self._ns, type.value),
             ).fetchall()
         else:
-            rows = self._conn.execute(
-                "SELECT * FROM kg_entities WHERE namespace = ?", (self._ns,)
-            ).fetchall()
+            rows = self._conn.execute("SELECT * FROM kg_entities WHERE namespace = ?", (self._ns,)).fetchall()
         return [self._row_to_entity(r) for r in rows]
 
     def export_markdown(self) -> str:

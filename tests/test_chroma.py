@@ -1,4 +1,5 @@
 """ChromaMemoryStore — adapter tests (requires chromadb installed)."""
+
 from __future__ import annotations
 
 import pytest
@@ -29,6 +30,7 @@ class TestChromaStore:
 
     def test_get_unknown_returns_none(self, chroma_store):
         from uuid import uuid4
+
         assert chroma_store.get(uuid4()) is None
 
     def test_search_returns_results(self, chroma_store):
@@ -79,6 +81,7 @@ class TestChromaStore:
 
     def test_namespace_isolation(self, tmp_path):
         from extremis.config import Config
+
         cfg_a = Config(
             extremis_home=str(tmp_path),
             local_db_path=str(tmp_path / "local.db"),

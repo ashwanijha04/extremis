@@ -6,6 +6,7 @@ The knowledge graph is always local SQLite (unchanged).
 
 Install: pip install "extremis[chroma]"
 """
+
 from __future__ import annotations
 
 import json
@@ -19,8 +20,8 @@ from ..config import Config
 from ..types import Memory, MemoryLayer, RecallResult
 from .score_index import SQLiteScoreIndex
 
-_NULL_DATETIME = ""          # Chroma metadata can't store None; use empty string
-_LIST_SEP = ","              # separator for source_memory_ids stored as string
+_NULL_DATETIME = ""  # Chroma metadata can't store None; use empty string
+_LIST_SEP = ","  # separator for source_memory_ids stored as string
 
 
 def _now_iso() -> str:
@@ -153,17 +154,22 @@ class ChromaMemoryStore:
 
             if final_rank >= min_score:
                 from .recall_reason import build_reason
+
                 mem = _meta_to_memory(doc_id, document, metadata, utility_score)
-                results.append(RecallResult(
-                    memory=mem,
-                    relevance=relevance,
-                    final_rank=final_rank,
-                    reason=build_reason(
-                        relevance, utility_score,
-                        int(metadata.get("access_count", 0)),
-                        metadata["created_at"], mem.layer,
-                    ),
-                ))
+                results.append(
+                    RecallResult(
+                        memory=mem,
+                        relevance=relevance,
+                        final_rank=final_rank,
+                        reason=build_reason(
+                            relevance,
+                            utility_score,
+                            int(metadata.get("access_count", 0)),
+                            metadata["created_at"],
+                            mem.layer,
+                        ),
+                    )
+                )
 
         results.sort(key=lambda r: r.final_rank, reverse=True)
         top = results[:limit]

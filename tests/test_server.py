@@ -2,6 +2,7 @@
 Hosted API server tests — uses FastAPI TestClient (no real HTTP, no LLM).
 All memory operations use a mocked embedder so sentence-transformers isn't needed.
 """
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -42,6 +43,7 @@ def mock_embedder():
 @pytest.fixture
 def client(tmp_path, key_store, mock_embedder):
     from extremis.config import Config
+
     server_cfg = Config(
         extremis_home=str(tmp_path),
         log_dir=str(tmp_path / "log"),
@@ -57,8 +59,10 @@ def client(tmp_path, key_store, mock_embedder):
         deps.init(key_store, server_cfg)
         yield
 
-    with patch("extremis.api._build_embedder", return_value=mock_embedder), \
-         patch("extremis.server.app.lifespan", test_lifespan):
+    with (
+        patch("extremis.api._build_embedder", return_value=mock_embedder),
+        patch("extremis.server.app.lifespan", test_lifespan),
+    ):
         deps._instances.clear()
         app = create_app()
         with TestClient(app) as c:
@@ -91,10 +95,14 @@ class TestAuth:
 
 class TestMemoryEndpoints:
     def test_remember_and_recall(self, client, auth):
-        client.post("/v1/memories/remember", json={
-            "content": "User is building a WhatsApp AI",
-            "conversation_id": "c1",
-        }, headers=auth)
+        client.post(
+            "/v1/memories/remember",
+            json={
+                "content": "User is building a WhatsApp AI",
+                "conversation_id": "c1",
+            },
+            headers=auth,
+        )
 
         resp = client.post("/v1/memories/recall", json={"query": "WhatsApp", "limit": 5}, headers=auth)
         assert resp.status_code == 200
@@ -102,11 +110,15 @@ class TestMemoryEndpoints:
         assert any("WhatsApp" in r["memory"]["content"] for r in results)
 
     def test_store_returns_memory(self, client, auth):
-        resp = client.post("/v1/memories/store", json={
-            "content": "User is a Python developer",
-            "layer": "semantic",
-            "confidence": 0.95,
-        }, headers=auth)
+        resp = client.post(
+            "/v1/memories/store",
+            json={
+                "content": "User is a Python developer",
+                "layer": "semantic",
+                "confidence": 0.95,
+            },
+            headers=auth,
+        )
         assert resp.status_code == 200
         memory = resp.json()
         assert memory["content"] == "User is a Python developer"
@@ -114,24 +126,36 @@ class TestMemoryEndpoints:
         assert memory["confidence"] == pytest.approx(0.95)
 
     def test_report_outcome(self, client, auth):
-        store_resp = client.post("/v1/memories/store", json={
-            "content": "Concise answers work well",
-            "layer": "procedural",
-        }, headers=auth)
+        store_resp = client.post(
+            "/v1/memories/store",
+            json={
+                "content": "Concise answers work well",
+                "layer": "procedural",
+            },
+            headers=auth,
+        )
         memory_id = store_resp.json()["id"]
 
-        resp = client.post("/v1/memories/report", json={
-            "memory_ids": [memory_id],
-            "success": True,
-            "weight": 2.0,
-        }, headers=auth)
+        resp = client.post(
+            "/v1/memories/report",
+            json={
+                "memory_ids": [memory_id],
+                "success": True,
+                "weight": 2.0,
+            },
+            headers=auth,
+        )
         assert resp.status_code == 204
 
     def test_observe(self, client, auth):
-        client.post("/v1/memories/remember", json={
-            "content": "We decided to launch tomorrow",
-            "conversation_id": "obs_test",
-        }, headers=auth)
+        client.post(
+            "/v1/memories/remember",
+            json={
+                "content": "We decided to launch tomorrow",
+                "conversation_id": "obs_test",
+            },
+            headers=auth,
+        )
         resp = client.get("/v1/memories/observe", params={"conversation_id": "obs_test"}, headers=auth)
         assert resp.status_code == 200
         obs = resp.json()["observations"]
@@ -140,11 +164,15 @@ class TestMemoryEndpoints:
 
 class TestKGEndpoints:
     def test_add_entity_and_query(self, client, auth):
-        client.post("/v1/kg/write", json={
-            "operation": "add_entity",
-            "name": "Alice",
-            "entity_type": "person",
-        }, headers=auth)
+        client.post(
+            "/v1/kg/write",
+            json={
+                "operation": "add_entity",
+                "name": "Alice",
+                "entity_type": "person",
+            },
+            headers=auth,
+        )
         resp = client.post("/v1/kg/query", json={"name": "Alice", "traverse_depth": 0}, headers=auth)
         assert resp.status_code == 200
         result = resp.json()["result"]
@@ -152,12 +180,25 @@ class TestKGEndpoints:
         assert result["entity"]["name"] == "Alice"
 
     def test_add_attribute(self, client, auth):
-        client.post("/v1/kg/write", json={
-            "operation": "add_entity", "name": "Bob", "entity_type": "person",
-        }, headers=auth)
-        client.post("/v1/kg/write", json={
-            "operation": "add_attribute", "name": "Bob", "key": "timezone", "value": "UTC",
-        }, headers=auth)
+        client.post(
+            "/v1/kg/write",
+            json={
+                "operation": "add_entity",
+                "name": "Bob",
+                "entity_type": "person",
+            },
+            headers=auth,
+        )
+        client.post(
+            "/v1/kg/write",
+            json={
+                "operation": "add_attribute",
+                "name": "Bob",
+                "key": "timezone",
+                "value": "UTC",
+            },
+            headers=auth,
+        )
         resp = client.post("/v1/kg/query", json={"name": "Bob"}, headers=auth)
         attrs = {a["key"]: a["value"] for a in resp.json()["result"]["attributes"]}
         assert attrs["timezone"] == "UTC"
@@ -186,6 +227,7 @@ class TestKeyStore:
 
     def test_revoke(self, key_store):
         from extremis.server.auth import hash_key
+
         key = key_store.create("alice")
         key_store.revoke(hash_key(key))
         assert key_store.validate(key) is None
