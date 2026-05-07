@@ -283,6 +283,9 @@ Compresses raw log entries into priority-tagged observations — no LLM, runs in
 
 ## Install
 
+> **Requires Python 3.11+** — if `pip install extremis` says "no matching distribution", your default `python3` is older.
+> Fix: `brew install python@3.11` then use `/opt/homebrew/bin/pip3.11 install extremis`
+
 ```bash
 # Core — SQLite + local sentence-transformers (no API key needed)
 pip install extremis
