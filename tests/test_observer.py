@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from extremis.observer.observer import HeuristicObserver, _CAPS_DAILY
+from extremis.observer.observer import _CAPS_DAILY, HeuristicObserver
 from extremis.types import LogEntry, ObservationPriority
 
 

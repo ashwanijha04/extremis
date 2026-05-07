@@ -10,8 +10,8 @@ from uuid import UUID
 
 import numpy as np
 
-from ..types import Memory, MemoryLayer, RecallResult
 from ..config import Config
+from ..types import Memory, MemoryLayer, RecallResult
 
 
 def _now_iso() -> str:
@@ -133,7 +133,7 @@ class SQLiteMemoryStore:
         if layers:
             placeholders = ",".join("?" * len(layers))
             layer_filter = f"AND layer IN ({placeholders})"
-            params += [l.value for l in layers]
+            params += [lyr.value for lyr in layers]
 
         rows = self._conn.execute(
             f"""
@@ -152,7 +152,7 @@ class SQLiteMemoryStore:
             if len(stored_vec) != len(query_vec):
                 continue
 
-            relevance = self._cosine(query_vec, query_norm, stored_vec)
+            relevance = self._cosine(query_vec, float(query_norm), stored_vec)
             final_rank = self._rank(relevance, row["score"], row["created_at"])
 
             if final_rank >= min_score:
@@ -212,7 +212,11 @@ class SQLiteMemoryStore:
     ) -> list[Memory]:
         if layer:
             rows = self._conn.execute(
-                "SELECT * FROM memories WHERE namespace = ? AND layer = ? AND validity_end IS NULL ORDER BY created_at DESC LIMIT ?",
+                (
+                    "SELECT * FROM memories"
+                    " WHERE namespace = ? AND layer = ? AND validity_end IS NULL"
+                    " ORDER BY created_at DESC LIMIT ?"
+                ),
                 (self._ns, layer.value, limit),
             ).fetchall()
         else:

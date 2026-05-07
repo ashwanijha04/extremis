@@ -1,10 +1,9 @@
 """FastAPI dependencies — auth, per-namespace Memory instances."""
 from __future__ import annotations
 
-import os
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Header, status
+from fastapi import Depends, Header, HTTPException, status
 
 from ..api import Extremis
 from ..config import Config

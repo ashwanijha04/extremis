@@ -1,14 +1,14 @@
 """Migration tests — SQLite ↔ Chroma round-trip, mocked embedder."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 import pytest
 
-from extremis.migrate import Migrator, MigrationResult
+from extremis.migrate import Migrator
 from extremis.storage.sqlite import SQLiteMemoryStore
 from extremis.types import MemoryLayer
+
 from .conftest import make_memory
 
 pytest.importorskip("chromadb", reason="chromadb not installed")

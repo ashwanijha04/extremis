@@ -17,14 +17,11 @@ from .types import (
     EntityResult,
     EntityType,
     FeedbackSignal,
-    KGAttribute,
     LogEntry,
     Memory,
     MemoryLayer,
     Observation,
-    ObservationPriority,
     RecallResult,
-    Relationship,
 )
 
 _NEGATIVE_WEIGHT_MULTIPLIER = 1.5  # match friday-saas asymmetric RL weighting
@@ -140,7 +137,7 @@ class Extremis:
 
         # Ranked recall for semantic + episodic (or custom filter)
         search_layers = layers or [MemoryLayer.SEMANTIC, MemoryLayer.EPISODIC]
-        search_layers = [l for l in search_layers if l not in pinned_layers]
+        search_layers = [layer for layer in search_layers if layer not in pinned_layers]
 
         ranked = self._local.search(
             query_embedding,

@@ -4,7 +4,6 @@ import json
 import logging
 from datetime import datetime, timezone
 from itertools import islice
-from typing import Optional
 
 import anthropic
 

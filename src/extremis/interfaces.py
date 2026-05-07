@@ -5,7 +5,6 @@ from uuid import UUID
 
 from .types import (
     ConsolidationResult,
-    FeedbackSignal,
     LogEntry,
     Memory,
     MemoryLayer,

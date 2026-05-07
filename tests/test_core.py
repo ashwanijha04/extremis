@@ -1,11 +1,10 @@
 """FileLogStore + SQLiteMemoryStore — core storage tests."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 import pytest
 
 from extremis.types import LogEntry, MemoryLayer
+
 from .conftest import make_memory
 
 

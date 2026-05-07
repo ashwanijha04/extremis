@@ -167,14 +167,15 @@ class SQLiteKGStore:
         return results
 
     def query_by_attribute(self, key: str, value: Optional[str] = None) -> list[Entity]:
+        _join = "SELECT e.* FROM kg_entities e JOIN kg_attributes a ON e.name = a.entity AND e.namespace = a.namespace"
         if value:
             rows = self._conn.execute(
-                "SELECT e.* FROM kg_entities e JOIN kg_attributes a ON e.name = a.entity AND e.namespace = a.namespace WHERE e.namespace = ? AND a.key = ? AND a.value = ?",
+                f"{_join} WHERE e.namespace = ? AND a.key = ? AND a.value = ?",
                 (self._ns, key, value),
             ).fetchall()
         else:
             rows = self._conn.execute(
-                "SELECT e.* FROM kg_entities e JOIN kg_attributes a ON e.name = a.entity AND e.namespace = a.namespace WHERE e.namespace = ? AND a.key = ?",
+                f"{_join} WHERE e.namespace = ? AND a.key = ?",
                 (self._ns, key),
             ).fetchall()
         return [self._row_to_entity(r) for r in rows]

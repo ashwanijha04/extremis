@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter
+
 from ..deps import Memory, Namespace
 
 router = APIRouter(tags=["system"])

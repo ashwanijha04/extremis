@@ -9,13 +9,11 @@ Storage: SQLite file at {server_home}/keys.db
 from __future__ import annotations
 
 import hashlib
-import os
 import secrets
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
-
 
 _PREFIX = "extremis_sk_"
 

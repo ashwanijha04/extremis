@@ -7,7 +7,7 @@ import pytest
 
 pytest.importorskip("openai", reason="openai not installed — pip install 'extremis[openai]'")
 
-from extremis.embeddings.openai import OpenAIEmbedder, _DIMS
+from extremis.embeddings.openai import OpenAIEmbedder
 
 
 class TestOpenAIEmbedder:

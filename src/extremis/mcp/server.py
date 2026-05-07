@@ -106,7 +106,7 @@ def create_server(config: Config | None = None) -> FastMCP:
         """
         layer_list = None
         if layers:
-            layer_list = [MemoryLayer(l.strip()) for l in layers.split(",") if l.strip()]
+            layer_list = [MemoryLayer(layer.strip()) for layer in layers.split(",") if layer.strip()]
 
         results = mem.recall(query, limit=limit, layers=layer_list)
 
@@ -185,7 +185,7 @@ def create_server(config: Config | None = None) -> FastMCP:
         try:
             ml = MemoryLayer(layer)
         except ValueError:
-            valid = [l.value for l in MemoryLayer]
+            valid = [layer.value for layer in MemoryLayer]
             return f"Unknown layer '{layer}'. Valid layers: {valid}"
 
         expiry = datetime.fromisoformat(expires_at) if expires_at else None

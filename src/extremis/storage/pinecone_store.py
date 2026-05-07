@@ -15,8 +15,6 @@ from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
-import numpy as np
-
 from ..config import Config
 from ..types import Memory, MemoryLayer, RecallResult
 from .score_index import SQLiteScoreIndex
@@ -123,7 +121,7 @@ class PineconeMemoryStore:
     ) -> list[RecallResult]:
         pinecone_filter: dict = {"validity_end": {"$eq": _NULL}}
         if layers:
-            pinecone_filter["layer"] = {"$in": [l.value for l in layers]}
+            pinecone_filter["layer"] = {"$in": [lyr.value for lyr in layers]}
 
         result = self._index.query(
             vector=query_embedding,

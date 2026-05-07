@@ -7,7 +7,7 @@ from uuid import UUID
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from ...types import MemoryLayer, RecallResult
+from ...types import MemoryLayer
 from ..deps import Memory
 
 router = APIRouter(tags=["memories"])
@@ -55,7 +55,7 @@ def remember(req: RememberRequest, mem: Memory) -> None:
 
 @router.post("/recall")
 def recall(req: RecallRequest, mem: Memory) -> dict:
-    layers = [MemoryLayer(l) for l in req.layers] if req.layers else None
+    layers = [MemoryLayer(lyr) for lyr in req.layers] if req.layers else None
     results = mem.recall(req.query, limit=req.limit, layers=layers, min_score=req.min_score)
     return {"results": [r.model_dump(mode="json") for r in results]}
 

@@ -1,12 +1,11 @@
 """ChromaMemoryStore — adapter tests (requires chromadb installed)."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 import pytest
 
 from extremis.storage.chroma import ChromaMemoryStore
 from extremis.types import MemoryLayer
+
 from .conftest import make_memory
 
 pytest.importorskip("chromadb", reason="chromadb not installed")

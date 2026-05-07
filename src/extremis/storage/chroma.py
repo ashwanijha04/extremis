@@ -15,8 +15,6 @@ from pathlib import Path
 from typing import Optional
 from uuid import UUID
 
-import numpy as np
-
 from ..config import Config
 from ..types import Memory, MemoryLayer, RecallResult
 from .score_index import SQLiteScoreIndex
@@ -123,7 +121,7 @@ class ChromaMemoryStore:
         validity_filter = {"validity_end": {"$eq": _NULL_DATETIME}}
 
         if layers:
-            layer_filter = {"layer": {"$in": [l.value for l in layers]}}
+            layer_filter = {"layer": {"$in": [lyr.value for lyr in layers]}}
             where = {"$and": [validity_filter, layer_filter]}
         else:
             where = validity_filter

@@ -7,7 +7,6 @@ from extremis.api import Extremis
 from extremis.config import Config
 from extremis.storage.kg import SQLiteKGStore
 from extremis.types import EntityType, MemoryLayer
-from .conftest import make_memory
 
 
 @pytest.fixture

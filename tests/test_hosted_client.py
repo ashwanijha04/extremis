@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 import pytest
+
 pytest.importorskip("httpx", reason="httpx not installed")
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from extremis.client import HostedClient
-from extremis.types import MemoryLayer
 
 
 def make_client(responses: dict | None = None) -> HostedClient:
@@ -71,6 +72,6 @@ class TestHostedClientInterface:
         with patch("httpx.Client") as mock_cls:
             mock_http = MagicMock()
             mock_cls.return_value = mock_http
-            with HostedClient(api_key="extremis_sk_test") as c:
+            with HostedClient(api_key="extremis_sk_test"):
                 pass
             mock_http.close.assert_called_once()

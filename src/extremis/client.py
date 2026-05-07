@@ -94,7 +94,7 @@ class HostedClient:
         data = self._post("/v1/memories/recall", {
             "query": query,
             "limit": limit,
-            "layers": [l.value for l in layers] if layers else None,
+            "layers": [layer.value for layer in layers] if layers else None,
             "min_score": min_score,
         })
         return [RecallResult(**r) for r in data["results"]]

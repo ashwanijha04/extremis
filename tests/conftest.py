@@ -13,7 +13,6 @@ from extremis.storage.log import FileLogStore
 from extremis.storage.sqlite import SQLiteMemoryStore
 from extremis.types import Memory, MemoryLayer
 
-
 # ------------------------------------------------------------------ #
 # Config + storage fixtures
 # ------------------------------------------------------------------ #

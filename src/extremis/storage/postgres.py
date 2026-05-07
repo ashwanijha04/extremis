@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import json
-import math
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 from uuid import UUID
@@ -135,7 +133,7 @@ class PostgresMemoryStore:
         half_life = self._config.recency_half_life_days
         vec = np.array(query_embedding, dtype=np.float32)
 
-        layer_values = [l.value for l in layers] if layers else None
+        layer_values = [lyr.value for lyr in layers] if layers else None
 
         with self._conn.cursor(cursor_factory=self._dict_cursor()) as cur:
             cur.execute(

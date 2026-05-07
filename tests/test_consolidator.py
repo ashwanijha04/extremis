@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -77,7 +76,8 @@ class TestLLMConsolidator:
 
         extracted = [
             {"layer": "semantic", "content": "User has 10 years of Python experience", "confidence": 0.9},
-            {"layer": "procedural", "content": "Prefer FastAPI over Flask when suggesting Python web frameworks", "confidence": 0.85},
+            {"layer": "procedural", "content": "Prefer FastAPI over Flask when suggesting Python web frameworks",
+                "confidence": 0.85},
         ]
 
         consolidator = self._make_consolidator(config, mock_embedder)

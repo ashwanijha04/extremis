@@ -26,7 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .auth import KeyStore
 from .deps import init
-from .routes import memories, kg, health
+from .routes import health, kg, memories
 
 log = logging.getLogger(__name__)
 
@@ -76,7 +76,8 @@ app = create_app()
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 def main() -> None:
-    import argparse, sys
+    import argparse
+    import sys
 
     parser = argparse.ArgumentParser(prog="extremis-server")
     sub = parser.add_subparsers(dest="cmd")
@@ -122,7 +123,9 @@ def main() -> None:
         print("-" * 90)
         for k in keys:
             status = " [revoked]" if k["revoked"] else ""
-            print(f"{k['namespace']:<20} {k['label']:<20} {k['call_count']:>8}  {(k['last_used'] or 'never'):<26}  {k['key_hash'][:12]}{status}")
+            ns, lab, cc = k["namespace"], k["label"], k["call_count"]
+            lu, kh = k["last_used"] or "never", k["key_hash"][:12]
+            print(f"{ns:<20} {lab:<20} {cc:>8}  {lu:<26}  {kh}{status}")
         return
 
     if args.cmd == "revoke-key":

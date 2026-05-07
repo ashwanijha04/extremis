@@ -5,6 +5,7 @@ All memory operations use a mocked embedder so sentence-transformers isn't neede
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
+
 import pytest
 
 pytest.importorskip("fastapi", reason="fastapi not installed")
@@ -12,9 +13,9 @@ pytest.importorskip("httpx", reason="httpx not installed")
 
 from fastapi.testclient import TestClient
 
+import extremis.server.deps as deps
 from extremis.server.app import create_app
 from extremis.server.auth import KeyStore
-import extremis.server.deps as deps
 
 
 @pytest.fixture
