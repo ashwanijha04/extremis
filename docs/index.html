@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extremis — Memory for AI Agents</title>
+  <meta name="description" content="Layered, learning memory for AI agents. RL-scored, log-first, backend-agnostic. pip install extremis." />
+  <meta property="og:title" content="Extremis — Memory for AI Agents" />
+  <meta property="og:description" content="Memory that gets smarter the more your agent uses it." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0f;
+      --surface:  #111118;
+      --border:   #1e1e2e;
+      --text:     #e2e2f0;
+      --muted:    #6b6b8a;
+      --accent:   #7c6af7;
+      --accent2:  #4ecdc4;
+      --green:    #3ddc84;
+      --red:      #ff6b6b;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem;
+      height: 56px;
+      background: rgba(10,10,15,.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-weight: 700; font-size: 1.1rem; color: var(--text); letter-spacing: -.02em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a { color: var(--muted); font-size: .9rem; transition: color .15s; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .btn-sm {
+      background: var(--accent); color: #fff !important;
+      padding: .4rem 1rem; border-radius: 6px;
+      font-size: .85rem; font-weight: 500;
+      transition: opacity .15s;
+    }
+    .btn-sm:hover { opacity: .85; text-decoration: none !important; }
+
+    /* ── Sections ── */
+    section { max-width: 960px; margin: 0 auto; padding: 5rem 2rem; }
+
+    /* ── Hero ── */
+    .hero { text-align: center; padding-top: 6rem; padding-bottom: 4rem; }
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(124,106,247,.12); border: 1px solid rgba(124,106,247,.3);
+      color: var(--accent); padding: .35rem .85rem; border-radius: 100px;
+      font-size: .8rem; font-weight: 500; margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 700; letter-spacing: -.03em; line-height: 1.15;
+      margin-bottom: 1.25rem;
+    }
+    h1 em { font-style: normal; color: var(--accent); }
+    .sub {
+      font-size: 1.15rem; color: var(--muted); max-width: 560px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      padding: .75rem 1.75rem; border-radius: 8px;
+      font-weight: 600; font-size: 1rem;
+      transition: opacity .15s; display: inline-block;
+    }
+    .btn-primary:hover { opacity: .85; text-decoration: none; }
+    .btn-ghost {
+      border: 1px solid var(--border); color: var(--text);
+      padding: .75rem 1.75rem; border-radius: 8px;
+      font-weight: 500; font-size: 1rem; display: inline-block;
+      transition: border-color .15s;
+    }
+    .btn-ghost:hover { border-color: var(--muted); text-decoration: none; }
+
+    /* ── Install strip ── */
+    .install {
+      margin: 2rem auto 0;
+      display: inline-flex; align-items: center; gap: 1rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: .85rem 1.5rem;
+    }
+    .install code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .95rem; color: var(--accent2);
+    }
+    .copy-btn {
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); padding: .25rem .6rem;
+      border-radius: 5px; cursor: pointer; font-size: .8rem;
+      transition: all .15s;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--muted); }
+
+    /* ── How it works ── */
+    h2 { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: .75rem; }
+    .section-sub { color: var(--muted); margin-bottom: 3rem; font-size: 1.05rem; }
+
+    .flow {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+    }
+    @media (max-width: 640px) { .flow { grid-template-columns: 1fr; } }
+    .flow-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+    }
+    .flow-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; }
+    .flow-card p { color: var(--muted); font-size: .9rem; line-height: 1.6; }
+    .flow-card .tag {
+      display: inline-block; font-size: .7rem; font-weight: 600;
+      padding: .2rem .5rem; border-radius: 4px; margin-bottom: .75rem;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .tag-free { background: rgba(61,220,132,.12); color: var(--green); }
+    .tag-llm  { background: rgba(124,106,247,.12); color: var(--accent); }
+
+    /* ── Code block ── */
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .85rem; overflow-x: auto; line-height: 1.7;
+    }
+    .kw   { color: #c792ea; }
+    .fn   { color: #82aaff; }
+    .str  { color: #c3e88d; }
+    .cm   { color: #546e7a; }
+    .num  { color: #f78c6c; }
+    .op   { color: var(--accent2); }
+
+    /* ── Differentiators ── */
+    .diffs { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+    .diff-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem;
+      transition: border-color .2s;
+    }
+    .diff-card:hover { border-color: var(--accent); }
+    .diff-icon { font-size: 1.5rem; margin-bottom: .75rem; }
+    .diff-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; }
+    .diff-card p { color: var(--muted); font-size: .88rem; }
+
+    /* ── Comparison table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 500; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+    td:first-child { font-weight: 500; }
+    .yes { color: var(--green); }
+    .no  { color: var(--muted); }
+    .partial { color: #f0c040; }
+    tr:last-child td { border-bottom: none; }
+    .row-us { background: rgba(124,106,247,.05); }
+    .row-us td:first-child { color: var(--accent); font-weight: 600; }
+
+    /* ── MCP ── */
+    .mcp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+    @media (max-width: 640px) { .mcp-grid { grid-template-columns: 1fr; } }
+    .tool-list { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .tool-list li {
+      display: flex; gap: .75rem; align-items: flex-start;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: .75rem 1rem;
+    }
+    .tool-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem; color: var(--accent2); white-space: nowrap;
+      min-width: 160px;
+    }
+    .tool-desc { color: var(--muted); font-size: .85rem; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+
+    /* ── Glow ── */
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse at center, rgba(124,106,247,.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero { position: relative; }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">🧠 <span>extremis</span></div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#install">Install</a>
+    <a href="#mcp">MCP</a>
+    <a href="https://github.com/ashwanijha04/extremis" target="_blank">GitHub</a>
+    <a href="https://pypi.org/project/extremis" target="_blank" class="btn-sm">PyPI ↗</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="badge">🔴 Iron Man's EXTREMIS — AI memory that <em>merges with the agent</em></div>
+  <h1>Memory that gets <em>smarter</em><br/>the more your agent uses it</h1>
+  <p class="sub">
+    Stop rebuilding RAG pipelines. Extremis gives any AI agent layered, learning memory
+    in two lines of config — local SQLite, Postgres, Chroma, or Pinecone.
+  </p>
+  <div class="hero-actions">
+    <a href="#install" class="btn-primary">Get started</a>
+    <a href="https://github.com/ashwanijha04/extremis" target="_blank" class="btn-ghost">View on GitHub →</a>
+  </div>
+  <div style="margin-top:2rem; display:flex; justify-content:center;">
+    <div class="install">
+      <code id="install-cmd">pip install extremis</code>
+      <button class="copy-btn" onclick="copy()">copy</button>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how">
+  <h2>How it works</h2>
+  <p class="section-sub">Every conversation logs durably. Every recalled memory gets scored. Every night the logs distil into structured knowledge.</p>
+  <div class="flow">
+    <div class="flow-card">
+      <span class="tag tag-free">Free · no LLM</span>
+      <h3>remember()</h3>
+      <p>Append to a fsync'd JSONL log and write to the episodic store in one call. Durable before any embedding happens.</p>
+    </div>
+    <div class="flow-card">
+      <span class="tag tag-free">Free · no LLM</span>
+      <h3>recall()</h3>
+      <p>Semantic search ranked by <strong>cosine × RL score × recency</strong>. Identity and procedural memories always included. Every result ships with a plain-English reason.</p>
+    </div>
+    <div class="flow-card">
+      <span class="tag tag-free">Free · no LLM</span>
+      <h3>report_outcome()</h3>
+      <p>Mark recalled memories useful (+1) or harmful (-1). Negative signals apply 1.5× weight — same asymmetry human threat-memory uses.</p>
+    </div>
+    <div class="flow-card">
+      <span class="tag tag-llm">Uses Claude Haiku</span>
+      <h3>consolidate()</h3>
+      <p>The "dream pass" — reads new log entries, calls Claude Haiku to extract durable semantic and procedural facts, advances the checkpoint. Safe to re-run.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Install & quickstart -->
+<section id="install">
+  <h2>Install</h2>
+  <p class="section-sub">Requires Python 3.11+. No API key needed for the core library.</p>
+  <pre><span class="cm"># Core — local SQLite, sentence-transformers (no API key)</span>
+pip install extremis
+
+<span class="cm"># + MCP server for Claude Desktop / Code</span>
+pip install <span class="str">"extremis[mcp]"</span>
+
+<span class="cm"># + Postgres, Chroma, Pinecone, OpenAI embeddings, hosted server</span>
+pip install <span class="str">"extremis[all]"</span></pre>
+
+  <div style="margin-top:2rem;">
+    <h3 style="font-size:1.1rem; margin-bottom:1rem; font-weight:600;">Quick start</h3>
+    <pre><span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">Extremis</span>, <span class="fn">MemoryLayer</span>
+
+mem <span class="op">=</span> <span class="fn">Extremis</span>()  <span class="cm"># stores in ~/.extremis/ by default</span>
+
+<span class="cm"># Store</span>
+mem.<span class="fn">remember</span>(<span class="str">"User is building a WhatsApp AI"</span>, conversation_id=<span class="str">"c1"</span>)
+mem.<span class="fn">remember_now</span>(<span class="str">"Always ask about deadlines first"</span>, layer=MemoryLayer.PROCEDURAL)
+
+<span class="cm"># Recall — every result explains why it ranked here</span>
+results <span class="op">=</span> mem.<span class="fn">recall</span>(<span class="str">"what is the user building?"</span>)
+<span class="kw">for</span> r <span class="kw">in</span> results:
+    print(r.memory.content)
+    print(r.reason)  <span class="cm"># "similarity 0.87 · score +2.0 · used 5× · 3d old"</span>
+
+<span class="cm"># Reinforcement — good memories surface first over time</span>
+mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</span> r <span class="kw">in</span> results[:<span class="num">2</span>]], success=<span class="kw">True</span>)
+
+<span class="cm"># Try the demo</span>
+<span class="cm"># $ extremis-demo</span></pre>
+  </div>
+</section>
+
+<!-- Differentiators -->
+<section id="why">
+  <h2>Why Extremis</h2>
+  <p class="section-sub">Most memory systems are cosine search over a flat vector DB. Extremis is different in five ways.</p>
+  <div class="diffs">
+    <div class="diff-card">
+      <div class="diff-icon">🧬</div>
+      <h3>Memory that forgets intelligently</h3>
+      <p>Recency decay + 1.5× asymmetric RL weighting. Unimportant things fade. Mistakes stick harder. The same pattern human threat-memory uses.</p>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">🔍</div>
+      <h3>Every recall explains itself</h3>
+      <p><code style="font-family:monospace;font-size:.85rem;">r.reason</code> — <em>"similarity 0.91 · score +4.0 · used 8× · 3d old"</em>. Auditable for enterprises. Debuggable for everyone.</p>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">🤝</div>
+      <h3>Cross-agent shared memory</h3>
+      <p>Multiple agents share one namespace. Research agent stores, writing agent recalls. Agent teams ship as one brain.</p>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">🔌</div>
+      <h3>Backend-agnostic</h3>
+      <p>SQLite locally. Postgres in staging. Pinecone in production. One env var. Migrate between any two with <code style="font-family:monospace;font-size:.85rem;">extremis-migrate</code>.</p>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">🕸️</div>
+      <h3>Knowledge graph built in</h3>
+      <p>Entities, relationships, attributes. Answers "who does Alice work for" — the structural question vectors can't.</p>
+    </div>
+    <div class="diff-card">
+      <div class="diff-icon">⚡</div>
+      <h3>MCP-native</h3>
+      <p>Plug into Claude Desktop or Claude Code with two lines of config. Nine tools, no code required.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section id="compare">
+  <h2>How it compares</h2>
+  <p class="section-sub"></p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Extremis</th>
+          <th>Mem0</th>
+          <th>LangChain</th>
+          <th>Raw Pinecone</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-us"><td>RL-scored retrieval</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+        <tr><td>Memory explains itself</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+        <tr class="row-us"><td>Knowledge graph</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+        <tr><td>Backend-agnostic</td><td class="yes">✓ 4 backends</td><td class="no">Cloud only</td><td class="partial">Manual</td><td class="no">—</td></tr>
+        <tr class="row-us"><td>MCP server</td><td class="yes">✓ 9 tools</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+        <tr><td>Self-hostable</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+        <tr class="row-us"><td>Migration CLI</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">—</td></tr>
+        <tr><td>Open source (MIT)</td><td class="yes">✓</td><td class="partial">Partial</td><td class="yes">✓</td><td class="no">✗</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MCP -->
+<section id="mcp">
+  <h2>MCP setup — 30 seconds</h2>
+  <p class="section-sub">Claude Desktop and Claude Code supported out of the box.</p>
+  <div class="mcp-grid">
+    <div>
+      <pre><span class="cm"># 1. Install</span>
+pip install <span class="str">"extremis[mcp]"</span>
+
+<span class="cm"># 2. Add to Claude Desktop config</span>
+<span class="cm"># ~/Library/Application Support/Claude/</span>
+<span class="cm">#   claude_desktop_config.json</span>
+{
+  <span class="str">"mcpServers"</span>: {
+    <span class="str">"extremis"</span>: {
+      <span class="str">"command"</span>: <span class="str">"extremis-mcp"</span>
+    }
+  }
+}
+
+<span class="cm"># 3. Restart Claude Desktop</span></pre>
+    </div>
+    <div>
+      <ul class="tool-list">
+        <li><span class="tool-name">memory_remember</span><span class="tool-desc">Append to log + episodic store</span></li>
+        <li><span class="tool-name">memory_recall</span><span class="tool-desc">Layered semantic search with reasons</span></li>
+        <li><span class="tool-name">memory_report_outcome</span><span class="tool-desc">+1 / −1 RL signal</span></li>
+        <li><span class="tool-name">memory_remember_now</span><span class="tool-desc">Direct write to any layer</span></li>
+        <li><span class="tool-name">memory_consolidate</span><span class="tool-desc">Dream pass — log → structured facts</span></li>
+        <li><span class="tool-name">memory_kg_write</span><span class="tool-desc">Add entity / relationship / attribute</span></li>
+        <li><span class="tool-name">memory_kg_query</span><span class="tool-desc">Query the knowledge graph</span></li>
+        <li><span class="tool-name">memory_observe</span><span class="tool-desc">🔴🟡🟢 priority log compression</span></li>
+        <li><span class="tool-name">memory_score_attention</span><span class="tool-desc">0–100 message priority score</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>
+    Built by <a href="https://github.com/ashwanijha04" target="_blank">Ashwani Jha</a> ·
+    <a href="https://github.com/ashwanijha04/extremis" target="_blank">GitHub</a> ·
+    <a href="https://pypi.org/project/extremis" target="_blank">PyPI</a> ·
+    MIT License
+  </p>
+  <p style="margin-top:.5rem; font-size:.8rem; color:#3a3a5a;">
+    Named after the Extremis nanotechnology from Iron Man — the tech that merges cognition with stored knowledge.
+  </p>
+</footer>
+
+<script>
+function copy() {
+  navigator.clipboard.writeText('pip install extremis');
+  const btn = document.querySelector('.copy-btn');
+  btn.textContent = 'copied!';
+  setTimeout(() => btn.textContent = 'copy', 1500);
+}
+</script>
+
+</body>
+</html>
