@@ -8,15 +8,15 @@ from fastapi import Depends, Header, HTTPException, status
 
 from ..api import Extremis
 from ..config import Config
-from .auth import KeyStore
+from .auth import KeyStore, PostgresKeyStore
 
 # ── singletons ───────────────────────────────────────────────────────────────
-_key_store: KeyStore | None = None
+_key_store: KeyStore | PostgresKeyStore | None = None
 _instances: dict[str, Extremis] = {}
 _server_config: Config | None = None
 
 
-def init(key_store: KeyStore, server_config: Config) -> None:
+def init(key_store: KeyStore | PostgresKeyStore, server_config: Config) -> None:
     global _key_store, _server_config
     _key_store = key_store
     _server_config = server_config
