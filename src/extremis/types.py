@@ -63,6 +63,15 @@ class ConsolidationResult(BaseModel):
     notes: str = ""
 
 
+class CompactionResult(BaseModel):
+    """Result of a compact() pass over existing structured memories."""
+
+    memories_reconciled: int = 0  # contradictions resolved by LLM
+    memories_deduped: int = 0  # near-duplicates merged at write time
+    memories_unchanged: int = 0
+    duration_seconds: float = 0.0
+
+
 class FeedbackSignal(BaseModel):
     memory_ids: list[UUID]
     success: bool

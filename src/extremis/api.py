@@ -14,6 +14,7 @@ from .storage.log import FileLogStore
 from .storage.sqlite import SQLiteMemoryStore
 from .types import (
     AttentionResult,
+    CompactionResult,
     EntityResult,
     EntityType,
     FeedbackSignal,
@@ -202,6 +203,33 @@ class Extremis:
         identity/procedural rules that don't need to be derived from logs.
         """
         embedding = self._embedder.embed(content)
+
+        # Write-time dedup: if a nearly-identical memory already exists for this layer,
+        # supersede it rather than accumulating duplicates or contradictions.
+        # Only applies to semantic and procedural — episodic/identity/working are intentionally appendable.
+        if layer in (MemoryLayer.SEMANTIC, MemoryLayer.PROCEDURAL):
+            if hasattr(self._local, "find_similar"):
+                similar = self._local.find_similar(  # type: ignore[union-attr]
+                    embedding,
+                    layer,
+                    threshold=self._config.dedup_similarity_threshold,
+                    limit=1,
+                )
+                if similar:
+                    old_memory, similarity = similar[0]
+                    new_memory = Memory(
+                        layer=layer,
+                        content=content,
+                        embedding=embedding,
+                        confidence=confidence,
+                        metadata={**(metadata or {}), "supersedes_similarity": round(similarity, 3)},
+                        validity_start=datetime.now(tz=timezone.utc),
+                        validity_end=expires_at,
+                        source_memory_ids=[old_memory.id],
+                    )
+                    self._local.supersede(old_memory.id, new_memory)
+                    return new_memory
+
         memory = Memory(
             layer=layer,
             content=content,
@@ -212,6 +240,25 @@ class Extremis:
             validity_end=expires_at,
         )
         return self._local.store(memory)
+
+    def compact(
+        self,
+        layer: MemoryLayer = MemoryLayer.SEMANTIC,
+    ) -> CompactionResult:
+        """
+        Reconcile contradictions in existing structured memories via LLM.
+
+        Different from consolidate():
+        - consolidate() reads NEW log entries and distils them into structured memories.
+        - compact() works on EXISTING structured memories and resolves conflicts.
+
+        Use when you've accumulated contradictory semantic/procedural memories
+        (e.g. 'prefers concise answers' AND 'prefers verbose answers' both in store).
+        """
+        from .consolidation.compactor import LLMCompactor
+
+        compactor = LLMCompactor(self._config, self._embedder)
+        return compactor.run(self._local, layer=layer)
 
     # ------------------------------------------------------------------ #
     # Knowledge graph

@@ -230,6 +230,39 @@ class SQLiteMemoryStore:
             ).fetchall()
         return [_row_to_memory(r) for r in rows]
 
+    def find_similar(
+        self,
+        embedding: list[float],
+        layer: MemoryLayer,
+        threshold: float = 0.85,
+        limit: int = 3,
+        exclude_id: Optional[UUID] = None,
+    ) -> list[tuple[Memory, float]]:
+        query_vec = np.array(embedding, dtype=np.float32)
+        query_norm = float(np.linalg.norm(query_vec))
+
+        rows = self._conn.execute(
+            (
+                "SELECT * FROM memories WHERE namespace = ? AND layer = ?"
+                " AND embedding IS NOT NULL AND validity_end IS NULL"
+            ),
+            (self._ns, layer.value),
+        ).fetchall()
+
+        results: list[tuple[Memory, float]] = []
+        for row in rows:
+            if exclude_id and row["id"] == str(exclude_id):
+                continue
+            stored_vec = np.frombuffer(row["embedding"], dtype=np.float32)
+            if len(stored_vec) != len(query_vec):
+                continue
+            sim = self._cosine(query_vec, query_norm, stored_vec)
+            if sim >= threshold:
+                results.append((_row_to_memory(row), sim))
+
+        results.sort(key=lambda x: x[1], reverse=True)
+        return results[:limit]
+
     @staticmethod
     def _cosine(query: np.ndarray, query_norm: float, stored: np.ndarray) -> float:
         if query_norm == 0:

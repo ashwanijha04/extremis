@@ -48,6 +48,7 @@ class Config(BaseSettings):
     rl_alpha: float = 0.5
     recency_half_life_days: int = 90
     recall_min_relevance: float = 0.05  # drop results below this cosine similarity
+    dedup_similarity_threshold: float = 0.92  # above this → supersede old instead of accumulating
 
     # ── Attention scorer ─────────────────────────────────────────────
     attention_full_threshold: int = 75

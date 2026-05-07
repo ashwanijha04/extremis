@@ -198,17 +198,18 @@ def create_server(config: Config | None = None) -> FastMCP:
     @mcp.tool()
     def memory_consolidate() -> str:
         """
-        Run a consolidation pass over unprocessed log entries.
+        Distil NEW log entries into structured memories (semantic + procedural).
 
-        Reads all log entries since the last checkpoint, calls an LLM to extract
-        durable semantic and procedural memories, and writes them to the memory
-        store. Updates the checkpoint so re-running is safe (idempotent).
+        SCOPE: Only processes log entries written SINCE the last checkpoint.
+        It does NOT touch memories that are already structured — use
+        memory_compact for that.
 
-        This is the system's "dream" pass — call it periodically to distil
-        episodic logs into lasting knowledge. Typically every 20–50 conversations,
-        or once a day.
+        Safe to re-run: the checkpoint advances after each pass so entries
+        are never processed twice.
 
-        Requires ANTHROPIC_API_KEY to be set.
+        Call periodically — every 20–50 conversations or once a day.
+
+        Requires ANTHROPIC_API_KEY.
         """
         try:
             consolidator = LLMConsolidator(cfg, mem._embedder)
@@ -229,7 +230,48 @@ def create_server(config: Config | None = None) -> FastMCP:
             return f"Consolidation failed: {exc}"
 
     # ------------------------------------------------------------------ #
-    # Tool 6 — knowledge graph: add entity / relationship / attribute
+    # Tool 6 — compact: reconcile contradictions in existing structured memories
+    # ------------------------------------------------------------------ #
+    @mcp.tool()
+    def memory_compact(layer: str = "semantic") -> str:
+        """
+        Reconcile contradictions in existing structured memories via LLM.
+
+        DIFFERENT FROM memory_consolidate:
+        - memory_consolidate reads new log entries → writes new structured memories.
+        - memory_compact reads existing structured memories → resolves conflicts.
+
+        Use this when the store has accumulated contradictions — for example,
+        both "prefers concise answers" and "prefers verbose answers" live in
+        semantic memory. The LLM reviews all memories in the layer, identifies
+        conflicts and duplicates, and supersedes them with reconciled versions.
+
+        Args:
+            layer: Which layer to compact. Usually "semantic" or "procedural".
+                   Defaults to "semantic".
+
+        Requires ANTHROPIC_API_KEY.
+        """
+        try:
+            target_layer = MemoryLayer(layer)
+        except ValueError:
+            return f"Unknown layer '{layer}'. Valid: {[lyr.value for lyr in MemoryLayer]}"
+
+        try:
+            result = mem.compact(layer=target_layer)
+            return (
+                f"Compaction complete ({layer} layer).\n"
+                f"  Contradictions resolved: {result.memories_reconciled}\n"
+                f"  Duplicates merged:       {result.memories_deduped}\n"
+                f"  Unchanged:               {result.memories_unchanged}\n"
+                f"  Duration:                {result.duration_seconds:.1f}s"
+            )
+        except Exception as exc:
+            log.exception("Compaction failed")
+            return f"Compaction failed: {exc}"
+
+    # ------------------------------------------------------------------ #
+    # Tool 8 — knowledge graph: add entity / relationship / attribute
     # ------------------------------------------------------------------ #
     @mcp.tool()
     def memory_kg_write(
@@ -290,7 +332,7 @@ def create_server(config: Config | None = None) -> FastMCP:
         return f"Unknown operation '{operation}'. Valid: add_entity, add_relationship, add_attribute"
 
     # ------------------------------------------------------------------ #
-    # Tool 7 — knowledge graph: query
+    # Tool 8 — knowledge graph: query
     # ------------------------------------------------------------------ #
     @mcp.tool()
     def memory_kg_query(name: str, traverse_depth: int = 0) -> str:
