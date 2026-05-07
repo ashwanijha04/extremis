@@ -536,14 +536,25 @@ EXTREMIS_STORE<span class="op">=</span>pinecone
 EXTREMIS_PINECONE_API_KEY<span class="op">=</span><span class="str">pk_...</span></pre>
     </div>
 
-    <div class="storage-card">
+    <div class="storage-card storage-railway">
       <div class="storage-badge storage-badge-cloud">Zero footprint</div>
-      <h3>☁️ Hosted extremis server</h3>
-      <p>Deploy <code>extremis-server</code> on Railway, Fly, or Render. Use <code>HostedClient</code> — no model download, no local DB, nothing written to disk.</p>
-      <pre style="margin-top:.75rem;"><span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">HostedClient</span>
+      <h3>☁️ extremis-server on Railway</h3>
+      <p>Deploy the server to Railway. Memory lives in <strong>Railway's Postgres</strong> — persistent across restarts. Client has zero local footprint.</p>
+      <p style="margin-top:.5rem; font-size:.8rem; color:#f0c040;">
+        ⚠️ Don't use SQLite on Railway — container filesystems are ephemeral. Always pair with Railway Postgres.
+      </p>
+      <div style="margin-top:.75rem;">
+        <a href="https://railway.app/new/template?template=https://github.com/ashwanijha04/extremis"
+           target="_blank"
+           style="display:inline-block; background:var(--accent); color:#fff; padding:.4rem .9rem; border-radius:6px; font-size:.82rem; font-weight:600; text-decoration:none;">
+          Deploy on Railway →
+        </a>
+      </div>
+      <pre style="margin-top:.75rem;"><span class="cm"># After deploy, your client:</span>
+<span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">HostedClient</span>
 mem <span class="op">=</span> <span class="fn">HostedClient</span>(
   api_key<span class="op">=</span><span class="str">"extremis_sk_..."</span>,
-  base_url<span class="op">=</span><span class="str">"https://your-server.railway.app"</span>
+  base_url<span class="op">=</span><span class="str">"https://your-app.railway.app"</span>
 )</pre>
     </div>
 

@@ -16,10 +16,13 @@ RUN pip install --no-cache-dir ".[server,postgres,openai]"
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" || true
 
 ENV EXTREMIS_SERVER_HOME=/data/server
-ENV EXTREMIS_STORE=sqlite
 ENV EXTREMIS_HOME=/data
 
-VOLUME ["/data"]
-EXPOSE 8000
+# Default to postgres when EXTREMIS_POSTGRES_URL is set (Railway injects this).
+# Falls back to sqlite if not set — useful for local Docker testing.
+ENV EXTREMIS_STORE=sqlite
 
-CMD ["extremis-server", "serve", "--host", "0.0.0.0", "--port", "8000"]
+VOLUME ["/data"]
+
+# Railway sets $PORT dynamically. Use it if present, otherwise 8000.
+CMD extremis-server serve --host 0.0.0.0 --port ${PORT:-8000}

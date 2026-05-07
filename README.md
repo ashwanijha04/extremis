@@ -501,7 +501,32 @@ Run extremis as a service — your users call it with an API key, all compute ha
 
 > **Status:** The server is fully built and self-hostable today. A managed cloud at `api.extremis.com` is in progress — [join the waitlist](https://github.com/ashwanijha04/extremis/issues/1).
 
-### Self-host in 2 minutes
+### Deploy to Railway (recommended — memory lives in Railway Postgres)
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/ashwanijha04/extremis)
+
+**Where does memory live?** Railway containers have ephemeral filesystems — if you use SQLite, memories are lost on every restart. The correct setup uses Railway's managed Postgres:
+
+1. Click **Deploy on Railway** above
+2. In your Railway project, click **+ New** → **Database** → **PostgreSQL**
+3. In your extremis service variables, add:
+   ```
+   EXTREMIS_STORE=postgres
+   EXTREMIS_POSTGRES_URL=${{Postgres.DATABASE_URL}}
+   ```
+4. Railway injects the database URL automatically. Memory now lives in Railway's Postgres — persistent, backed up, survives restarts.
+5. Generate an API key:
+   ```bash
+   railway run extremis-server create-key --namespace myapp --label prod
+   ```
+
+Your users then connect with zero local footprint:
+```python
+from extremis import HostedClient
+mem = HostedClient(api_key="extremis_sk_...", base_url="https://your-app.railway.app")
+```
+
+### Self-host locally in 2 minutes
 
 ```bash
 pip3.11 install "extremis[server]"
