@@ -4,10 +4,10 @@ OpenAI embeddings adapter.
 Removes the 90 MB sentence-transformers model download for developers
 who already have an OpenAI key.
 
-Install: pip install "lore-ai[openai]"
+Install: pip install "extremis[openai]"
 
 Usage via config:
-    LORE_EMBEDDER=text-embedding-3-small
+    EXTREMIS_EMBEDDER=text-embedding-3-small
     OPENAI_API_KEY=sk-...
 """
 from __future__ import annotations
@@ -32,7 +32,7 @@ class OpenAIEmbedder:
         try:
             import openai as _openai
         except ImportError:
-            raise ImportError("OpenAI embedder requires: pip install 'lore-ai[openai]'") from None
+            raise ImportError("OpenAI embedder requires: pip install 'extremis[openai]'") from None
 
         self._model = model
         self._batch_size = batch_size

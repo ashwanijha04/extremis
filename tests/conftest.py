@@ -6,12 +6,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from lore_ai.api import FridayMemory
-from lore_ai.config import Config
-from lore_ai.storage.kg import SQLiteKGStore
-from lore_ai.storage.log import FileLogStore
-from lore_ai.storage.sqlite import SQLiteMemoryStore
-from lore_ai.types import Memory, MemoryLayer
+from extremis.api import Memory
+from extremis.config import Config
+from extremis.storage.kg import SQLiteKGStore
+from extremis.storage.log import FileLogStore
+from extremis.storage.sqlite import SQLiteMemoryStore
+from extremis.types import Memory, MemoryLayer
 
 
 # ------------------------------------------------------------------ #
@@ -21,7 +21,7 @@ from lore_ai.types import Memory, MemoryLayer
 @pytest.fixture
 def tmp_config(tmp_path):
     return Config(
-        friday_home=str(tmp_path),
+        extremis_home=str(tmp_path),
         log_dir=str(tmp_path / "log"),
         local_db_path=str(tmp_path / "local.db"),
         namespace="test_ns",
@@ -54,7 +54,7 @@ def kg_store(tmp_config):
 
 @pytest.fixture
 def api(tmp_config, mock_embedder):
-    return FridayMemory(config=tmp_config, embedder=mock_embedder)
+    return Memory(config=tmp_config, embedder=mock_embedder)
 
 
 # ------------------------------------------------------------------ #

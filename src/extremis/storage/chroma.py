@@ -4,7 +4,7 @@ ChromaDB memory store adapter.
 Vectors live in Chroma. RL scores live in a sidecar SQLiteScoreIndex.
 The knowledge graph is always local SQLite (unchanged).
 
-Install: pip install "lore-ai[chroma]"
+Install: pip install "extremis[chroma]"
 """
 from __future__ import annotations
 
@@ -67,7 +67,7 @@ class ChromaMemoryStore:
         try:
             import chromadb
         except ImportError:
-            raise ImportError("ChromaDB store requires: pip install 'lore-ai[chroma]'") from None
+            raise ImportError("ChromaDB store requires: pip install 'extremis[chroma]'") from None
 
         base = Path(chroma_path).expanduser()
         base.mkdir(parents=True, exist_ok=True)
@@ -76,7 +76,7 @@ class ChromaMemoryStore:
         self._ns = config.namespace
         self._client = chromadb.PersistentClient(path=str(base))
         self._col = self._client.get_or_create_collection(
-            name=f"lore_ai_{self._ns}",
+            name=f"extremis_{self._ns}",
             metadata={"hnsw:space": "cosine"},
         )
         self._scores = SQLiteScoreIndex(str(base / "scores.db"), self._ns)

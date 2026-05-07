@@ -12,9 +12,9 @@ pytest.importorskip("httpx", reason="httpx not installed")
 
 from fastapi.testclient import TestClient
 
-from lore_ai.server.app import create_app
-from lore_ai.server.auth import KeyStore
-import lore_ai.server.deps as deps
+from extremis.server.app import create_app
+from extremis.server.auth import KeyStore
+import extremis.server.deps as deps
 
 
 @pytest.fixture
@@ -40,16 +40,16 @@ def mock_embedder():
 
 @pytest.fixture
 def client(tmp_path, key_store, mock_embedder):
-    from lore_ai.config import Config
+    from extremis.config import Config
     server_cfg = Config(
-        friday_home=str(tmp_path),
+        extremis_home=str(tmp_path),
         log_dir=str(tmp_path / "log"),
         local_db_path=str(tmp_path / "local.db"),
         namespace="test_ns",
     )
 
     # Patch the embedder so no model is downloaded
-    with patch("lore_ai.api._build_embedder", return_value=mock_embedder):
+    with patch("extremis.api._build_embedder", return_value=mock_embedder):
         deps.init(key_store, server_cfg)
         deps._instances.clear()
         app = create_app()
@@ -72,7 +72,7 @@ class TestAuth:
         resp = client.post(
             "/v1/memories/remember",
             json={"content": "test"},
-            headers={"Authorization": "Bearer lore_sk_invalid"},
+            headers={"Authorization": "Bearer extremis_sk_invalid"},
         )
         assert resp.status_code == 401
 
@@ -174,10 +174,10 @@ class TestKeyStore:
         assert ns == "alice"
 
     def test_invalid_key_returns_none(self, key_store):
-        assert key_store.validate("lore_sk_invalid") is None
+        assert key_store.validate("extremis_sk_invalid") is None
 
     def test_revoke(self, key_store):
-        from lore_ai.server.auth import hash_key
+        from extremis.server.auth import hash_key
         key = key_store.create("alice")
         key_store.revoke(hash_key(key))
         assert key_store.validate(key) is None

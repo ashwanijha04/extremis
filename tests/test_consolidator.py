@@ -8,17 +8,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from lore_ai.config import Config
-from lore_ai.consolidation.consolidator import LLMConsolidator
-from lore_ai.storage.log import FileLogStore
-from lore_ai.storage.sqlite import SQLiteMemoryStore
-from lore_ai.types import LogEntry, MemoryLayer
+from extremis.config import Config
+from extremis.consolidation.consolidator import LLMConsolidator
+from extremis.storage.log import FileLogStore
+from extremis.storage.sqlite import SQLiteMemoryStore
+from extremis.types import LogEntry, MemoryLayer
 
 
 @pytest.fixture
 def config(tmp_path):
     return Config(
-        friday_home=str(tmp_path),
+        extremis_home=str(tmp_path),
         log_dir=str(tmp_path / "log"),
         local_db_path=str(tmp_path / "local.db"),
     )
@@ -53,7 +53,7 @@ def make_llm_response(memories: list[dict]) -> MagicMock:
 
 class TestLLMConsolidator:
     def _make_consolidator(self, config, embedder):
-        with patch("lore_ai.consolidation.consolidator.anthropic.Anthropic"):
+        with patch("extremis.consolidation.consolidator.anthropic.Anthropic"):
             c = LLMConsolidator(config, embedder)
         return c
 

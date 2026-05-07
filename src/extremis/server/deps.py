@@ -1,4 +1,4 @@
-"""FastAPI dependencies — auth, per-namespace FridayMemory instances."""
+"""FastAPI dependencies — auth, per-namespace Memory instances."""
 from __future__ import annotations
 
 import os
@@ -6,13 +6,13 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, Header, status
 
-from ..api import FridayMemory
+from ..api import Memory
 from ..config import Config
 from .auth import KeyStore
 
 # ── singletons ───────────────────────────────────────────────────────────────
 _key_store: KeyStore | None = None
-_instances: dict[str, FridayMemory] = {}
+_instances: dict[str, Memory] = {}
 _server_config: Config | None = None
 
 
@@ -40,14 +40,14 @@ def _get_namespace(authorization: Annotated[str, Header()] = "") -> str:
 Namespace = Annotated[str, Depends(_get_namespace)]
 
 
-# ── per-namespace FridayMemory instance (cached) ──────────────────────────────
+# ── per-namespace Memory instance (cached) ──────────────────────────────
 
-def get_memory(namespace: Namespace) -> FridayMemory:
+def get_memory(namespace: Namespace) -> Memory:
     if namespace not in _instances:
         assert _server_config is not None
         cfg = _server_config.model_copy(update={"namespace": namespace})
-        _instances[namespace] = FridayMemory(config=cfg)
+        _instances[namespace] = Memory(config=cfg)
     return _instances[namespace]
 
 
-Memory = Annotated[FridayMemory, Depends(get_memory)]
+Memory = Annotated[Memory, Depends(get_memory)]

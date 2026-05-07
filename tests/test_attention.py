@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import pytest
 
-from lore_ai.config import Config
-from lore_ai.scorer.attention import AttentionScorer
+from extremis.config import Config
+from extremis.scorer.attention import AttentionScorer
 
 
 @pytest.fixture

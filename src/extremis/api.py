@@ -34,7 +34,7 @@ def _build_store(config: Config) -> MemoryStore:
     """Select and initialise the memory store from config."""
     if config.store == "postgres":
         if not config.postgres_url:
-            raise ValueError("LORE_STORE=postgres requires LORE_POSTGRES_URL to be set.")
+            raise ValueError("EXTREMIS_STORE=postgres requires EXTREMIS_POSTGRES_URL to be set.")
         from .storage.postgres import PostgresMemoryStore
         return PostgresMemoryStore(config.postgres_url, config)
     if config.store == "chroma":
@@ -42,7 +42,7 @@ def _build_store(config: Config) -> MemoryStore:
         return ChromaMemoryStore(config.resolved_chroma_path(), config)
     if config.store == "pinecone":
         if not config.pinecone_api_key:
-            raise ValueError("LORE_STORE=pinecone requires LORE_PINECONE_API_KEY to be set.")
+            raise ValueError("EXTREMIS_STORE=pinecone requires EXTREMIS_PINECONE_API_KEY to be set.")
         from .storage.pinecone_store import PineconeMemoryStore
         return PineconeMemoryStore(
             config.pinecone_api_key,
@@ -61,7 +61,7 @@ def _build_embedder(config: Config) -> Embedder:
     return SentenceTransformerEmbedder(config.embedder)
 
 
-class FridayMemory:
+class Memory:
     """
     The three methods agents actually call: remember, recall, report_outcome.
     Plus remember_now for time-sensitive direct writes.

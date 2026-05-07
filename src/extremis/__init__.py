@@ -1,10 +1,10 @@
-from .api import FridayMemory
+from .api import Memory
 from .client import HostedClient
 from .config import Config
 from .types import FeedbackSignal, LogEntry, Memory, MemoryLayer, RecallResult
 
 __all__ = [
-    "FridayMemory",
+    "Memory",
     "HostedClient",
     "Config",
     "Memory",

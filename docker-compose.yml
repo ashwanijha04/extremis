@@ -4,9 +4,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      LORE_STORE: postgres
-      LORE_POSTGRES_URL: postgresql://lore:lore@db:5432/lore
-      LORE_EMBEDDER: all-MiniLM-L6-v2
+      EXTREMIS_STORE: postgres
+      EXTREMIS_POSTGRES_URL: postgresql://extremis:extremis@db:5432/extremis
+      EXTREMIS_EMBEDDER: all-MiniLM-L6-v2
     volumes:
       - lore_data:/data
     depends_on:
@@ -16,15 +16,15 @@ services:
   db:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: lore
-      POSTGRES_PASSWORD: lore
-      POSTGRES_DB: lore
+      POSTGRES_USER: extremis
+      POSTGRES_PASSWORD: extremis
+      POSTGRES_DB: extremis
     ports:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lore"]
+      test: ["CMD-SHELL", "pg_isready -U extremis"]
       interval: 5s
       timeout: 5s
       retries: 10

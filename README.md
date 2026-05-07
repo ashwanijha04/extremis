@@ -1,15 +1,15 @@
 <div align="center">
 
-# 🧠 lore-ai
+# 🧠 extremis
 
 **Memory that gets smarter the more your agent uses it**
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![PyPI](https://img.shields.io/pypi/v/lore-ai?logo=pypi&logoColor=white&color=orange)](https://pypi.org/project/lore-ai)
-[![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/lore-ai/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/lore-ai/actions)
+[![PyPI](https://img.shields.io/pypi/v/extremis?logo=pypi&logoColor=white&color=orange)](https://pypi.org/project/extremis)
+[![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/extremis/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/extremis/actions)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
-[![Cloud](https://img.shields.io/badge/hosted%20cloud-waitlist-blue)](https://github.com/ashwanijha04/lore-ai/issues/1)
+[![Cloud](https://img.shields.io/badge/hosted%20cloud-waitlist-blue)](https://github.com/ashwanijha04/extremis/issues/1)
 
 </div>
 
@@ -25,11 +25,11 @@ And even when you ship it — **it doesn't learn**. Every memory is treated iden
 
 The other problem is lock-in. Your vectors are in Pinecone. Moving them means re-embedding everything, rewriting your retrieval logic, and hoping nothing breaks.
 
-lore-ai solves all three.
+extremis solves all three.
 
 ---
 
-## What makes lore-ai different
+## What makes extremis different
 
 ### 1. Memory that forgets intelligently
 
@@ -37,10 +37,10 @@ Every competitor focuses on storing memory. Nobody talks about forgetting.
 
 Human memory doesn't keep everything forever — unimportant things fade, important things strengthen. Agents with infinite, flat memory become slow and noisy over time. Intelligent forgetting is the hard problem nobody is solving.
 
-lore-ai does two things here: **recency decay** (old memories rank lower automatically) and **asymmetric RL weighting** (negative feedback hurts 1.5× more than positive feedback helps, because mistakes should leave a stronger mark). The result is a memory that naturally surfaces what matters and buries what doesn't.
+extremis does two things here: **recency decay** (old memories rank lower automatically) and **asymmetric RL weighting** (negative feedback hurts 1.5× more than positive feedback helps, because mistakes should leave a stronger mark). The result is a memory that naturally surfaces what matters and buries what doesn't.
 
 ```python
-mem = FridayMemory(config=Config(
+mem = Memory(config=Config(
     recency_half_life_days=30,  # episodic memories halve in rank every 30 days
     rl_alpha=0.8,               # strong RL signal — useful things stick, useless things fade
 ))
@@ -83,13 +83,13 @@ The reason tells you: how semantically relevant it was, how much feedback has va
 
 Right now memory is per-agent. But the next wave of AI is **agent teams** — a research agent, a writing agent, a review agent, all working together. They need a shared brain.
 
-lore-ai's namespace model already supports this. Multiple agents can read from and write to the same memory pool:
+extremis's namespace model already supports this. Multiple agents can read from and write to the same memory pool:
 
 ```python
 # All three agents share the same memory namespace
-research = FridayMemory(config=Config(namespace="team_alpha"))
-writer   = FridayMemory(config=Config(namespace="team_alpha"))
-reviewer = FridayMemory(config=Config(namespace="team_alpha"))
+research = Memory(config=Config(namespace="team_alpha"))
+writer   = Memory(config=Config(namespace="team_alpha"))
+reviewer = Memory(config=Config(namespace="team_alpha"))
 
 # Research agent stores what it found
 research.remember("GPT-4 outperforms Claude on math benchmarks by 12%")
@@ -110,19 +110,19 @@ print(writer.kg_query("Stanford HAI"))  # same graph
 
 ### 4. No RAG pipeline to build
 
-One `pip install`. Two lines of config. lore-ai handles embedding, storage, retrieval ranking, consolidation, and the knowledge graph. You call `remember()` and `recall()`.
+One `pip install`. Two lines of config. extremis handles embedding, storage, retrieval ranking, consolidation, and the knowledge graph. You call `remember()` and `recall()`.
 
 ```python
 # Local — zero infra
-from lore_ai import FridayMemory
-mem = FridayMemory()
+from extremis import Memory
+mem = Memory()
 
 # Your existing vector store
-mem = FridayMemory(config=Config(store="pinecone", pinecone_api_key="..."))
+mem = Memory(config=Config(store="pinecone", pinecone_api_key="..."))
 
 # Self-hosted server — no model download on the client
-from lore_ai import HostedClient
-mem = HostedClient(api_key="lore_sk_...", base_url="http://your-server:8000")
+from extremis import HostedClient
+mem = HostedClient(api_key="extremis_sk_...", base_url="http://your-server:8000")
 
 # Same three lines work for all three
 mem.remember("User is building a WhatsApp AI", conversation_id="c1")
@@ -137,12 +137,12 @@ mem.report_outcome([r.memory.id for r in results], success=True)
 Your vectors in Pinecone. Your team moves to Chroma. Your product needs Postgres. One command, everything migrates — and re-embeds automatically if you're switching models:
 
 ```bash
-lore-migrate --from pinecone --to postgres \
+extremis-migrate --from pinecone --to postgres \
   --source-pinecone-api-key pk_... \
   --dest-postgres-url postgresql://...
 
 # Switching to OpenAI embeddings at the same time
-lore-migrate --from sqlite --to chroma \
+extremis-migrate --from sqlite --to chroma \
   --dest-embedder text-embedding-3-small
 ```
 
@@ -155,9 +155,9 @@ lore-migrate --from sqlite --to chroma \
 **Domain profiles** — pre-built memory configurations for common agent types:
 ```python
 # Coming in v0.2
-from lore_ai.profiles import SalesAgent, CodingAgent, SupportAgent
+from extremis.profiles import SalesAgent, CodingAgent, SupportAgent
 
-mem = FridayMemory(profile=SalesAgent())
+mem = Memory(profile=SalesAgent())
 # Knows to remember: customer names, deal stage, objections, preferences
 # Knows to forget: small talk after 7 days, meeting logistics after 24h
 # Attention: high for "budget", "decision maker", "timeline"
@@ -171,7 +171,7 @@ mem = FridayMemory(profile=SalesAgent())
 
 ### The intelligence layer
 
-lore-ai sits **above** your vector store. RL scoring, the knowledge graph, consolidation, and attention scoring are all backend-independent — they work the same whether your vectors are in SQLite, Pinecone, or Chroma.
+extremis sits **above** your vector store. RL scoring, the knowledge graph, consolidation, and attention scoring are all backend-independent — they work the same whether your vectors are in SQLite, Pinecone, or Chroma.
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -180,7 +180,7 @@ lore-ai sits **above** your vector store. RL scoring, the knowledge graph, conso
 └──────────────────────────┬─────────────────────────────────────┘
                            │
 ┌──────────────────────────▼─────────────────────────────────────┐
-│                  LORE-AI INTELLIGENCE LAYER                      │
+│                  EXTREMIS INTELLIGENCE LAYER                      │
 │   RL scoring · Knowledge graph · Consolidation · Observer       │
 │   Attention scorer · Namespace isolation · Log durability       │
 └────┬──────────────┬──────────────┬──────────────┬──────────────┘
@@ -239,7 +239,7 @@ A memory that has proven useful (`+1` feedback) ranks above an equally similar b
 
 ### Knowledge graph
 
-Beyond vectors, lore-ai maintains a structured graph — answers structural questions that semantic search can't:
+Beyond vectors, extremis maintains a structured graph — answers structural questions that semantic search can't:
 
 ```python
 mem.kg_add_entity("Alice", EntityType.PERSON)
@@ -285,46 +285,46 @@ Compresses raw log entries into priority-tagged observations — no LLM, runs in
 
 ```bash
 # Core — SQLite + local sentence-transformers (no API key needed)
-pip install lore-ai
+pip install extremis
 
 # + MCP server (Claude Desktop / Code)
-pip install "lore-ai[mcp]"
+pip install "extremis[mcp]"
 
 # + Postgres backend
-pip install "lore-ai[postgres]"
+pip install "extremis[postgres]"
 
 # + Chroma backend
-pip install "lore-ai[chroma]"
+pip install "extremis[chroma]"
 
 # + Pinecone backend
-pip install "lore-ai[pinecone]"
+pip install "extremis[pinecone]"
 
 # + OpenAI embeddings (swap out the 90 MB model download)
-pip install "lore-ai[openai]"
+pip install "extremis[openai]"
 
 # + Hosted API server
-pip install "lore-ai[server]"
+pip install "extremis[server]"
 
 # + Python SDK for hosted cloud
-pip install "lore-ai[client]"
+pip install "extremis[client]"
 
 # Everything
-pip install "lore-ai[all]"
+pip install "extremis[all]"
 ```
 
 **Requires Python 3.11+**
 
-> **First run note** — `sentence-transformers` downloads `all-MiniLM-L6-v2` (~90 MB) on first use. One-time, cached to `~/.cache/huggingface/`. To skip it, use OpenAI embeddings: `LORE_EMBEDDER=text-embedding-3-small`.
+> **First run note** — `sentence-transformers` downloads `all-MiniLM-L6-v2` (~90 MB) on first use. One-time, cached to `~/.cache/huggingface/`. To skip it, use OpenAI embeddings: `EXTREMIS_EMBEDDER=text-embedding-3-small`.
 
 ---
 
 ## Quick start
 
 ```python
-from lore_ai import FridayMemory, MemoryLayer
-from lore_ai.types import EntityType
+from extremis import Memory, MemoryLayer
+from extremis.types import EntityType
 
-mem = FridayMemory()  # ~/.lore/ by default
+mem = Memory()  # ~/.extremis/ by default
 
 # ── Remember ──────────────────────────────────────────────────
 mem.remember("User is building a WhatsApp AI", conversation_id="conv_001")
@@ -359,7 +359,7 @@ print(result.level)   # → "full"
 print(result.score)   # → 85
 
 # ── Consolidation (nightly / on-demand) ───────────────────────
-from lore_ai.consolidation import LLMConsolidator
+from extremis.consolidation import LLMConsolidator
 consolidator = LLMConsolidator(mem._config, mem._embedder)
 r = consolidator.run_pass(mem.get_log(), mem.get_local_store(), mem.get_local_store())
 print(f"{r.memories_created} facts extracted from logs")
@@ -374,16 +374,16 @@ All backends share the same API. Swap with one env var.
 ### SQLite — default, zero infrastructure
 
 ```bash
-LORE_STORE=sqlite
-LORE_FRIDAY_HOME=~/.lore   # DB at ~/.lore/local.db
+EXTREMIS_STORE=sqlite
+EXTREMIS_FRIDAY_HOME=~/.extremis   # DB at ~/.extremis/local.db
 ```
 
 ### Postgres + pgvector — production scale, ranking in SQL
 
 ```bash
-pip install "lore-ai[postgres]"
-LORE_STORE=postgres
-LORE_POSTGRES_URL=postgresql://user:pass@host/lore
+pip install "extremis[postgres]"
+EXTREMIS_STORE=postgres
+EXTREMIS_POSTGRES_URL=postgresql://user:pass@host/extremis
 ```
 
 Requires `CREATE EXTENSION vector;` in your database. Schema migrates automatically on first start.
@@ -391,35 +391,35 @@ Requires `CREATE EXTENSION vector;` in your database. Schema migrates automatica
 ### Chroma — local vector DB, great for teams
 
 ```bash
-pip install "lore-ai[chroma]"
-LORE_STORE=chroma
-LORE_CHROMA_PATH=~/.lore/chroma
+pip install "extremis[chroma]"
+EXTREMIS_STORE=chroma
+EXTREMIS_CHROMA_PATH=~/.extremis/chroma
 ```
 
 ### Pinecone — serverless hosted vectors
 
 ```bash
-pip install "lore-ai[pinecone]"
-LORE_STORE=pinecone
-LORE_PINECONE_API_KEY=pk_...
-LORE_PINECONE_INDEX=lore-ai
+pip install "extremis[pinecone]"
+EXTREMIS_STORE=pinecone
+EXTREMIS_PINECONE_API_KEY=pk_...
+EXTREMIS_PINECONE_INDEX=extremis
 ```
 
 Create the index first (dimension must match your embedder):
 ```python
 from pinecone import Pinecone, ServerlessSpec
 pc = Pinecone(api_key="pk_...")
-pc.create_index("lore-ai", dimension=384, metric="cosine",
+pc.create_index("extremis", dimension=384, metric="cosine",
                 spec=ServerlessSpec(cloud="aws", region="us-east-1"))
 ```
 
 ### OpenAI embeddings — no model download
 
 ```bash
-pip install "lore-ai[openai]"
-LORE_EMBEDDER=text-embedding-3-small
+pip install "extremis[openai]"
+EXTREMIS_EMBEDDER=text-embedding-3-small
 OPENAI_API_KEY=sk-...
-LORE_EMBEDDING_DIM=1536
+EXTREMIS_EMBEDDING_DIM=1536
 ```
 
 Works with any storage backend. Removes the 90 MB local model download.
@@ -428,47 +428,47 @@ Works with any storage backend. Removes the 90 MB local model download.
 
 ## Migrating backends
 
-Move all memories between backends in one command. lore-ai re-embeds automatically if the source and destination use different embedding models.
+Move all memories between backends in one command. extremis re-embeds automatically if the source and destination use different embedding models.
 
 ```bash
-pip install "lore-ai[chroma,pinecone]"
+pip install "extremis[chroma,pinecone]"
 
 # Escape Pinecone lock-in → local SQLite
-lore-migrate --from pinecone --to sqlite \
+extremis-migrate --from pinecone --to sqlite \
   --source-pinecone-api-key pk_... \
   --source-pinecone-index my-index
 
 # Local SQLite → Postgres (upgrade to production)
-lore-migrate --from sqlite --to postgres \
+extremis-migrate --from sqlite --to postgres \
   --dest-postgres-url postgresql://...
 
 # Switch to OpenAI embeddings while migrating
-lore-migrate --from sqlite --to chroma \
+extremis-migrate --from sqlite --to chroma \
   --dest-embedder text-embedding-3-small
 
 # Dry run — count what would be migrated
-lore-migrate --from sqlite --to chroma --dry-run
+extremis-migrate --from sqlite --to chroma --dry-run
 ```
 
 ---
 
 ## Hosted API
 
-Run lore-ai as a service — your users call it with an API key, all compute happens server-side. No model download on the client. No local database.
+Run extremis as a service — your users call it with an API key, all compute happens server-side. No model download on the client. No local database.
 
-> **Status:** The server is fully built and self-hostable today. A managed cloud at `api.lore-ai.com` is in progress — [join the waitlist](https://github.com/ashwanijha04/lore-ai/issues/1).
+> **Status:** The server is fully built and self-hostable today. A managed cloud at `api.extremis.com` is in progress — [join the waitlist](https://github.com/ashwanijha04/extremis/issues/1).
 
 ### Self-host in 2 minutes
 
 ```bash
-pip install "lore-ai[server]"
+pip install "extremis[server]"
 
 # Generate an API key
-lore-server create-key --namespace alice --label "prod"
-# → lore_sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  (shown once, store it)
+extremis-server create-key --namespace alice --label "prod"
+# → extremis_sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  (shown once, store it)
 
 # Start the server
-lore-server serve --host 0.0.0.0 --port 8000
+extremis-server serve --host 0.0.0.0 --port 8000
 
 # Or with Docker (bundles Postgres + pgvector)
 docker compose up
@@ -477,12 +477,12 @@ docker compose up
 ### Connect from Python
 
 ```python
-from lore_ai import HostedClient
+from extremis import HostedClient
 
 # Point at your self-hosted server
-mem = HostedClient(api_key="lore_sk_...", base_url="http://your-server:8000")
+mem = HostedClient(api_key="extremis_sk_...", base_url="http://your-server:8000")
 
-# Exact same API as FridayMemory — nothing else changes
+# Exact same API as Memory — nothing else changes
 mem.remember("User is building a WhatsApp AI", conversation_id="c1")
 results = mem.recall("WhatsApp")
 mem.report_outcome([r.memory.id for r in results], success=True)
@@ -503,39 +503,39 @@ POST /v1/attention/score       0–100 message priority score
 GET  /v1/health
 ```
 
-All requests require `Authorization: Bearer lore_sk_...`. Namespace is derived from the key.
+All requests require `Authorization: Bearer extremis_sk_...`. Namespace is derived from the key.
 
 ### Key management
 
 ```bash
-lore-server create-key --namespace prod_user_123 --label "production"
-lore-server list-keys
-lore-server list-keys --namespace prod_user_123
-lore-server revoke-key --key-hash abc123...
+extremis-server create-key --namespace prod_user_123 --label "production"
+extremis-server list-keys
+extremis-server list-keys --namespace prod_user_123
+extremis-server revoke-key --key-hash abc123...
 ```
 
 ### Deploy to production
 
 **Railway / Render** (fastest — 10 minutes):
 1. Point at the `Dockerfile`
-2. Set `LORE_STORE=postgres` and `LORE_POSTGRES_URL`
+2. Set `EXTREMIS_STORE=postgres` and `EXTREMIS_POSTGRES_URL`
 3. Deploy
 
 **Fly.io:**
 ```bash
 fly launch
-fly secrets set LORE_STORE=postgres LORE_POSTGRES_URL=postgresql://...
+fly secrets set EXTREMIS_STORE=postgres EXTREMIS_POSTGRES_URL=postgresql://...
 fly deploy
 ```
 
 **Self-hosted Docker:**
 ```bash
-docker build -t lore-ai-server .
+docker build -t extremis-server .
 docker run -p 8000:8000 \
-  -e LORE_STORE=postgres \
-  -e LORE_POSTGRES_URL=postgresql://... \
+  -e EXTREMIS_STORE=postgres \
+  -e EXTREMIS_POSTGRES_URL=postgresql://... \
   -v lore_data:/data \
-  lore-ai-server
+  extremis-server
 ```
 
 ---
@@ -545,7 +545,7 @@ docker run -p 8000:8000 \
 ### Claude Desktop
 
 ```bash
-pip install "lore-ai[mcp]"
+pip install "extremis[mcp]"
 ```
 
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
@@ -553,10 +553,10 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "lore-ai": {
-      "command": "lore-mcp",
+    "extremis": {
+      "command": "extremis-mcp",
       "env": {
-        "LORE_FRIDAY_HOME": "~/.lore",
+        "EXTREMIS_FRIDAY_HOME": "~/.extremis",
         "ANTHROPIC_API_KEY": "sk-ant-..."
       }
     }
@@ -569,15 +569,15 @@ Restart Claude Desktop. Nine tools appear automatically.
 ### Claude Code
 
 ```bash
-claude mcp add lore-ai lore-mcp \
-  --env LORE_FRIDAY_HOME=~/.lore \
+claude mcp add extremis extremis-mcp \
+  --env EXTREMIS_FRIDAY_HOME=~/.extremis \
   --env ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 ### SSE / HTTP mode
 
 ```bash
-lore-mcp --transport sse --port 8765
+extremis-mcp --transport sse --port 8765
 ```
 
 ### MCP tools
@@ -600,18 +600,18 @@ lore-mcp --transport sse --port 8765
 
 Two isolation models:
 
-**Instance-level** — each user gets their own process and `LORE_FRIDAY_HOME`. What Claude Desktop does naturally.
+**Instance-level** — each user gets their own process and `EXTREMIS_FRIDAY_HOME`. What Claude Desktop does naturally.
 
 **Namespace-level** — one deployment, many users. All memories, logs, and graph data scoped per namespace. Zero leakage.
 
 ```bash
-LORE_NAMESPACE=alice lore-mcp   # Alice's memory
-LORE_NAMESPACE=bob   lore-mcp   # Bob's — completely separate, same DB
+EXTREMIS_NAMESPACE=alice extremis-mcp   # Alice's memory
+EXTREMIS_NAMESPACE=bob   extremis-mcp   # Bob's — completely separate, same DB
 ```
 
 ```python
-mem_alice = FridayMemory(config=Config(namespace="alice"))
-mem_bob   = FridayMemory(config=Config(namespace="bob"))
+mem_alice = Memory(config=Config(namespace="alice"))
+mem_bob   = Memory(config=Config(namespace="bob"))
 # same DB file, zero crossover
 ```
 
@@ -619,32 +619,32 @@ mem_bob   = FridayMemory(config=Config(namespace="bob"))
 
 ## Configuration
 
-All settings via `LORE_` environment variables or a `.env` file:
+All settings via `EXTREMIS_` environment variables or a `.env` file:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LORE_STORE` | `sqlite` | Backend: `sqlite` · `postgres` · `chroma` · `pinecone` |
-| `LORE_NAMESPACE` | `default` | User/agent isolation scope |
-| `LORE_FRIDAY_HOME` | `~/.lore` | Base dir for logs and SQLite DB |
-| `LORE_POSTGRES_URL` | *(empty)* | Postgres DSN (required when store=postgres) |
-| `LORE_CHROMA_PATH` | `~/.lore/chroma` | ChromaDB persistence directory |
-| `LORE_PINECONE_API_KEY` | *(empty)* | Pinecone API key |
-| `LORE_PINECONE_INDEX` | `lore-ai` | Pinecone index name |
-| `LORE_EMBEDDER` | `all-MiniLM-L6-v2` | Model name — sentence-transformers or OpenAI |
-| `LORE_EMBEDDING_DIM` | `384` | Vector dimension (must match model) |
-| `LORE_OPENAI_API_KEY` | *(empty)* | OpenAI key (required for OpenAI embedders) |
-| `LORE_CONSOLIDATION_MODEL` | `claude-haiku-4-5-20251001` | LLM for consolidation |
-| `LORE_RL_ALPHA` | `0.5` | Utility score weight in retrieval ranking |
-| `LORE_RECENCY_HALF_LIFE_DAYS` | `90` | Recency decay half-life |
-| `LORE_ATTENTION_FULL_THRESHOLD` | `75` | Score ≥ this → full attention |
-| `LORE_ATTENTION_STANDARD_THRESHOLD` | `50` | Score ≥ this → standard |
-| `LORE_ATTENTION_MINIMAL_THRESHOLD` | `25` | Score ≥ this → minimal |
+| `EXTREMIS_STORE` | `sqlite` | Backend: `sqlite` · `postgres` · `chroma` · `pinecone` |
+| `EXTREMIS_NAMESPACE` | `default` | User/agent isolation scope |
+| `EXTREMIS_FRIDAY_HOME` | `~/.extremis` | Base dir for logs and SQLite DB |
+| `EXTREMIS_POSTGRES_URL` | *(empty)* | Postgres DSN (required when store=postgres) |
+| `EXTREMIS_CHROMA_PATH` | `~/.extremis/chroma` | ChromaDB persistence directory |
+| `EXTREMIS_PINECONE_API_KEY` | *(empty)* | Pinecone API key |
+| `EXTREMIS_PINECONE_INDEX` | `extremis` | Pinecone index name |
+| `EXTREMIS_EMBEDDER` | `all-MiniLM-L6-v2` | Model name — sentence-transformers or OpenAI |
+| `EXTREMIS_EMBEDDING_DIM` | `384` | Vector dimension (must match model) |
+| `EXTREMIS_OPENAI_API_KEY` | *(empty)* | OpenAI key (required for OpenAI embedders) |
+| `EXTREMIS_CONSOLIDATION_MODEL` | `claude-haiku-4-5-20251001` | LLM for consolidation |
+| `EXTREMIS_RL_ALPHA` | `0.5` | Utility score weight in retrieval ranking |
+| `EXTREMIS_RECENCY_HALF_LIFE_DAYS` | `90` | Recency decay half-life |
+| `EXTREMIS_ATTENTION_FULL_THRESHOLD` | `75` | Score ≥ this → full attention |
+| `EXTREMIS_ATTENTION_STANDARD_THRESHOLD` | `50` | Score ≥ this → standard |
+| `EXTREMIS_ATTENTION_MINIMAL_THRESHOLD` | `25` | Score ≥ this → minimal |
 
 ---
 
 ## How it compares
 
-| | lore-ai | Mem0 | LangChain | Zep | Raw Pinecone |
+| | extremis | Mem0 | LangChain | Zep | Raw Pinecone |
 |--|---------|------|-----------|-----|-------------|
 | Self-hostable | ✅ | ❌ cloud only | ✅ | ✅ | ✅ |
 | Backend-agnostic | ✅ 4 backends | ❌ | ⚠️ manual | ❌ | — |
@@ -664,14 +664,14 @@ All settings via `LORE_` environment variables or a `.env` file:
 ## Project structure
 
 ```
-lore-ai/
-├── src/lore_ai/
-│   ├── api.py              ← FridayMemory — the local API
+extremis/
+├── src/extremis/
+│   ├── api.py              ← Memory — the local API
 │   ├── client.py           ← HostedClient — the cloud API (same interface)
-│   ├── config.py           ← Config (LORE_ env vars)
+│   ├── config.py           ← Config (EXTREMIS_ env vars)
 │   ├── types.py            ← Memory, Entity, Observation, AttentionResult, ...
 │   ├── interfaces.py       ← LogStore, MemoryStore, Embedder protocols
-│   ├── migrate.py          ← Migrator + lore-migrate CLI
+│   ├── migrate.py          ← Migrator + extremis-migrate CLI
 │   ├── storage/
 │   │   ├── sqlite.py       ← SQLiteMemoryStore
 │   │   ├── postgres.py     ← PostgresMemoryStore (pgvector, ranking in SQL)
@@ -719,5 +719,5 @@ See [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 ---
 
 <div align="center">
-  <sub>If lore-ai saves you from building another RAG pipeline, a ⭐ goes a long way.</sub>
+  <sub>If extremis saves you from building another RAG pipeline, a ⭐ goes a long way.</sub>
 </div>

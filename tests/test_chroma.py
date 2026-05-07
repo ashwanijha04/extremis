@@ -5,8 +5,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from lore_ai.storage.chroma import ChromaMemoryStore
-from lore_ai.types import MemoryLayer
+from extremis.storage.chroma import ChromaMemoryStore
+from extremis.types import MemoryLayer
 from .conftest import make_memory
 
 pytest.importorskip("chromadb", reason="chromadb not installed")
@@ -79,9 +79,9 @@ class TestChromaStore:
         assert len(results) == 3
 
     def test_namespace_isolation(self, tmp_path):
-        from lore_ai.config import Config
+        from extremis.config import Config
         cfg_a = Config(
-            friday_home=str(tmp_path),
+            extremis_home=str(tmp_path),
             local_db_path=str(tmp_path / "local.db"),
             namespace="alice",
         )

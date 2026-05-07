@@ -3,33 +3,33 @@ from __future__ import annotations
 
 import pytest
 
-from lore_ai.api import FridayMemory
-from lore_ai.config import Config
-from lore_ai.storage.kg import SQLiteKGStore
-from lore_ai.types import EntityType, MemoryLayer
+from extremis.api import Memory
+from extremis.config import Config
+from extremis.storage.kg import SQLiteKGStore
+from extremis.types import EntityType, MemoryLayer
 from .conftest import make_memory
 
 
 @pytest.fixture
 def ns_a(tmp_path, mock_embedder):
     cfg = Config(
-        friday_home=str(tmp_path),
+        extremis_home=str(tmp_path),
         log_dir=str(tmp_path / "log"),
         local_db_path=str(tmp_path / "shared.db"),
         namespace="alice",
     )
-    return FridayMemory(config=cfg, embedder=mock_embedder)
+    return Memory(config=cfg, embedder=mock_embedder)
 
 
 @pytest.fixture
 def ns_b(tmp_path, mock_embedder):
     cfg = Config(
-        friday_home=str(tmp_path),
+        extremis_home=str(tmp_path),
         log_dir=str(tmp_path / "log"),
         local_db_path=str(tmp_path / "shared.db"),
         namespace="bob",
     )
-    return FridayMemory(config=cfg, embedder=mock_embedder)
+    return Memory(config=cfg, embedder=mock_embedder)
 
 
 class TestMemoryNamespaceIsolation:
@@ -76,11 +76,11 @@ class TestMemoryNamespaceIsolation:
 
 class TestLogNamespaceIsolation:
     def test_logs_in_separate_directories(self, tmp_path, mock_embedder):
-        from lore_ai.storage.log import FileLogStore
-        from lore_ai.types import LogEntry
+        from extremis.storage.log import FileLogStore
+        from extremis.types import LogEntry
 
         cfg_a = Config(
-            friday_home=str(tmp_path),
+            extremis_home=str(tmp_path),
             log_dir=str(tmp_path / "log"),
             local_db_path=str(tmp_path / "shared.db"),
             namespace="alice",
@@ -102,10 +102,10 @@ class TestLogNamespaceIsolation:
 
 class TestKGNamespaceIsolation:
     def test_entities_isolated_by_namespace(self, tmp_path):
-        from lore_ai.config import Config
+        from extremis.config import Config
 
         cfg_a = Config(
-            friday_home=str(tmp_path),
+            extremis_home=str(tmp_path),
             local_db_path=str(tmp_path / "shared.db"),
             namespace="alice",
         )
@@ -118,10 +118,10 @@ class TestKGNamespaceIsolation:
         assert kg_b.query_entity("Alice Corp") is None
 
     def test_relationships_isolated(self, tmp_path):
-        from lore_ai.config import Config
+        from extremis.config import Config
 
         cfg_a = Config(
-            friday_home=str(tmp_path),
+            extremis_home=str(tmp_path),
             local_db_path=str(tmp_path / "shared.db"),
             namespace="alice",
         )

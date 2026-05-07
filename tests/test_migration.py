@@ -6,9 +6,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from lore_ai.migrate import Migrator, MigrationResult
-from lore_ai.storage.sqlite import SQLiteMemoryStore
-from lore_ai.types import MemoryLayer
+from extremis.migrate import Migrator, MigrationResult
+from extremis.storage.sqlite import SQLiteMemoryStore
+from extremis.types import MemoryLayer
 from .conftest import make_memory
 
 pytest.importorskip("chromadb", reason="chromadb not installed")
@@ -21,7 +21,7 @@ def sqlite_source(tmp_config):
 
 @pytest.fixture
 def chroma_dest(tmp_path, tmp_config):
-    from lore_ai.storage.chroma import ChromaMemoryStore
+    from extremis.storage.chroma import ChromaMemoryStore
     store = ChromaMemoryStore(str(tmp_path / "chroma_dest"), tmp_config)
     yield store
     store.close()
@@ -29,7 +29,7 @@ def chroma_dest(tmp_path, tmp_config):
 
 @pytest.fixture
 def chroma_source(tmp_path, tmp_config):
-    from lore_ai.storage.chroma import ChromaMemoryStore
+    from extremis.storage.chroma import ChromaMemoryStore
     store = ChromaMemoryStore(str(tmp_path / "chroma_source"), tmp_config)
     yield store
     store.close()
@@ -101,7 +101,7 @@ class TestReembedding:
 
 class TestRoundTrip:
     def test_sqlite_to_chroma_to_sqlite(self, tmp_path, tmp_config):
-        from lore_ai.storage.chroma import ChromaMemoryStore
+        from extremis.storage.chroma import ChromaMemoryStore
 
         source = SQLiteMemoryStore(str(tmp_path / "source.db"), tmp_config)
         mid = ChromaMemoryStore(str(tmp_path / "chroma"), tmp_config)

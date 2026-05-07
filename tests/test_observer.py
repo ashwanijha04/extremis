@@ -5,8 +5,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from lore_ai.observer.observer import HeuristicObserver, _CAPS_DAILY
-from lore_ai.types import LogEntry, ObservationPriority
+from extremis.observer.observer import HeuristicObserver, _CAPS_DAILY
+from extremis.types import LogEntry, ObservationPriority
 
 
 def make_entry(content: str, conversation_id: str = "c1") -> LogEntry:

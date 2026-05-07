@@ -1,16 +1,16 @@
 """
-lore-ai migration tool.
+extremis migration tool.
 
 Copies all memories from one backend to another.
 Re-embeds if the source and destination embedders differ.
 
 CLI:
-    lore-migrate --from sqlite --to chroma
-    lore-migrate --from sqlite --to pinecone --pinecone-api-key pk_... --pinecone-index my-index
-    lore-migrate --from chroma --to postgres --postgres-url postgresql://...
+    extremis-migrate --from sqlite --to chroma
+    extremis-migrate --from sqlite --to pinecone --pinecone-api-key pk_... --pinecone-index my-index
+    extremis-migrate --from chroma --to postgres --postgres-url postgresql://...
 
 Python:
-    from lore_ai.migrate import Migrator
+    from extremis.migrate import Migrator
     result = Migrator().run(source_store, dest_store, source_embedder, dest_embedder)
 """
 from __future__ import annotations
@@ -120,8 +120,8 @@ def cli() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        prog="lore-migrate",
-        description="Migrate lore-ai memories between storage backends",
+        prog="extremis-migrate",
+        description="Migrate extremis memories between storage backends",
     )
     parser.add_argument(
         "--from", dest="source", required=True,
@@ -147,8 +147,8 @@ def cli() -> None:
     # Pinecone
     parser.add_argument("--source-pinecone-api-key", default="")
     parser.add_argument("--dest-pinecone-api-key", default="")
-    parser.add_argument("--source-pinecone-index", default="lore-ai")
-    parser.add_argument("--dest-pinecone-index", default="lore-ai")
+    parser.add_argument("--source-pinecone-index", default="extremis")
+    parser.add_argument("--dest-pinecone-index", default="extremis")
 
     # Embedder override
     parser.add_argument("--dest-embedder", default="",
@@ -200,7 +200,7 @@ def _make_store(backend: str, args, config: Config, role: str):
         return PostgresMemoryStore(url, config)
     elif backend == "chroma":
         from .storage.chroma import ChromaMemoryStore
-        path = getattr(args, f"{role}_path") or f"{config.friday_home}/chroma"
+        path = getattr(args, f"{role}_path") or f"{config.extremis_home}/chroma"
         return ChromaMemoryStore(path, config)
     elif backend == "pinecone":
         from .storage.pinecone_store import PineconeMemoryStore

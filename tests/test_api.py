@@ -1,12 +1,12 @@
-"""FridayMemory public API — remember / recall / report_outcome / remember_now."""
+"""Memory public API — remember / recall / report_outcome / remember_now."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from lore_ai.storage.log import FileLogStore
-from lore_ai.types import MemoryLayer
+from extremis.storage.log import FileLogStore
+from extremis.types import MemoryLayer
 
 
 class TestRemember:

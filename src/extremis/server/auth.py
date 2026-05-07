@@ -1,7 +1,7 @@
 """
-API key management for the lore-ai hosted server.
+API key management for the extremis hosted server.
 
-Keys format: lore_sk_<32 url-safe base64 chars>
+Keys format: extremis_sk_<32 url-safe base64 chars>
 Keys are stored hashed (sha256). The plaintext is only shown once at creation.
 
 Storage: SQLite file at {server_home}/keys.db
@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Optional
 
 
-_PREFIX = "lore_sk_"
+_PREFIX = "extremis_sk_"
 
 
 def generate_key() -> str:

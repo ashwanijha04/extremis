@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="LORE_", env_file=".env")
+    model_config = SettingsConfigDict(env_prefix="EXTREMIS_", env_file=".env")
 
     # ── Backend ─────────────────────────────────────────────────────
     # "sqlite" | "postgres" | "chroma" | "pinecone"
@@ -12,24 +12,24 @@ class Config(BaseSettings):
 
     # ── Namespace ────────────────────────────────────────────────────
     # Isolates one user/agent's memories from another.
-    # LORE_NAMESPACE=user_123 for per-user isolation on a shared server.
+    # EXTREMIS_NAMESPACE=user_123 for per-user isolation on a shared server.
     namespace: str = "default"
 
     # ── SQLite ───────────────────────────────────────────────────────
-    friday_home: str = "~/.lore"
-    log_dir: str = ""           # defaults to {friday_home}/log
-    local_db_path: str = ""     # defaults to {friday_home}/local.db
+    extremis_home: str = "~/.extremis"
+    log_dir: str = ""           # defaults to {extremis_home}/log
+    local_db_path: str = ""     # defaults to {extremis_home}/local.db
 
     # ── Postgres ─────────────────────────────────────────────────────
     postgres_url: str = ""
 
     # ── Chroma ───────────────────────────────────────────────────────
-    chroma_path: str = ""       # defaults to {friday_home}/chroma
+    chroma_path: str = ""       # defaults to {extremis_home}/chroma
 
     # ── Pinecone ─────────────────────────────────────────────────────
     pinecone_api_key: str = ""
-    pinecone_index: str = "lore-ai"
-    pinecone_score_db: str = "" # defaults to {friday_home}/pinecone_scores.db
+    pinecone_index: str = "extremis"
+    pinecone_score_db: str = "" # defaults to {extremis_home}/pinecone_scores.db
 
     # ── Embeddings ───────────────────────────────────────────────────
     # sentence-transformers model name  OR  OpenAI model name
@@ -55,13 +55,13 @@ class Config(BaseSettings):
 
     # ── Resolved paths ───────────────────────────────────────────────
     def resolved_log_dir(self) -> str:
-        return self.log_dir or f"{self.friday_home}/log"
+        return self.log_dir or f"{self.extremis_home}/log"
 
     def resolved_local_db_path(self) -> str:
-        return self.local_db_path or f"{self.friday_home}/local.db"
+        return self.local_db_path or f"{self.extremis_home}/local.db"
 
     def resolved_chroma_path(self) -> str:
-        return self.chroma_path or f"{self.friday_home}/chroma"
+        return self.chroma_path or f"{self.extremis_home}/chroma"
 
     def resolved_pinecone_score_db(self) -> str:
-        return self.pinecone_score_db or f"{self.friday_home}/pinecone_scores.db"
+        return self.pinecone_score_db or f"{self.extremis_home}/pinecone_scores.db"

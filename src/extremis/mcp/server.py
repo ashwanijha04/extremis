@@ -4,8 +4,8 @@ Friday Memory MCP server.
 Add to claude_desktop_config.json:
 
   "mcpServers": {
-    "lore-ai": {
-      "command": "lore-mcp",
+    "extremis": {
+      "command": "extremis-mcp",
       "env": { "FRIDAY_HOME": "~/.friday" }
     }
   }
@@ -13,8 +13,8 @@ Add to claude_desktop_config.json:
 Or with a custom db path:
 
   "mcpServers": {
-    "lore-ai": {
-      "command": "lore-mcp",
+    "extremis": {
+      "command": "extremis-mcp",
       "env": {
         "FRIDAY_LOCAL_DB_PATH": "/path/to/local.db",
         "FRIDAY_LOG_DIR": "/path/to/logs"
@@ -31,7 +31,7 @@ from uuid import UUID
 
 from mcp.server.fastmcp import FastMCP
 
-from ..api import FridayMemory
+from ..api import Memory
 from ..config import Config
 from ..consolidation.consolidator import LLMConsolidator
 from ..types import EntityType, MemoryLayer
@@ -41,10 +41,10 @@ log = logging.getLogger(__name__)
 
 def create_server(config: Config | None = None) -> FastMCP:
     cfg = config or Config()
-    mem = FridayMemory(config=cfg)
+    mem = Memory(config=cfg)
 
     mcp = FastMCP(
-        "lore-ai",
+        "extremis",
         instructions=(
             "Use these tools to give yourself persistent memory across conversations. "
             "Call memory_recall at the start of every conversation to retrieve relevant context. "
@@ -423,7 +423,7 @@ def main() -> None:
     server = create_server()
 
     if args.transport == "sse":
-        log.info("Starting lore-ai MCP server on http://%s:%d", args.host, args.port)
+        log.info("Starting extremis MCP server on http://%s:%d", args.host, args.port)
         server.run(transport="sse", host=args.host, port=args.port)
     else:
         server.run(transport="stdio")

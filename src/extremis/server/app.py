@@ -1,18 +1,18 @@
 """
-lore-ai hosted API server.
+extremis hosted API server.
 
 Run locally:
-    lore-server
+    extremis-server
 
 Run with custom config:
-    LORE_STORE=postgres LORE_POSTGRES_URL=postgresql://... lore-server
+    EXTREMIS_STORE=postgres EXTREMIS_POSTGRES_URL=postgresql://... extremis-server
 
 Create an API key:
-    lore-server create-key --namespace alice --label "alice's dev key"
+    extremis-server create-key --namespace alice --label "alice's dev key"
 
 Docker:
-    docker build -t lore-ai-server .
-    docker run -p 8000:8000 -e LORE_STORE=postgres -e LORE_POSTGRES_URL=... lore-ai-server
+    docker build -t extremis-server .
+    docker run -p 8000:8000 -e EXTREMIS_STORE=postgres -e EXTREMIS_POSTGRES_URL=... extremis-server
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ from .routes import memories, kg, health
 
 log = logging.getLogger(__name__)
 
-_SERVER_HOME = os.environ.get("LORE_SERVER_HOME", "~/.lore/server")
+_SERVER_HOME = os.environ.get("EXTREMIS_SERVER_HOME", "~/.extremis/server")
 
 
 @asynccontextmanager
@@ -43,14 +43,14 @@ async def lifespan(app: FastAPI):
     key_store = KeyStore(str(home / "keys.db"))
     init(key_store, server_cfg)
 
-    log.info("lore-ai server started  store=%s  home=%s", server_cfg.store, str(home))
+    log.info("extremis server started  store=%s  home=%s", server_cfg.store, str(home))
     yield
     key_store.close()
 
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="lore-ai API",
+        title="extremis API",
         description="Hosted memory layer for AI agents",
         version="0.1.0",
         lifespan=lifespan,
@@ -58,7 +58,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=os.environ.get("LORE_CORS_ORIGINS", "*").split(","),
+        allow_origins=os.environ.get("EXTREMIS_CORS_ORIGINS", "*").split(","),
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -78,7 +78,7 @@ app = create_app()
 def main() -> None:
     import argparse, sys
 
-    parser = argparse.ArgumentParser(prog="lore-server")
+    parser = argparse.ArgumentParser(prog="extremis-server")
     sub = parser.add_subparsers(dest="cmd")
 
     # serve (default)
@@ -136,14 +136,14 @@ def main() -> None:
     try:
         import uvicorn
     except ImportError:
-        print("uvicorn not installed. Run: pip install 'lore-ai[server]'")
+        print("uvicorn not installed. Run: pip install 'extremis[server]'")
         sys.exit(1)
 
     host = getattr(args, "host", "0.0.0.0")
     port = getattr(args, "port", 8000)
     reload = getattr(args, "reload", False)
     logging.basicConfig(level=logging.INFO)
-    uvicorn.run("lore_ai.server.app:app", host=host, port=port, reload=reload)
+    uvicorn.run("extremis.server.app:app", host=host, port=port, reload=reload)
 
 
 if __name__ == "__main__":

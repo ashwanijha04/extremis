@@ -1,15 +1,15 @@
 """
-HostedClient — drop-in replacement for FridayMemory that talks to the lore-ai hosted API.
+HostedClient — drop-in replacement for Memory that talks to the extremis hosted API.
 
 All computation (embedding, search, RL scoring, KG, consolidation) runs server-side.
 No local database. No 90 MB model download.
 
 Usage:
-    from lore_ai import HostedClient
+    from extremis import HostedClient
 
-    mem = HostedClient(api_key="lore_sk_...")
+    mem = HostedClient(api_key="extremis_sk_...")
 
-    # Exact same API as FridayMemory
+    # Exact same API as Memory
     mem.remember("User is building a WhatsApp AI", conversation_id="conv_001")
     results = mem.recall("WhatsApp product")
     mem.report_outcome([r.memory.id for r in results], success=True)
@@ -30,22 +30,22 @@ from .types import (
     RecallResult,
 )
 
-_CLOUD_URL = "https://api.lore-ai.com"   # not yet live — self-host with lore-server
+_CLOUD_URL = "https://api.extremis.com"   # not yet live — self-host with extremis-server
 
 
 class HostedClient:
     """
-    Stateless HTTP client. Every call is a round-trip to a lore-ai server.
+    Stateless HTTP client. Every call is a round-trip to a extremis server.
 
     Self-host:
-        lore-server serve --host 0.0.0.0 --port 8000
-        lore-server create-key --namespace alice
-        mem = HostedClient(api_key="lore_sk_...", base_url="http://localhost:8000")
+        extremis-server serve --host 0.0.0.0 --port 8000
+        extremis-server create-key --namespace alice
+        mem = HostedClient(api_key="extremis_sk_...", base_url="http://localhost:8000")
 
-    Cloud (coming soon — join the waitlist at github.com/ashwanijha04/lore-ai):
-        mem = HostedClient(api_key="lore_sk_...")
+    Cloud (coming soon — join the waitlist at github.com/ashwanijha04/extremis):
+        mem = HostedClient(api_key="extremis_sk_...")
 
-    Install: pip install "lore-ai[client]"
+    Install: pip install "extremis[client]"
     """
 
     def __init__(
@@ -58,7 +58,7 @@ class HostedClient:
             import httpx
         except ImportError:
             raise ImportError(
-                "HostedClient requires httpx: pip install 'lore-ai[client]'"
+                "HostedClient requires httpx: pip install 'extremis[client]'"
             ) from None
 
         self._base = base_url.rstrip("/")

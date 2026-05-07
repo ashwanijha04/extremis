@@ -2,9 +2,9 @@
 Pinecone memory store adapter.
 
 Vectors live in a Pinecone index. RL scores live in a sidecar SQLiteScoreIndex.
-Pinecone namespaces map 1:1 to lore-ai namespaces.
+Pinecone namespaces map 1:1 to extremis namespaces.
 
-Install: pip install "lore-ai[pinecone]"
+Install: pip install "extremis[pinecone]"
 """
 from __future__ import annotations
 
@@ -61,7 +61,7 @@ class PineconeMemoryStore:
     Create it beforehand:
         from pinecone import Pinecone, ServerlessSpec
         pc = Pinecone(api_key="...")
-        pc.create_index("lore-ai", dimension=384, metric="cosine",
+        pc.create_index("extremis", dimension=384, metric="cosine",
                         spec=ServerlessSpec(cloud="aws", region="us-east-1"))
 
     RL scores are stored in a sidecar SQLite file at {score_db_path}.
@@ -71,14 +71,14 @@ class PineconeMemoryStore:
         try:
             from pinecone import Pinecone
         except ImportError:
-            raise ImportError("Pinecone store requires: pip install 'lore-ai[pinecone]'") from None
+            raise ImportError("Pinecone store requires: pip install 'extremis[pinecone]'") from None
 
         self._config = config
         self._ns = config.namespace
         self._index = Pinecone(api_key=api_key).Index(index_name)
 
         score_path = score_db_path or str(
-            Path(config.friday_home).expanduser() / "pinecone_scores.db"
+            Path(config.extremis_home).expanduser() / "pinecone_scores.db"
         )
         self._scores = SQLiteScoreIndex(score_path, self._ns)
 

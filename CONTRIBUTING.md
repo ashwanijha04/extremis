@@ -5,8 +5,8 @@ Thanks for taking the time to contribute.
 ## Getting started
 
 ```bash
-git clone https://github.com/ashwanijha04/lore-ai
-cd lore-ai
+git clone https://github.com/ashwanijha04/extremis
+cd extremis
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
@@ -19,7 +19,7 @@ pytest tests/ -v
 Run lint and type checks:
 ```bash
 ruff check src/ tests/
-mypy src/lore_ai --ignore-missing-imports
+mypy src/extremis --ignore-missing-imports
 ```
 
 ## What we're looking for
@@ -38,11 +38,11 @@ mypy src/lore_ai --ignore-missing-imports
 
 ## How to add a new storage backend
 
-Implement the `MemoryStore` protocol from `lore_ai.interfaces`:
+Implement the `MemoryStore` protocol from `extremis.interfaces`:
 
 ```python
-from lore_ai.interfaces import MemoryStore
-from lore_ai.types import Memory, MemoryLayer, RecallResult
+from extremis.interfaces import MemoryStore
+from extremis.types import Memory, MemoryLayer, RecallResult
 
 class MyStore:
     def store(self, memory: Memory) -> Memory: ...

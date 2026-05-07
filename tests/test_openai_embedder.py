@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from lore_ai.embeddings.openai import OpenAIEmbedder, _DIMS
+from extremis.embeddings.openai import OpenAIEmbedder, _DIMS
 
 
 class TestOpenAIEmbedder:
@@ -60,5 +60,5 @@ class TestOpenAIEmbedder:
 
     def test_import_error_without_package(self):
         with patch.dict("sys.modules", {"openai": None}):
-            with pytest.raises(ImportError, match="lore-ai\\[openai\\]"):
+            with pytest.raises(ImportError, match="extremis\\[openai\\]"):
                 OpenAIEmbedder("text-embedding-3-small")

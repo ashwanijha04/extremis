@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from lore_ai.types import EntityType
+from extremis.types import EntityType
 
 
 class TestAddEntity:

@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "lore-ai"
+name = "extremis"
 version = "0.1.0"
 description = "Layered memory platform for AI agents — log-first, RL-scored, consolidation-backed"
 readme = "README.md"
@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/ashwanijha04/lore-ai"
+Repository = "https://github.com/ashwanijha04/extremis"
 
 dependencies = [
     "pydantic>=2.0",
@@ -49,15 +49,15 @@ dev = [
     "mypy>=1.10",
     "chromadb>=0.5",
 ]
-all = ["lore-ai[mcp,postgres,chroma,pinecone,openai,server,client]"]
+all = ["extremis[mcp,postgres,chroma,pinecone,openai,server,client]"]
 
 [project.scripts]
-lore-mcp     = "lore_ai.mcp.server:main"
-lore-migrate = "lore_ai.migrate:cli"
-lore-server  = "lore_ai.server.app:main"
+extremis-mcp     = "extremis.mcp.server:main"
+extremis-migrate = "extremis.migrate:cli"
+extremis-server  = "extremis.server.app:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/lore_ai"]
+packages = ["src/extremis"]
 
 [tool.ruff]
 line-length = 100
