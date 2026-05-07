@@ -40,7 +40,7 @@ Human memory doesn't keep everything forever — unimportant things fade, import
 extremis does two things here: **recency decay** (old memories rank lower automatically) and **asymmetric RL weighting** (negative feedback hurts 1.5× more than positive feedback helps, because mistakes should leave a stronger mark). The result is a memory that naturally surfaces what matters and buries what doesn't.
 
 ```python
-mem = Memory(config=Config(
+mem = Extremis(config=Config(
     recency_half_life_days=30,  # episodic memories halve in rank every 30 days
     rl_alpha=0.8,               # strong RL signal — useful things stick, useless things fade
 ))
@@ -87,9 +87,9 @@ extremis's namespace model already supports this. Multiple agents can read from 
 
 ```python
 # All three agents share the same memory namespace
-research = Memory(config=Config(namespace="team_alpha"))
-writer   = Memory(config=Config(namespace="team_alpha"))
-reviewer = Memory(config=Config(namespace="team_alpha"))
+research = Extremis(config=Config(namespace="team_alpha"))
+writer   = Extremis(config=Config(namespace="team_alpha"))
+reviewer = Extremis(config=Config(namespace="team_alpha"))
 
 # Research agent stores what it found
 research.remember("GPT-4 outperforms Claude on math benchmarks by 12%")
@@ -114,11 +114,11 @@ One `pip install`. Two lines of config. extremis handles embedding, storage, ret
 
 ```python
 # Local — zero infra
-from extremis import Memory
-mem = Memory()
+from extremis import Extremis
+mem = Extremis()
 
 # Your existing vector store
-mem = Memory(config=Config(store="pinecone", pinecone_api_key="..."))
+mem = Extremis(config=Config(store="pinecone", pinecone_api_key="..."))
 
 # Self-hosted server — no model download on the client
 from extremis import HostedClient
@@ -157,7 +157,7 @@ extremis-migrate --from sqlite --to chroma \
 # Coming in v0.2
 from extremis.profiles import SalesAgent, CodingAgent, SupportAgent
 
-mem = Memory(profile=SalesAgent())
+mem = Extremis(profile=SalesAgent())
 # Knows to remember: customer names, deal stage, objections, preferences
 # Knows to forget: small talk after 7 days, meeting logistics after 24h
 # Attention: high for "budget", "decision maker", "timeline"
@@ -321,10 +321,10 @@ pip install "extremis[all]"
 ## Quick start
 
 ```python
-from extremis import Memory, MemoryLayer
+from extremis import Extremis, MemoryLayer
 from extremis.types import EntityType
 
-mem = Memory()  # ~/.extremis/ by default
+mem = Extremis()  # ~/.extremis/ by default
 
 # ── Remember ──────────────────────────────────────────────────
 mem.remember("User is building a WhatsApp AI", conversation_id="conv_001")
@@ -610,8 +610,8 @@ EXTREMIS_NAMESPACE=bob   extremis-mcp   # Bob's — completely separate, same DB
 ```
 
 ```python
-mem_alice = Memory(config=Config(namespace="alice"))
-mem_bob   = Memory(config=Config(namespace="bob"))
+mem_alice = Extremis(config=Config(namespace="alice"))
+mem_bob   = Extremis(config=Config(namespace="bob"))
 # same DB file, zero crossover
 ```
 
