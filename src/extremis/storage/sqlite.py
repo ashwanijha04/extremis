@@ -124,6 +124,11 @@ class SQLiteMemoryStore:
         query_vec = np.array(query_embedding, dtype=np.float32)
         query_norm = np.linalg.norm(query_vec)
 
+        # layers=[] means "caller requested a layer set that had nothing in it"
+        # — return empty rather than falling back to all layers.
+        if layers is not None and len(layers) == 0:
+            return []
+
         layer_filter = ""
         params: list = [self._ns]
         if layers:

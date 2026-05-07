@@ -120,7 +120,7 @@ class Extremis:
         query: str,
         limit: int = 10,
         layers: Optional[list[MemoryLayer]] = None,
-        min_score: float = 0.0,
+        min_score: Optional[float] = None,
     ) -> list[RecallResult]:
         """
         Layered retrieval:
@@ -128,26 +128,39 @@ class Extremis:
         - Procedural layer always included (behavioral rules)
         - Semantic + Episodic ranked by relevance × utility × recency
         """
+        # Use configured floor if caller didn't specify — prevents near-zero noise
+        effective_min = min_score if min_score is not None else self._config.recall_min_relevance
+
         query_embedding = self._embedder.embed(query)
 
-        # Always pull identity + procedural regardless of layer filter
+        # Always pull identity + procedural regardless of layer filter.
+        # Use min_score=0 for pinned layers so identity/procedural always surface
+        # even when they're not a strong semantic match.
         pinned_layers = [MemoryLayer.IDENTITY, MemoryLayer.PROCEDURAL]
         pinned = self._local.search(
             query_embedding,
             layers=pinned_layers,
             limit=5,
-            min_score=min_score,
+            min_score=0.0,
         )
 
-        # Ranked recall for semantic + episodic (or custom filter)
+        # Ranked recall for semantic + episodic (or the caller's custom filter).
+        # Remove pinned layers — they're already covered above.
+        # If the caller asked only for pinned layers (e.g. layers=["identity"]),
+        # search_layers becomes [] and we skip the ranked search entirely
+        # rather than falling back to all layers.
         search_layers = layers or [MemoryLayer.SEMANTIC, MemoryLayer.EPISODIC]
         search_layers = [layer for layer in search_layers if layer not in pinned_layers]
 
-        ranked = self._local.search(
-            query_embedding,
-            layers=search_layers,
-            limit=limit,
-            min_score=min_score,
+        ranked = (
+            self._local.search(
+                query_embedding,
+                layers=search_layers,
+                limit=limit,
+                min_score=effective_min,
+            )
+            if search_layers
+            else []
         )
 
         # Merge: pinned first (deduped), then ranked

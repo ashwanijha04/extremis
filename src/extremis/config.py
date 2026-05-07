@@ -47,6 +47,7 @@ class Config(BaseSettings):
     # ── Retrieval ranking ────────────────────────────────────────────
     rl_alpha: float = 0.5
     recency_half_life_days: int = 90
+    recall_min_relevance: float = 0.05  # drop results below this cosine similarity
 
     # ── Attention scorer ─────────────────────────────────────────────
     attention_full_threshold: int = 75
