@@ -126,10 +126,11 @@ def run_demo() -> None:
     result = mem.kg_query("User")
     p()
     p(f'  {BOLD}kg_query("User"):{RESET}')
-    for rel in result.relationships:
-        arrow(f"{rel.from_entity} —[{rel.rel_type}]→ {rel.to_entity}")
-    for attr in result.attributes:
-        arrow(f"{attr.entity}.{attr.key} = {attr.value}")
+    if result:
+        for rel in result.relationships:
+            arrow(f"{rel.from_entity} —[{rel.rel_type}]→ {rel.to_entity}")
+        for attr in result.attributes:
+            arrow(f"{attr.entity}.{attr.key} = {attr.value}")
 
     # ── Attention scorer (bonus) ──────────────────────────────────────────────
     p()
