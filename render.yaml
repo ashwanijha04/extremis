@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: extremis
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: EXTREMIS_STORE
+        value: postgres
+      - key: EXTREMIS_POSTGRES_URL
+        fromDatabase:
+          name: extremis-db
+          property: connectionString
+      - key: EXTREMIS_SERVER_HOME
+        value: /data/server
+      - key: PORT
+        value: 8000
+
+databases:
+  - name: extremis-db
+    databaseName: extremis
+    user: extremis
+    plan: free

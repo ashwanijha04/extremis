@@ -543,12 +543,17 @@ EXTREMIS_PINECONE_API_KEY<span class="op">=</span><span class="str">pk_...</span
       <p style="margin-top:.5rem; font-size:.8rem; color:#f0c040;">
         ⚠️ Don't use SQLite on Railway — container filesystems are ephemeral. Always pair with Railway Postgres.
       </p>
-      <div style="margin-top:.75rem;">
-        <a href="https://railway.app/new/template?template=https://github.com/ashwanijha04/extremis"
+      <p style="margin-top:.6rem; font-size:.8rem; color:var(--muted);">
+        Render auto-provisions Postgres alongside the server via <code>render.yaml</code>.
+        Memory lives in Render's managed Postgres — persistent across restarts.
+      </p>
+      <div style="margin-top:.75rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center;">
+        <a href="https://render.com/deploy?repo=https://github.com/ashwanijha04/extremis"
            target="_blank"
-           style="display:inline-block; background:var(--accent); color:#fff; padding:.4rem .9rem; border-radius:6px; font-size:.82rem; font-weight:600; text-decoration:none;">
-          Deploy on Railway →
+           style="display:inline-block; background:#46e3b7; color:#000; padding:.4rem .9rem; border-radius:6px; font-size:.82rem; font-weight:700; text-decoration:none;">
+          Deploy to Render →
         </a>
+        <span style="font-size:.78rem; color:var(--muted);">or <a href="https://railway.app" target="_blank" style="color:var(--muted);">Railway</a> / <a href="https://fly.io" target="_blank" style="color:var(--muted);">Fly.io</a> (manual setup)</span>
       </div>
       <pre style="margin-top:.75rem;"><span class="cm"># After deploy, your client:</span>
 <span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">HostedClient</span>
