@@ -9,6 +9,7 @@
 [![PyPI](https://img.shields.io/pypi/v/lore-ai?logo=pypi&logoColor=white&color=orange)](https://pypi.org/project/lore-ai)
 [![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/lore-ai/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/lore-ai/actions)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
+[![Cloud](https://img.shields.io/badge/hosted%20cloud-waitlist-blue)](https://github.com/ashwanijha04/lore-ai/issues/1)
 
 </div>
 
@@ -119,9 +120,9 @@ mem = FridayMemory()
 # Your existing vector store
 mem = FridayMemory(config=Config(store="pinecone", pinecone_api_key="..."))
 
-# Fully hosted — no model download, no local DB
+# Self-hosted server — no model download on the client
 from lore_ai import HostedClient
-mem = HostedClient(api_key="lore_sk_...")
+mem = HostedClient(api_key="lore_sk_...", base_url="http://your-server:8000")
 
 # Same three lines work for all three
 mem.remember("User is building a WhatsApp AI", conversation_id="c1")
@@ -453,21 +454,23 @@ lore-migrate --from sqlite --to chroma --dry-run
 
 ## Hosted API
 
-Run lore-ai as a service — your users call it with an API key, all compute happens server-side.
+Run lore-ai as a service — your users call it with an API key, all compute happens server-side. No model download on the client. No local database.
 
-### Start the server
+> **Status:** The server is fully built and self-hostable today. A managed cloud at `api.lore-ai.com` is in progress — [join the waitlist](https://github.com/ashwanijha04/lore-ai/issues/1).
+
+### Self-host in 2 minutes
 
 ```bash
 pip install "lore-ai[server]"
 
-# Create an API key
-lore-server create-key --namespace alice --label "alice dev"
-# → lore_sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  (shown once)
+# Generate an API key
+lore-server create-key --namespace alice --label "prod"
+# → lore_sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  (shown once, store it)
 
-# Start
+# Start the server
 lore-server serve --host 0.0.0.0 --port 8000
 
-# Or with Docker (includes Postgres + pgvector)
+# Or with Docker (bundles Postgres + pgvector)
 docker compose up
 ```
 
@@ -476,13 +479,13 @@ docker compose up
 ```python
 from lore_ai import HostedClient
 
-mem = HostedClient(api_key="lore_sk_...")
+# Point at your self-hosted server
+mem = HostedClient(api_key="lore_sk_...", base_url="http://your-server:8000")
 
 # Exact same API as FridayMemory — nothing else changes
 mem.remember("User is building a WhatsApp AI", conversation_id="c1")
 results = mem.recall("WhatsApp")
 mem.report_outcome([r.memory.id for r in results], success=True)
-mem.kg_add_entity("Alice", EntityType.PERSON)
 ```
 
 ### API endpoints

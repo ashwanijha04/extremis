@@ -30,19 +30,28 @@ from .types import (
     RecallResult,
 )
 
-_DEFAULT_BASE_URL = "https://api.lore-ai.com"
+_CLOUD_URL = "https://api.lore-ai.com"   # not yet live — self-host with lore-server
 
 
 class HostedClient:
     """
-    Stateless HTTP client. Every call is a round-trip to the hosted API.
+    Stateless HTTP client. Every call is a round-trip to a lore-ai server.
+
+    Self-host:
+        lore-server serve --host 0.0.0.0 --port 8000
+        lore-server create-key --namespace alice
+        mem = HostedClient(api_key="lore_sk_...", base_url="http://localhost:8000")
+
+    Cloud (coming soon — join the waitlist at github.com/ashwanijha04/lore-ai):
+        mem = HostedClient(api_key="lore_sk_...")
+
     Install: pip install "lore-ai[client]"
     """
 
     def __init__(
         self,
         api_key: str,
-        base_url: str = _DEFAULT_BASE_URL,
+        base_url: str = _CLOUD_URL,
         timeout: float = 30.0,
     ) -> None:
         try:
