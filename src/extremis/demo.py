@@ -188,30 +188,57 @@ def run_demo() -> None:
         p(f"  rank={CYAN}{r.final_rank:.3f}{RESET}{score_str}  {r.memory.content[:50]}")
 
     # ── 4. Knowledge graph ────────────────────────────────────────────────────
-    header("4 / 4  Knowledge graph  →  entities + relationships + attributes")
+    header("4 / 4  Knowledge graph  →  entities + relationships + BFS traverse")
 
-    with Spinner("Writing entities and relationships…"):
+    with Spinner("Building graph…"):
+        # Entities
         mem.kg_add_entity("User", EntityType.PERSON)
         mem.kg_add_entity("Extremis", EntityType.PROJECT)
+        mem.kg_add_entity("Postgres", EntityType.CONCEPT)
+        mem.kg_add_entity("Pinecone", EntityType.CONCEPT)
+        # Relationships
         mem.kg_add_relationship("User", "Extremis", "building", weight=1.0)
+        mem.kg_add_relationship("Extremis", "Postgres", "stores_in", weight=0.9)
+        mem.kg_add_relationship("Extremis", "Pinecone", "also_supports", weight=0.7)
+        # Attributes
         mem.kg_add_attribute("User", "timezone", "Asia/Dubai")
         mem.kg_add_attribute("User", "language", "Python")
+        mem.kg_add_attribute("Extremis", "version", "0.1.7")
         time.sleep(0.2)
 
-    ok("User → [building] → Extremis")
-    ok("User.timezone = Asia/Dubai  ·  User.language = Python")
+    ok("4 entities  ·  3 relationships  ·  3 attributes")
 
-    with Spinner("Querying graph…"):
+    # Single entity query
+    with Spinner("kg_query(User)…"):
         result = mem.kg_query("User")
-        time.sleep(0.15)
+        time.sleep(0.1)
 
     p()
-    p(f'  {BOLD}kg_query("User"):{RESET}')
+    p(f'  {BOLD}kg_query("User"):  {DIM}direct connections only{RESET}')
     if result:
         for rel in result.relationships:
-            arrow(f"{rel.from_entity} —[{rel.rel_type}]→ {rel.to_entity}")
+            arrow(f"{rel.from_entity} —[{rel.rel_type}]→ {rel.to_entity}  {DIM}w={rel.weight:.1f}{RESET}")
         for attr in result.attributes:
             arrow(f"{attr.entity}.{attr.key} = {attr.value}")
+
+    # BFS traverse — shows the power of graph over flat vectors
+    p()
+    with Spinner("kg_traverse(User, depth=2) — walking 2 hops…"):
+        graph = mem.kg_traverse("User", depth=2)
+        time.sleep(0.2)
+
+    p(f'  {BOLD}kg_traverse("User", depth=2):  {DIM}everything reachable in 2 hops{RESET}')
+    for er in graph:
+        rels = "  ".join(
+            f"{DIM}→[{r.rel_type}]→ {r.to_entity if r.from_entity == er.entity.name else r.from_entity}{RESET}"
+            for r in er.relationships
+        )
+        attrs = "  ".join(f"{DIM}{a.key}={a.value}{RESET}" for a in er.attributes)
+        detail = "  ".join(filter(None, [rels, attrs]))
+        p(
+            f"  {CYAN}[{er.entity.type.value}]{RESET} {BOLD}{er.entity.name}{RESET}"
+            + (f"\n    {detail}" if detail else "")
+        )
 
     # ── Attention scorer ──────────────────────────────────────────────────────
     p()
