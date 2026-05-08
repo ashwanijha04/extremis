@@ -9,7 +9,7 @@ from ..config import Config
 from ..types import Memory, MemoryLayer, RecallResult
 
 
-def _parse_source_ids(val: object) -> list[UUID]:
+def _parse_source_ids(val: list | None) -> list[UUID]:
     """
     Parse source_memory_ids from Postgres.
 
