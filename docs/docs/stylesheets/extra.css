@@ -1,0 +1,51 @@
+/* Mobile-first fixes for extremis docs */
+
+/* Prevent code blocks from causing horizontal page scroll */
+pre, code {
+  max-width: 100%;
+  overflow-x: auto;
+  word-break: normal;
+}
+
+.highlight pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Tables: scroll horizontally inside their container */
+.md-typeset table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+/* Prevent nav tabs from wrapping awkwardly on small screens */
+@media screen and (max-width: 600px) {
+  .md-tabs__list {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .md-tabs__item {
+    display: inline-block;
+  }
+}
+
+/* Make admonition boxes not overflow on mobile */
+.md-typeset .admonition,
+.md-typeset details {
+  overflow: hidden;
+}
+
+/* Tighter padding on mobile */
+@media screen and (max-width: 600px) {
+  .md-typeset {
+    font-size: .85rem;
+  }
+
+  .md-content__inner {
+    padding: 0 .6rem;
+  }
+}
