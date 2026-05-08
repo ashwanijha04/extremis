@@ -327,6 +327,7 @@
     <a href="#install" class="hide-mobile">Install</a>
     <a href="#mcp" class="hide-mobile">MCP</a>
     <a href="#privacy" class="hide-mobile">Privacy</a>
+    <a href="#waitlist" style="color:var(--accent); font-weight:600;">Hosted ↗</a>
     <a href="https://github.com/ashwanijha04/extremis" target="_blank">GitHub</a>
     <a href="https://pypi.org/project/extremis" target="_blank" class="btn-sm">PyPI ↗</a>
   </div>
@@ -700,29 +701,86 @@ pip3.11 install <span class="str">"extremis[mcp]"</span>
 </section>
 
 <!-- Hosted CTA -->
-<section style="text-align:center; padding: 3rem 2rem;">
-  <div style="
-    display:inline-block;
-    background: rgba(124,106,247,.08);
-    border: 1px solid rgba(124,106,247,.25);
-    border-radius: 12px;
-    padding: 1.5rem 2.5rem;
-    max-width: 520px;
-  ">
-    <p style="font-size:1.05rem; font-weight:600; margin-bottom:.5rem;">Want a hosted version?</p>
-    <p style="color:var(--muted); font-size:.9rem; margin-bottom:1rem;">
-      No setup, no infrastructure, just an API key.
+<section id="waitlist" style="padding: 3rem 2rem;">
+  <div style="max-width:480px; margin:0 auto; text-align:center;">
+    <p style="font-size:1.4rem; font-weight:700; margin-bottom:.5rem;">Want a hosted version?</p>
+    <p style="color:var(--muted); font-size:.95rem; margin-bottom:1.75rem;">
+      No setup, no infrastructure, just an API key.<br/>
+      Leave your email — we'll reach out when it's ready.
     </p>
-    <a href="mailto:ashwanijha04@gmail.com" style="
-      display:inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: .6rem 1.5rem;
-      border-radius: 7px;
-      font-weight: 600;
-      font-size: .95rem;
-      text-decoration: none;
-    ">ashwanijha04@gmail.com</a>
+
+    <form
+      action="https://formspree.io/f/YOUR_FORM_ID"
+      method="POST"
+      id="waitlist-form"
+      style="display:flex; flex-direction:column; gap:.75rem;"
+    >
+      <input
+        type="email"
+        name="email"
+        placeholder="your@email.com"
+        required
+        style="
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: .75rem 1rem;
+          color: var(--text);
+          font-size: .95rem;
+          font-family: inherit;
+          outline: none;
+          width: 100%;
+          transition: border-color .15s;
+        "
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'"
+      />
+      <input
+        type="text"
+        name="usecase"
+        placeholder="What will you build with it? (optional)"
+        style="
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: .75rem 1rem;
+          color: var(--text);
+          font-size: .95rem;
+          font-family: inherit;
+          outline: none;
+          width: 100%;
+          transition: border-color .15s;
+        "
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'"
+      />
+      <button
+        type="submit"
+        style="
+          background: var(--accent);
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          padding: .8rem 1.5rem;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          transition: opacity .15s;
+        "
+        onmouseover="this.style.opacity='.85'"
+        onmouseout="this.style.opacity='1'"
+      >
+        Join the waitlist
+      </button>
+      <p style="font-size:.78rem; color:var(--muted); margin-top:.25rem;">
+        No spam. Just a ping when it launches.
+      </p>
+    </form>
+
+    <div id="waitlist-thanks" style="display:none; padding:1rem; color:var(--green); font-weight:600;">
+      ✓ You're on the list. We'll be in touch.
+    </div>
   </div>
 </section>
 
@@ -745,6 +803,34 @@ function copy() {
   const btn = document.querySelector('.copy-btn');
   btn.textContent = 'copied!';
   setTimeout(() => btn.textContent = 'copy', 1500);
+}
+
+// Waitlist form — show thank-you inline instead of redirecting
+const form = document.getElementById('waitlist-form');
+if (form) {
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button[type=submit]');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        document.getElementById('waitlist-thanks').style.display = 'block';
+      } else {
+        btn.textContent = 'Try again';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'Try again';
+      btn.disabled = false;
+    }
+  });
 }
 </script>
 
