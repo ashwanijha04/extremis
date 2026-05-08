@@ -555,15 +555,8 @@ EXTREMIS_PINECONE_API_KEY<span class="op">=</span><span class="str">pk_...</span
 
     <div class="storage-card storage-railway">
       <div class="storage-badge storage-badge-cloud">Zero footprint</div>
-      <h3>☁️ extremis-server on Railway</h3>
-      <p>Deploy the server to Railway. Memory lives in <strong>Railway's Postgres</strong> — persistent across restarts. Client has zero local footprint.</p>
-      <p style="margin-top:.5rem; font-size:.8rem; color:#f0c040;">
-        ⚠️ Don't use SQLite on Railway — container filesystems are ephemeral. Always pair with Railway Postgres.
-      </p>
-      <p style="margin-top:.6rem; font-size:.8rem; color:var(--muted);">
-        Render auto-provisions Postgres alongside the server via <code>render.yaml</code>.
-        Memory lives in Render's managed Postgres — persistent across restarts.
-      </p>
+      <h3>☁️ extremis-server on Render</h3>
+      <p>One click deploys the server <strong>and</strong> provisions a free Postgres database automatically. Memory persists across restarts. Client has zero local footprint.</p>
       <div style="margin-top:.75rem; display:flex; gap:.6rem; flex-wrap:wrap; align-items:center;">
         <a href="https://render.com/deploy?repo=https://github.com/ashwanijha04/extremis"
            target="_blank"
