@@ -11,6 +11,7 @@ if _sys.version_info < (3, 11):
         f"  Windows: https://python.org/downloads\n"
     )
 
+from . import wrap  # noqa: F401  — makes `from extremis.wrap import Anthropic` work
 from .api import Extremis
 from .client import HostedClient
 from .config import Config
@@ -25,4 +26,5 @@ __all__ = [
     "LogEntry",
     "RecallResult",
     "FeedbackSignal",
+    "wrap",
 ]

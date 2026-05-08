@@ -1,0 +1,142 @@
+"""
+extremis.wrap.OpenAI — drop-in replacement for openai.OpenAI.
+
+Intercepts chat.completions.create() to inject recalled memories and
+persist the conversation. Everything else passes through untouched.
+
+Usage:
+    from extremis.wrap import OpenAI
+    from extremis import Extremis
+
+    client = OpenAI(api_key="sk-...", memory=Extremis())
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": "What's my name?"}]
+    )
+    # memory injected and saved automatically
+"""
+
+from __future__ import annotations
+
+import uuid
+from typing import Any, Optional
+
+
+def _extract_user_text(messages: list[dict]) -> str:
+    for msg in reversed(messages):
+        if msg.get("role") == "user":
+            content = msg.get("content", "")
+            if isinstance(content, str):
+                return content
+            if isinstance(content, list):
+                parts = [
+                    block.get("text", "")
+                    for block in content
+                    if isinstance(block, dict) and block.get("type") == "text"
+                ]
+                return " ".join(parts)
+    return ""
+
+
+def _extract_assistant_text(response: Any) -> str:
+    try:
+        return response.choices[0].message.content or ""
+    except Exception:
+        return ""
+
+
+def _build_context_prefix(results: list) -> str:
+    if not results:
+        return ""
+    lines = ["[Relevant context from memory]"]
+    for r in results:
+        lines.append(f"- {r.memory.content}")
+    return "\n".join(lines)
+
+
+def _inject_system(messages: list[dict], prefix: str) -> list[dict]:
+    """Prepend context to existing system message or insert one."""
+    messages = list(messages)
+    if messages and messages[0].get("role") == "system":
+        existing = messages[0].get("content", "")
+        messages[0] = {"role": "system", "content": f"{prefix}\n\n{existing}".strip()}
+    else:
+        messages.insert(0, {"role": "system", "content": prefix})
+    return messages
+
+
+class _CompletionsWrapper:
+    def __init__(self, completions: Any, memory: Any, session_id: str) -> None:
+        self._completions = completions
+        self._memory = memory
+        self._session_id = session_id
+
+    def create(self, *, messages: list[dict], **kwargs: Any) -> Any:
+        user_text = _extract_user_text(messages)
+
+        if user_text and self._memory is not None:
+            try:
+                results = self._memory.recall(user_text, limit=5)
+                prefix = _build_context_prefix(results)
+                if prefix:
+                    messages = _inject_system(messages, prefix)
+            except Exception:
+                pass
+
+        response = self._completions.create(messages=messages, **kwargs)
+
+        if user_text and self._memory is not None:
+            try:
+                self._memory.remember(user_text, role="user", conversation_id=self._session_id)
+                assistant_text = _extract_assistant_text(response)
+                if assistant_text:
+                    self._memory.remember(
+                        assistant_text,
+                        role="assistant",
+                        conversation_id=self._session_id,
+                    )
+            except Exception:
+                pass
+
+        return response
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._completions, name)
+
+
+class _ChatWrapper:
+    def __init__(self, chat: Any, memory: Any, session_id: str) -> None:
+        self.completions = _CompletionsWrapper(chat.completions, memory, session_id)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._chat, name)
+
+
+class OpenAI:
+    """
+    Drop-in replacement for openai.OpenAI with automatic memory.
+
+    Args:
+        memory:     Extremis or HostedClient instance.
+        session_id: Groups messages for consolidation.
+        **kwargs:   Passed directly to openai.OpenAI().
+    """
+
+    def __init__(
+        self,
+        memory: Optional[Any] = None,
+        session_id: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
+        try:
+            import openai as _openai
+        except ImportError:
+            raise ImportError("openai package required: pip install 'extremis[wrap-openai]'") from None
+
+        self._client = _openai.OpenAI(**kwargs)
+        self._memory = memory
+        self._session_id = session_id or str(uuid.uuid4())
+        self.chat = _ChatWrapper(self._client.chat, self._memory, self._session_id)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._client, name)
