@@ -351,7 +351,8 @@
   </p>
   <div class="hero-actions">
     <a href="#install" class="btn-primary">Get started</a>
-    <a href="https://github.com/ashwanijha04/extremis" target="_blank" class="btn-ghost">View on GitHub →</a>
+    <a href="#waitlist" class="btn-ghost">Get hosted version →</a>
+    <a href="https://github.com/ashwanijha04/extremis" target="_blank" class="btn-ghost">GitHub →</a>
   </div>
   <div style="margin-top:2rem; display:flex; justify-content:center;">
     <div class="install">
@@ -728,6 +729,25 @@ pip3.11 install <span class="str">"extremis[mcp]"</span>
         name="email"
         placeholder="your@email.com"
         required
+        style="
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          padding: .75rem 1rem;
+          color: var(--text);
+          font-size: .95rem;
+          font-family: inherit;
+          outline: none;
+          width: 100%;
+          transition: border-color .15s;
+        "
+        onfocus="this.style.borderColor='var(--accent)'"
+        onblur="this.style.borderColor='var(--border)'"
+      />
+      <input
+        type="tel"
+        name="phone"
+        placeholder="Phone number (optional)"
         style="
           background: var(--surface);
           border: 1px solid var(--border);
