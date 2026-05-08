@@ -64,9 +64,47 @@
     .nav-links { display: flex; gap: 1.5rem; align-items: center; }
     .nav-links a { color: var(--muted); font-size: .9rem; transition: color .15s; }
     .nav-links a:hover { color: var(--text); text-decoration: none; }
+    /* ── Hamburger ── */
+    .hamburger {
+      display: none;
+      flex-direction: column; justify-content: center; gap: 5px;
+      background: none; border: none; cursor: pointer;
+      padding: .4rem; margin-left: .25rem;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all .2s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    #mobile-menu {
+      display: none;
+      position: fixed; top: 56px; left: 0; right: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      flex-direction: column; gap: 1rem;
+      z-index: 99;
+    }
+    #mobile-menu.open { display: flex; }
+    #mobile-menu a {
+      color: var(--text); font-size: 1rem; font-weight: 500;
+      padding: .4rem 0; border-bottom: 1px solid var(--border);
+    }
+    #mobile-menu a:last-child { border-bottom: none; }
+    #mobile-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.4); z-index: 98;
+    }
+    #mobile-overlay.open { display: block; }
+
     @media (max-width: 640px) {
       .nav-links .hide-mobile { display: none; }
       nav { padding: 0 1rem; }
+      .hamburger { display: flex; }
     }
     .btn-sm {
       background: var(--accent); color: #fff !important;
@@ -330,7 +368,7 @@
 <!-- Nav -->
 <nav>
   <div class="nav-logo">🧠 <span>extremis</span></div>
-  <div class="nav-links">
+  <div class="nav-links" id="nav-links">
     <a href="#how" class="hide-mobile">How it works</a>
     <a href="#install" class="hide-mobile">Install</a>
     <a href="#mcp" class="hide-mobile">MCP</a>
@@ -338,8 +376,23 @@
     <a href="/extremis/docs/" class="hide-mobile">Docs</a>
     <a href="https://github.com/ashwanijha04/extremis" target="_blank" class="hide-mobile">GitHub</a>
     <a href="#waitlist" class="btn-sm">Hosted ↗</a>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- Mobile menu drawer -->
+<div id="mobile-menu">
+  <a href="#how" onclick="closeMenu()">How it works</a>
+  <a href="#install" onclick="closeMenu()">Install</a>
+  <a href="#mcp" onclick="closeMenu()">MCP</a>
+  <a href="#privacy" onclick="closeMenu()">Privacy</a>
+  <a href="/extremis/docs/" onclick="closeMenu()">📖 Docs</a>
+  <a href="https://github.com/ashwanijha04/extremis" target="_blank" onclick="closeMenu()">GitHub</a>
+  <a href="#waitlist" onclick="closeMenu()" style="color:var(--accent); font-weight:600;">Hosted ↗</a>
+</div>
+<div id="mobile-overlay" onclick="closeMenu()"></div>
 
 <!-- Hero -->
 <section class="hero">
@@ -876,6 +929,17 @@ pip3.11 install <span class="str">"extremis[mcp]"</span>
 </footer>
 
 <script>
+function toggleMenu() {
+  const open = document.getElementById('mobile-menu').classList.toggle('open');
+  document.getElementById('mobile-overlay').classList.toggle('open', open);
+  document.getElementById('hamburger').classList.toggle('open', open);
+}
+function closeMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.getElementById('mobile-overlay').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+
 function showTab(name) {
   ['wrap','manual'].forEach(t => {
     document.getElementById('tab-content-' + t).style.display = t === name ? '' : 'none';
