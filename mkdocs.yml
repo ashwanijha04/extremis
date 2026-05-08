@@ -1,0 +1,109 @@
+site_name: extremis
+site_url: https://ashwanijha04.github.io/extremis/docs/
+site_description: Layered, learning memory for AI agents — log-first, RL-scored, MCP-ready
+site_author: Ashwani Jha
+repo_url: https://github.com/ashwanijha04/extremis
+repo_name: ashwanijha04/extremis
+edit_uri: edit/main/docs-src/
+
+docs_dir: docs-src
+site_dir: docs/docs
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: deep purple
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: deep purple
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ashwanijha04/extremis
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/extremis
+
+copyright: MIT License · Built by Ashwani Jha
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quickstart: getting-started/quickstart.md
+    - Your first memory: getting-started/first-memory.md
+  - Wrap (simplest):
+    - Overview: wrap/index.md
+    - Anthropic / Claude: wrap/anthropic.md
+    - OpenAI: wrap/openai.md
+  - Core Concepts:
+    - Memory layers: concepts/memory-layers.md
+    - RL scoring: concepts/rl-scoring.md
+    - Knowledge graph: concepts/knowledge-graph.md
+    - Consolidation: concepts/consolidation.md
+    - Attention scoring: concepts/attention-scoring.md
+    - Namespaces: concepts/namespaces.md
+  - Backends:
+    - Overview: backends/index.md
+    - SQLite (default): backends/sqlite.md
+    - Postgres + pgvector: backends/postgres.md
+    - Chroma: backends/chroma.md
+    - Pinecone: backends/pinecone.md
+    - Migrating: backends/migration.md
+  - MCP Server:
+    - Claude Desktop: mcp/claude-desktop.md
+    - Tools reference: mcp/tools.md
+  - Deployment:
+    - Render (one-click): deployment/render.md
+    - Self-hosted: deployment/self-hosted.md
+  - API Reference:
+    - Extremis: api/extremis.md
+    - HostedClient: api/hosted-client.md
+    - wrap.Anthropic: api/wrap-anthropic.md
+    - wrap.OpenAI: api/wrap-openai.md
+    - Config: api/config.md
+    - Types: api/types.md
