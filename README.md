@@ -22,6 +22,52 @@
 
 ---
 
+## Quickest start — wrap your existing LLM client
+
+Change one import. Get persistent, learning memory for free.
+
+### Claude (Anthropic)
+
+```python
+# Before
+import anthropic
+client = anthropic.Anthropic(api_key="sk-ant-...")
+
+# After — one line change, nothing else in your app changes
+from extremis.wrap import Anthropic
+from extremis import Extremis
+
+client = Anthropic(api_key="sk-ant-...", memory=Extremis())
+
+# Your existing code works unchanged
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "What's my name?"}]
+)
+# extremis recalled context before the call, saved the conversation after
+```
+
+### OpenAI
+
+```python
+from extremis.wrap import OpenAI
+from extremis import Extremis
+
+client = OpenAI(api_key="sk-...", memory=Extremis())
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "What did we discuss last time?"}]
+)
+```
+
+```bash
+pip3.11 install "extremis[wrap-anthropic]"   # for Claude
+pip3.11 install "extremis[wrap-openai]"      # for OpenAI
+```
+
+---
+
 ## The problem
 
 Every team building an AI agent hits the same wall.
@@ -341,69 +387,6 @@ pip3.11 install "extremis[all]"
 **Requires Python 3.11+**
 
 > **First run note** — `sentence-transformers` downloads `all-MiniLM-L6-v2` (~90 MB) on first use. One-time, cached to `~/.cache/huggingface/`. To skip it, use OpenAI embeddings: `EXTREMIS_EMBEDDER=text-embedding-3-small`.
-
----
-
-## Quickest start — wrap your existing LLM client
-
-Don't want to change your application logic at all? Change one import and get memory for free.
-
-### Claude (Anthropic)
-
-```python
-# Before
-import anthropic
-client = anthropic.Anthropic(api_key="sk-ant-...")
-
-# After — one line change, nothing else in your app changes
-from extremis.wrap import Anthropic
-from extremis import Extremis
-
-client = Anthropic(api_key="sk-ant-...", memory=Extremis())
-
-# Your existing code works unchanged
-response = client.messages.create(
-    model="claude-sonnet-4-6",
-    max_tokens=1024,
-    messages=[{"role": "user", "content": "What's my name?"}]
-)
-# ↑ extremis automatically recalled context before the call
-#   and saved the conversation after — nothing else to do
-```
-
-### OpenAI
-
-```python
-from extremis.wrap import OpenAI
-from extremis import Extremis
-
-client = OpenAI(api_key="sk-...", memory=Extremis())
-
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "What did we discuss last time?"}]
-)
-```
-
-### With hosted memory (zero local files)
-
-```python
-from extremis.wrap import Anthropic
-from extremis import HostedClient
-
-# Memory lives in the cloud — no local DB, no model download
-client = Anthropic(
-    api_key="sk-ant-...",
-    memory=HostedClient(api_key="extremis_sk_...", base_url="https://your-server.onrender.com"),
-    session_id="user_123",   # group messages per user for consolidation
-)
-```
-
-Install:
-```bash
-pip3.11 install "extremis[wrap-anthropic]"   # for Claude
-pip3.11 install "extremis[wrap-openai]"      # for OpenAI
-```
 
 ---
 
