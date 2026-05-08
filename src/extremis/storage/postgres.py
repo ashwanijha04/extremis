@@ -81,23 +81,38 @@ class PostgresMemoryStore:
 
         self._config = config
         self._conn = psycopg2.connect(url, connect_timeout=10)
-        self._conn.autocommit = False
 
-        # Enable pgvector BEFORE register_vector() — it needs the type to exist
+        # CREATE EXTENSION must run outside a transaction block (DDL autocommit)
+        self._conn.autocommit = True
         with self._conn.cursor() as cur:
             cur.execute("CREATE EXTENSION IF NOT EXISTS vector;")
-        self._conn.commit()
 
+        self._conn.autocommit = False
         register_vector(self._conn)
         self._init_schema()
 
     def _init_schema(self) -> None:
         schema_path = Path(__file__).parent.parent / "migrations" / "001_initial.sql"
-        with self._conn.cursor() as cur:
-            cur.execute(schema_path.read_text())
-        self._conn.commit()
+        try:
+            with self._conn.cursor() as cur:
+                cur.execute(schema_path.read_text())
+            self._conn.commit()
+        except Exception:
+            self._conn.rollback()
+            raise
+
+    def _ensure_clean(self) -> None:
+        """Roll back any aborted transaction before issuing new commands."""
+        import psycopg2
+
+        if self._conn.status == psycopg2.extensions.STATUS_IN_TRANSACTION:
+            try:
+                self._conn.rollback()
+            except Exception:
+                pass
 
     def store(self, memory: Memory) -> Memory:
+        self._ensure_clean()
         import numpy as np
 
         embedding = np.array(memory.embedding, dtype=np.float32) if memory.embedding else None
@@ -145,7 +160,11 @@ class PostgresMemoryStore:
                     memory.do_not_consolidate,
                 ),
             )
-        self._conn.commit()
+        try:
+            self._conn.commit()
+        except Exception:
+            self._conn.rollback()
+            raise
         return memory
 
     def get(self, memory_id: UUID) -> Optional[Memory]:
