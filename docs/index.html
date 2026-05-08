@@ -27,7 +27,7 @@
 
     html {
       scroll-behavior: smooth;
-      overflow-x: clip; /* prevents page-level horizontal scroll without clipping child scrollers */
+      overflow-x: hidden;
     }
     body {
       background: var(--bg);
@@ -36,6 +36,14 @@
       font-size: 16px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    /* Critical: grid/flex children default to min-width:auto which lets
+       wide pre blocks push them beyond the viewport. min-width:0 lets
+       them shrink so pre can scroll internally instead of breaking layout. */
+    section > *, .flow > *, .diffs > *, .mcp-grid > *,
+    .storage-grid > *, .privacy-grid > * {
+      min-width: 0;
     }
 
     a { color: var(--accent); text-decoration: none; }
