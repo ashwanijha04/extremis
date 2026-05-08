@@ -94,10 +94,14 @@ nav:
   - Backends:
     - Overview: backends/index.md
     - SQLite (default): backends/sqlite.md
+    - Supabase: backends/supabase.md
     - Postgres + pgvector: backends/postgres.md
     - Chroma: backends/chroma.md
     - Pinecone: backends/pinecone.md
     - Migrating: backends/migration.md
+  - Integrations:
+    - n8n: integrations/n8n.md
+    - OpenAPI spec: integrations/openapi.md
   - MCP Server:
     - Claude Desktop: mcp/claude-desktop.md
     - Tools reference: mcp/tools.md

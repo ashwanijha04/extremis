@@ -1,0 +1,45 @@
+{
+  "name": "n8n-nodes-extremis",
+  "version": "0.1.0",
+  "description": "n8n community node for extremis — layered, learning memory for AI agents",
+  "keywords": [
+    "n8n-community-node-package",
+    "memory",
+    "ai",
+    "agents",
+    "extremis",
+    "mcp"
+  ],
+  "license": "MIT",
+  "homepage": "https://ashwanijha04.github.io/extremis",
+  "author": {
+    "name": "Ashwani Jha",
+    "email": "ashwanijha04@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ashwanijha04/extremis"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && cp -r nodes credentials dist/",
+    "dev": "tsc --watch"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/ExtremisApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Extremis/Extremis.node.js"
+    ]
+  },
+  "devDependencies": {
+    "n8n-workflow": "*",
+    "typescript": "^5.0.0",
+    "@types/node": "^18.0.0"
+  }
+}

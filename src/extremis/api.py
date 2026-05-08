@@ -51,6 +51,10 @@ def _build_store(config: Config) -> MemoryStore:
             config,
             score_db_path=config.resolved_pinecone_score_db(),
         )
+    if config.store == "supabase":
+        from .storage.supabase_store import SupabaseMemoryStore
+
+        return SupabaseMemoryStore(config)
     return SQLiteMemoryStore(config.resolved_local_db_path(), config)
 
 

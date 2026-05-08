@@ -1,0 +1,897 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "extremis API",
+        "description": "Hosted memory layer for AI agents",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/v1/memories/remember": {
+            "post": {
+                "tags": [
+                    "memories"
+                ],
+                "summary": "Remember",
+                "operationId": "remember_v1_memories_remember_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RememberRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/memories/recall": {
+            "post": {
+                "tags": [
+                    "memories"
+                ],
+                "summary": "Recall",
+                "operationId": "recall_v1_memories_recall_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RecallRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Recall V1 Memories Recall Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/memories/report": {
+            "post": {
+                "tags": [
+                    "memories"
+                ],
+                "summary": "Report",
+                "operationId": "report_v1_memories_report_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReportRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/memories/store": {
+            "post": {
+                "tags": [
+                    "memories"
+                ],
+                "summary": "Store",
+                "operationId": "store_v1_memories_store_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RememberNowRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Store V1 Memories Store Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/memories/consolidate": {
+            "post": {
+                "tags": [
+                    "memories"
+                ],
+                "summary": "Consolidate",
+                "operationId": "consolidate_v1_memories_consolidate_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConsolidateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/memories/observe": {
+            "get": {
+                "tags": [
+                    "memories"
+                ],
+                "summary": "Observe",
+                "operationId": "observe_v1_memories_observe_get",
+                "parameters": [
+                    {
+                        "name": "conversation_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Conversation Id"
+                        }
+                    },
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Observe V1 Memories Observe Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/kg/write": {
+            "post": {
+                "tags": [
+                    "knowledge-graph"
+                ],
+                "summary": "Kg Write",
+                "operationId": "kg_write_v1_kg_write_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/KGWriteRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Kg Write V1 Kg Write Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/kg/query": {
+            "post": {
+                "tags": [
+                    "knowledge-graph"
+                ],
+                "summary": "Kg Query",
+                "operationId": "kg_query_v1_kg_query_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/KGQueryRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Kg Query V1 Kg Query Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/health": {
+            "get": {
+                "tags": [
+                    "system"
+                ],
+                "summary": "Health",
+                "operationId": "health_v1_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": true,
+                                    "type": "object",
+                                    "title": "Response Health V1 Health Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/attention/score": {
+            "post": {
+                "tags": [
+                    "system"
+                ],
+                "summary": "Score Attention",
+                "operationId": "score_attention_v1_attention_score_post",
+                "parameters": [
+                    {
+                        "name": "message",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Message"
+                        }
+                    },
+                    {
+                        "name": "sender",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Sender"
+                        }
+                    },
+                    {
+                        "name": "channel",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "dm",
+                            "title": "Channel"
+                        }
+                    },
+                    {
+                        "name": "owner_ids",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Owner Ids"
+                        }
+                    },
+                    {
+                        "name": "allowlist",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Allowlist"
+                        }
+                    },
+                    {
+                        "name": "ongoing",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Ongoing"
+                        }
+                    },
+                    {
+                        "name": "already_answered",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "Already Answered"
+                        }
+                    },
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Score Attention V1 Attention Score Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/usage": {
+            "get": {
+                "tags": [
+                    "system"
+                ],
+                "summary": "Usage",
+                "operationId": "usage_v1_usage_get",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": true,
+                                    "title": "Response Usage V1 Usage Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ConsolidateResponse": {
+                "properties": {
+                    "memories_created": {
+                        "type": "integer",
+                        "title": "Memories Created"
+                    },
+                    "memories_superseded": {
+                        "type": "integer",
+                        "title": "Memories Superseded"
+                    },
+                    "duration_seconds": {
+                        "type": "number",
+                        "title": "Duration Seconds"
+                    },
+                    "log_checkpoint": {
+                        "type": "string",
+                        "title": "Log Checkpoint"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "memories_created",
+                    "memories_superseded",
+                    "duration_seconds",
+                    "log_checkpoint"
+                ],
+                "title": "ConsolidateResponse"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "KGQueryRequest": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "traverse_depth": {
+                        "type": "integer",
+                        "title": "Traverse Depth",
+                        "default": 0
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name"
+                ],
+                "title": "KGQueryRequest"
+            },
+            "KGWriteRequest": {
+                "properties": {
+                    "operation": {
+                        "type": "string",
+                        "title": "Operation"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name",
+                        "default": ""
+                    },
+                    "entity_type": {
+                        "type": "string",
+                        "title": "Entity Type",
+                        "default": "concept"
+                    },
+                    "from_entity": {
+                        "type": "string",
+                        "title": "From Entity",
+                        "default": ""
+                    },
+                    "to_entity": {
+                        "type": "string",
+                        "title": "To Entity",
+                        "default": ""
+                    },
+                    "rel_type": {
+                        "type": "string",
+                        "title": "Rel Type",
+                        "default": ""
+                    },
+                    "weight": {
+                        "type": "number",
+                        "title": "Weight",
+                        "default": 1.0
+                    },
+                    "key": {
+                        "type": "string",
+                        "title": "Key",
+                        "default": ""
+                    },
+                    "value": {
+                        "type": "string",
+                        "title": "Value",
+                        "default": ""
+                    },
+                    "metadata": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Metadata",
+                        "default": {}
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "operation"
+                ],
+                "title": "KGWriteRequest"
+            },
+            "RecallRequest": {
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "title": "Query"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "title": "Limit",
+                        "default": 10
+                    },
+                    "layers": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Layers"
+                    },
+                    "min_score": {
+                        "type": "number",
+                        "title": "Min Score",
+                        "default": 0.0
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "query"
+                ],
+                "title": "RecallRequest"
+            },
+            "RememberNowRequest": {
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "layer": {
+                        "type": "string",
+                        "title": "Layer",
+                        "default": "semantic"
+                    },
+                    "confidence": {
+                        "type": "number",
+                        "title": "Confidence",
+                        "default": 0.9
+                    },
+                    "expires_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Expires At"
+                    },
+                    "metadata": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Metadata",
+                        "default": {}
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "content"
+                ],
+                "title": "RememberNowRequest"
+            },
+            "RememberRequest": {
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "role": {
+                        "type": "string",
+                        "title": "Role",
+                        "default": "user"
+                    },
+                    "conversation_id": {
+                        "type": "string",
+                        "title": "Conversation Id",
+                        "default": "default"
+                    },
+                    "metadata": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Metadata",
+                        "default": {}
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "content"
+                ],
+                "title": "RememberRequest"
+            },
+            "ReportRequest": {
+                "properties": {
+                    "memory_ids": {
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "type": "array",
+                        "title": "Memory Ids"
+                    },
+                    "success": {
+                        "type": "boolean",
+                        "title": "Success"
+                    },
+                    "weight": {
+                        "type": "number",
+                        "title": "Weight",
+                        "default": 1.0
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "memory_ids",
+                    "success"
+                ],
+                "title": "ReportRequest"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    },
+                    "input": {
+                        "title": "Input"
+                    },
+                    "ctx": {
+                        "type": "object",
+                        "title": "Context"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

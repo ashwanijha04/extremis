@@ -12,13 +12,13 @@
         <meta name="author" content="Ashwani Jha">
       
       
-        <link rel="canonical" href="https://ashwanijha04.github.io/extremis/docs/getting-started/quickstart/">
+        <link rel="canonical" href="https://ashwanijha04.github.io/extremis/docs/backends/supabase/">
       
       
-        <link rel="prev" href="../installation/">
+        <link rel="prev" href="../sqlite/">
       
       
-        <link rel="next" href="../first-memory/">
+        <link rel="next" href="../postgres/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Quickstart - extremis</title>
+        <title>Supabase - extremis</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#quickstart" class="md-skip">
+        <a href="#supabase" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Quickstart
+              Supabase
             
           </span>
         </div>
@@ -245,13 +245,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../installation/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
           
   
   
@@ -307,11 +305,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../backends/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -485,31 +485,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -527,7 +522,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -545,7 +540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../installation/" class="md-nav__link">
+      <a href="../../getting-started/installation/" class="md-nav__link">
         
   
   
@@ -570,37 +565,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Quickstart
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
         
   
   
@@ -616,70 +584,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#option-1-wrap-your-existing-llm-client-easiest" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option 1 — Wrap your existing LLM client (easiest)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#option-2-manual-api" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option 2 — Manual API
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#option-3-claude-desktop-mcp" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Option 3 — Claude Desktop (MCP)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What's next
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -692,7 +596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../first-memory/" class="md-nav__link">
+      <a href="../../getting-started/first-memory/" class="md-nav__link">
         
   
   
@@ -1094,26 +998,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1131,7 +1040,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1149,7 +1058,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../backends/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
@@ -1177,7 +1086,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../backends/sqlite/" class="md-nav__link">
+      <a href="../sqlite/" class="md-nav__link">
         
   
   
@@ -1202,10 +1111,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../backends/supabase/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supabase
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1221,6 +1157,103 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-your-connection-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Get your connection string
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pgvector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pgvector
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#with-the-hosted-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the hosted server
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#with-the-wrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the wrap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Free tier
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1233,7 +1266,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../backends/postgres/" class="md-nav__link">
+      <a href="../postgres/" class="md-nav__link">
         
   
   
@@ -1261,7 +1294,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../backends/chroma/" class="md-nav__link">
+      <a href="../chroma/" class="md-nav__link">
         
   
   
@@ -1289,7 +1322,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../backends/pinecone/" class="md-nav__link">
+      <a href="../pinecone/" class="md-nav__link">
         
   
   
@@ -1317,7 +1350,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../backends/migration/" class="md-nav__link">
+      <a href="../migration/" class="md-nav__link">
         
   
   
@@ -1944,10 +1977,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#option-1-wrap-your-existing-llm-client-easiest" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Option 1 — Wrap your existing LLM client (easiest)
+        Install
       
     </span>
   </a>
@@ -1955,10 +1988,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#option-2-manual-api" class="md-nav__link">
+  <a href="#configure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Option 2 — Manual API
+        Configure
       
     </span>
   </a>
@@ -1966,10 +1999,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#option-3-claude-desktop-mcp" class="md-nav__link">
+  <a href="#get-your-connection-string" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Option 3 — Claude Desktop (MCP)
+        Get your connection string
       
     </span>
   </a>
@@ -1977,10 +2010,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
+  <a href="#pgvector" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What's next
+        pgvector
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#with-the-hosted-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the hosted server
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#with-the-wrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the wrap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-tier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Free tier
       
     </span>
   </a>
@@ -2007,145 +2073,67 @@
   
 
 
-<h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
-<p>Get memory working in 5 minutes.</p>
-<h2 id="option-1-wrap-your-existing-llm-client-easiest">Option 1 — Wrap your existing LLM client (easiest)<a class="headerlink" href="#option-1-wrap-your-existing-llm-client-easiest" title="Permanent link">&para;</a></h2>
-<p>If you're already using Claude or OpenAI, change one import:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Claude</label><label for="__tabbed_1_2">OpenAI</label></div>
+<h1 id="supabase">Supabase<a class="headerlink" href="#supabase" title="Permanent link">&para;</a></h1>
+<p>Supabase is the easiest hosted Postgres option for extremis. Your project already has pgvector — no manual setup needed.</p>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip3.11<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;extremis[postgres]&quot;</span>
+</span></code></pre></div>
+<h2 id="configure">Configure<a class="headerlink" href="#configure" title="Permanent link">&para;</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Environment variables</label><label for="__tabbed_1_2">Python</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip3.11<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;extremis[wrap-anthropic]&quot;</span>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">EXTREMIS_STORE</span><span class="o">=</span>supabase
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">SUPABASE_DB_URL</span><span class="o">=</span>postgresql://postgres.<span class="o">[</span>ID<span class="o">]</span>:<span class="o">[</span>PASS<span class="o">]</span>@aws-0-us-east-1.pooler.supabase.com:5432/postgres
 </span></code></pre></div>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis.wrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anthropic</span>  <span class="c1"># (1)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extremis</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Anthropic</span><span class="p">(</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;sk-ant-...&quot;</span><span class="p">,</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">memory</span><span class="o">=</span><span class="n">Extremis</span><span class="p">(),</span>          <span class="c1"># (2)</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">session_id</span><span class="o">=</span><span class="s2">&quot;user_123&quot;</span><span class="p">,</span>      <span class="c1"># (3)</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">)</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="c1"># Turn 1 — no memory yet</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">r</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-haiku-4-5-20251001&quot;</span><span class="p">,</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;My name is Ashwani and I prefer Python.&quot;</span><span class="p">}]</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">)</span>
-</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>
-</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="c1"># Turn 2 — memory kicks in automatically</span>
-</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="n">r</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">messages</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;claude-haiku-4-5-20251001&quot;</span><span class="p">,</span>
-</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What language do I prefer?&quot;</span><span class="p">}]</span>
-</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="p">)</span>
-</span><span id="__span-1-23"><a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="c1"># Claude knows the answer — extremis injected context before the call</span>
-</span></code></pre></div>
-<ol>
-<li>Drop-in for <code>import anthropic; client = anthropic.Anthropic(...)</code>. All other methods pass through unchanged.</li>
-<li>Local SQLite by default — no infra needed. Swap to Postgres or Pinecone later.</li>
-<li>Groups messages for consolidation. Use a stable user ID in production.</li>
-</ol>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip3.11<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;extremis[wrap-openai]&quot;</span>
-</span></code></pre></div>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis.wrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extremis</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;sk-...&quot;</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">Extremis</span><span class="p">())</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;My name is Ashwani.&quot;</span><span class="p">}]</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">)</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="n">r</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s my name?&quot;</span><span class="p">}]</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="p">)</span>
-</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>  <span class="c1"># → &quot;Your name is Ashwani.&quot;</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extremis</span><span class="p">,</span> <span class="n">Config</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">mem</span> <span class="o">=</span> <span class="n">Extremis</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">Config</span><span class="p">(</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">store</span><span class="o">=</span><span class="s2">&quot;supabase&quot;</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="c1"># OR set SUPABASE_DB_URL env var — extremis reads it automatically</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="p">))</span>
 </span></code></pre></div>
 </div>
 </div>
 </div>
-<hr />
-<h2 id="option-2-manual-api">Option 2 — Manual API<a class="headerlink" href="#option-2-manual-api" title="Permanent link">&para;</a></h2>
-<p>Full control over what gets stored and recalled.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip3.11<span class="w"> </span>install<span class="w"> </span>extremis
-</span></code></pre></div>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extremis</span><span class="p">,</span> <span class="n">MemoryLayer</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">mem</span> <span class="o">=</span> <span class="n">Extremis</span><span class="p">()</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># ── 1. Store memories ─────────────────────────────────</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="n">mem</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="s2">&quot;User is building a WhatsApp AI assistant&quot;</span><span class="p">,</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="n">conversation_id</span><span class="o">=</span><span class="s2">&quot;conv_001&quot;</span><span class="p">,</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">)</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="n">mem</span><span class="o">.</span><span class="n">remember</span><span class="p">(</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="s2">&quot;User confirmed they prefer concise answers&quot;</span><span class="p">,</span>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    <span class="n">conversation_id</span><span class="o">=</span><span class="s2">&quot;conv_001&quot;</span><span class="p">,</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="p">)</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>
-</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="c1"># Write directly to a layer (skip the log)</span>
-</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="n">mem</span><span class="o">.</span><span class="n">remember_now</span><span class="p">(</span>
-</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>    <span class="s2">&quot;Always ask about deadlines before suggesting solutions&quot;</span><span class="p">,</span>
-</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>    <span class="n">layer</span><span class="o">=</span><span class="n">MemoryLayer</span><span class="o">.</span><span class="n">PROCEDURAL</span><span class="p">,</span>
-</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">)</span>
-</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>
-</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="c1"># ── 2. Recall ─────────────────────────────────────────</span>
-</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="n">results</span> <span class="o">=</span> <span class="n">mem</span><span class="o">.</span><span class="n">recall</span><span class="p">(</span><span class="s2">&quot;what product is the user building?&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">layer</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  reason: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>    <span class="c1"># reason: &quot;similarity 0.91 · score +2.0 · used 3× · today&quot;</span>
-</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>
-</span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="c1"># ── 3. Feedback ───────────────────────────────────────</span>
-</span><span id="__span-5-29"><a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="c1"># Mark memories that were helpful — they&#39;ll rank higher next time</span>
-</span><span id="__span-5-30"><a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="n">mem</span><span class="o">.</span><span class="n">report_outcome</span><span class="p">(</span>
-</span><span id="__span-5-31"><a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a>    <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[:</span><span class="mi">2</span><span class="p">]],</span>
-</span><span id="__span-5-32"><a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a>    <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-5-33"><a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>    <span class="n">weight</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-</span><span id="__span-5-34"><a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a><span class="p">)</span>
-</span><span id="__span-5-35"><a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a>
-</span><span id="__span-5-36"><a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a><span class="c1"># ── 4. Consolidation (optional, nightly) ─────────────</span>
-</span><span id="__span-5-37"><a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a><span class="c1"># Distil conversation logs into structured semantic facts</span>
-</span><span id="__span-5-38"><a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis.consolidation</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMConsolidator</span>
-</span><span id="__span-5-39"><a id="__codelineno-5-39" name="__codelineno-5-39" href="#__codelineno-5-39"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-</span><span id="__span-5-40"><a id="__codelineno-5-40" name="__codelineno-5-40" href="#__codelineno-5-40"></a>
-</span><span id="__span-5-41"><a id="__codelineno-5-41" name="__codelineno-5-41" href="#__codelineno-5-41"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;sk-ant-...&quot;</span>
-</span><span id="__span-5-42"><a id="__codelineno-5-42" name="__codelineno-5-42" href="#__codelineno-5-42"></a><span class="n">consolidator</span> <span class="o">=</span> <span class="n">LLMConsolidator</span><span class="p">(</span><span class="n">mem</span><span class="o">.</span><span class="n">_config</span><span class="p">,</span> <span class="n">mem</span><span class="o">.</span><span class="n">_embedder</span><span class="p">)</span>
-</span><span id="__span-5-43"><a id="__codelineno-5-43" name="__codelineno-5-43" href="#__codelineno-5-43"></a><span class="n">result</span> <span class="o">=</span> <span class="n">consolidator</span><span class="o">.</span><span class="n">run_pass</span><span class="p">(</span>
-</span><span id="__span-5-44"><a id="__codelineno-5-44" name="__codelineno-5-44" href="#__codelineno-5-44"></a>    <span class="n">mem</span><span class="o">.</span><span class="n">get_log</span><span class="p">(),</span> <span class="n">mem</span><span class="o">.</span><span class="n">get_local_store</span><span class="p">(),</span> <span class="n">mem</span><span class="o">.</span><span class="n">get_local_store</span><span class="p">()</span>
-</span><span id="__span-5-45"><a id="__codelineno-5-45" name="__codelineno-5-45" href="#__codelineno-5-45"></a><span class="p">)</span>
-</span><span id="__span-5-46"><a id="__codelineno-5-46" name="__codelineno-5-46" href="#__codelineno-5-46"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">memories_created</span><span class="si">}</span><span class="s2"> facts extracted from logs&quot;</span><span class="p">)</span>
-</span></code></pre></div>
-<hr />
-<h2 id="option-3-claude-desktop-mcp">Option 3 — Claude Desktop (MCP)<a class="headerlink" href="#option-3-claude-desktop-mcp" title="Permanent link">&para;</a></h2>
-<p>No Python code at all. Add to your Claude Desktop config and get 10 memory tools automatically.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip3.11<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;extremis[mcp]&quot;</span>
-</span></code></pre></div>
-<p>Add to <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">&quot;extremis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/opt/homebrew/bin/extremis-mcp&quot;</span><span class="p">,</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">        </span><span class="nt">&quot;EXTREMIS_HOME&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;~/.extremis&quot;</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">      </span><span class="p">}</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="p">}</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="p">}</span>
-</span></code></pre></div>
-<p>Restart Claude Desktop. See <a href="../../mcp/claude-desktop/">MCP setup</a> for full details.</p>
-<hr />
-<h2 id="whats-next">What's next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
+<p>extremis automatically reads <code>SUPABASE_DB_URL</code> or <code>DATABASE_URL</code> — no extra config needed if those are already in your environment.</p>
+<h2 id="get-your-connection-string">Get your connection string<a class="headerlink" href="#get-your-connection-string" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Go to your Supabase project → <strong>Settings</strong> → <strong>Database</strong></li>
+<li>Under <strong>Connection string</strong>, select <strong>URI</strong> mode</li>
+<li>Use the <strong>Transaction pooler</strong> URL (recommended for serverless)</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Which URL to use?</p>
 <ul>
-<li><a href="../../concepts/memory-layers/"><strong>Memory layers</strong></a> — understand episodic, semantic, procedural, identity</li>
-<li><a href="../../concepts/rl-scoring/"><strong>RL scoring</strong></a> — how feedback improves retrieval over time</li>
-<li><a href="../../backends/"><strong>Backends</strong></a> — Postgres, Chroma, Pinecone for production</li>
-<li><a href="../../concepts/namespaces/"><strong>Namespaces</strong></a> — multi-user isolation</li>
+<li><strong>Transaction pooler</strong> (<code>aws-0-*.pooler.supabase.com:5432</code>) — for serverless / short-lived connections</li>
+<li><strong>Direct connection</strong> (<code>db.*.supabase.co:5432</code>) — for long-running servers</li>
 </ul>
+</div>
+<h2 id="pgvector">pgvector<a class="headerlink" href="#pgvector" title="Permanent link">&para;</a></h2>
+<p>Supabase includes pgvector in all projects. extremis enables it automatically on first start — no manual SQL needed.</p>
+<h2 id="with-the-hosted-server">With the hosted server<a class="headerlink" href="#with-the-hosted-server" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># In your Render/Railway environment variables:</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nv">EXTREMIS_STORE</span><span class="o">=</span>supabase
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nv">SUPABASE_DB_URL</span><span class="o">=</span>postgresql://postgres.<span class="o">[</span>ID<span class="o">]</span>:<span class="o">[</span>PASS<span class="o">]</span>@...
+</span></code></pre></div>
+<h2 id="with-the-wrap">With the wrap<a class="headerlink" href="#with-the-wrap" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;EXTREMIS_STORE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;supabase&quot;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SUPABASE_DB_URL&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;postgresql://...&quot;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis.wrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anthropic</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">extremis</span><span class="w"> </span><span class="kn">import</span> <span class="n">Extremis</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">client</span> <span class="o">=</span> <span class="n">Anthropic</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;sk-ant-...&quot;</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">Extremis</span><span class="p">())</span>
+</span></code></pre></div>
+<h2 id="free-tier">Free tier<a class="headerlink" href="#free-tier" title="Permanent link">&para;</a></h2>
+<p>Supabase free tier includes:
+- 500 MB database storage
+- pgvector (no extra charge)
+- Unlimited API requests</p>
+<p>Sufficient for most personal and small-team use cases.</p>
 
 
 
@@ -2183,7 +2171,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../installation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Installation">
+          <a href="../sqlite/" class="md-footer__link md-footer__link--prev" aria-label="Previous: SQLite (default)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2193,20 +2181,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Installation
+                SQLite (default)
               </div>
             </div>
           </a>
         
         
           
-          <a href="../first-memory/" class="md-footer__link md-footer__link--next" aria-label="Next: Your first memory">
+          <a href="../postgres/" class="md-footer__link md-footer__link--next" aria-label="Next: Postgres + pgvector">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Your first memory
+                Postgres + pgvector
               </div>
             </div>
             <div class="md-footer__button md-icon">
