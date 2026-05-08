@@ -10,6 +10,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/extremis/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/extremis/actions)
 [![MCP](https://img.shields.io/badge/MCP-compatible-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
 [![Cloud](https://img.shields.io/badge/hosted%20cloud-waitlist-blue)](https://github.com/ashwanijha04/extremis/issues/1)
+[![Glama](https://glama.ai/mcp/servers/ashwanijha04/extremis/badges/score.svg)](https://glama.ai/mcp/servers/ashwanijha04/extremis)
 
 <br/>
 
