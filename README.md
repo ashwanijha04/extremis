@@ -323,6 +323,10 @@ pip3.11 install "extremis[pinecone]"
 # + OpenAI embeddings (swap out the 90 MB model download)
 pip3.11 install "extremis[openai]"
 
+# + LLM client wrappers (Claude / OpenAI — automatic memory, one import change)
+pip3.11 install "extremis[wrap-anthropic]"   # for Claude
+pip3.11 install "extremis[wrap-openai]"      # for OpenAI
+
 # + Hosted API server
 pip3.11 install "extremis[server]"
 
@@ -339,7 +343,70 @@ pip3.11 install "extremis[all]"
 
 ---
 
-## Quick start
+## Quickest start — wrap your existing LLM client
+
+Don't want to change your application logic at all? Change one import and get memory for free.
+
+### Claude (Anthropic)
+
+```python
+# Before
+import anthropic
+client = anthropic.Anthropic(api_key="sk-ant-...")
+
+# After — one line change, nothing else in your app changes
+from extremis.wrap import Anthropic
+from extremis import Extremis
+
+client = Anthropic(api_key="sk-ant-...", memory=Extremis())
+
+# Your existing code works unchanged
+response = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "What's my name?"}]
+)
+# ↑ extremis automatically recalled context before the call
+#   and saved the conversation after — nothing else to do
+```
+
+### OpenAI
+
+```python
+from extremis.wrap import OpenAI
+from extremis import Extremis
+
+client = OpenAI(api_key="sk-...", memory=Extremis())
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "What did we discuss last time?"}]
+)
+```
+
+### With hosted memory (zero local files)
+
+```python
+from extremis.wrap import Anthropic
+from extremis import HostedClient
+
+# Memory lives in the cloud — no local DB, no model download
+client = Anthropic(
+    api_key="sk-ant-...",
+    memory=HostedClient(api_key="extremis_sk_...", base_url="https://your-server.onrender.com"),
+    session_id="user_123",   # group messages per user for consolidation
+)
+```
+
+Install:
+```bash
+pip3.11 install "extremis[wrap-anthropic]"   # for Claude
+pip3.11 install "extremis[wrap-openai]"      # for OpenAI
+```
+
+---
+
+## Full API quick start
 
 ```python
 from extremis import Extremis, MemoryLayer
