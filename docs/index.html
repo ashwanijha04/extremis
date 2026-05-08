@@ -431,26 +431,76 @@ pip3.11 install <span class="str">"extremis[mcp]"</span>
 pip3.11 install <span class="str">"extremis[all]"</span></pre>
 
   <div style="margin-top:2rem;">
-    <h3 style="font-size:1.1rem; margin-bottom:1rem; font-weight:600;">Quick start</h3>
-    <pre><span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">Extremis</span>, <span class="fn">MemoryLayer</span>
+    <!-- Tab switcher -->
+    <div style="display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+      <button onclick="showTab('wrap')" id="tab-wrap"
+        style="padding:.4rem 1rem; border-radius:6px; font-size:.85rem; font-weight:600; cursor:pointer;
+               background:var(--accent); color:#fff; border:none; font-family:inherit;">
+        Wrap (simplest)
+      </button>
+      <button onclick="showTab('manual')" id="tab-manual"
+        style="padding:.4rem 1rem; border-radius:6px; font-size:.85rem; font-weight:500; cursor:pointer;
+               background:var(--surface); color:var(--muted); border:1px solid var(--border); font-family:inherit;">
+        Manual API
+      </button>
+    </div>
 
-mem <span class="op">=</span> <span class="fn">Extremis</span>()  <span class="cm"># stores in ~/.extremis/ by default</span>
+    <!-- Wrap tab -->
+    <div id="tab-content-wrap">
+      <p style="color:var(--muted); font-size:.88rem; margin-bottom:.75rem;">
+        Change one import. Every conversation is remembered automatically.
+      </p>
+      <pre><span class="cm"># Claude</span>
+<span class="kw">from</span> extremis.wrap <span class="kw">import</span> <span class="fn">Anthropic</span>  <span class="cm"># drop-in for anthropic.Anthropic</span>
+<span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">Extremis</span>
+
+client <span class="op">=</span> <span class="fn">Anthropic</span>(api_key<span class="op">=</span><span class="str">"sk-ant-..."</span>, memory<span class="op">=</span><span class="fn">Extremis</span>())
+
+<span class="cm"># Your existing code — unchanged</span>
+response <span class="op">=</span> client.messages.<span class="fn">create</span>(
+    model<span class="op">=</span><span class="str">"claude-sonnet-4-6"</span>,
+    max_tokens<span class="op">=</span><span class="num">1024</span>,
+    messages<span class="op">=</span>[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: user_message}]
+)
+<span class="cm"># ↑ extremis recalled context, injected it, saved the reply</span>
+<span class="cm">#   nothing else needed</span></pre>
+
+      <pre style="margin-top:.75rem;"><span class="cm"># OpenAI</span>
+<span class="kw">from</span> extremis.wrap <span class="kw">import</span> <span class="fn">OpenAI</span>
+
+client <span class="op">=</span> <span class="fn">OpenAI</span>(api_key<span class="op">=</span><span class="str">"sk-..."</span>, memory<span class="op">=</span><span class="fn">Extremis</span>())
+response <span class="op">=</span> client.chat.completions.<span class="fn">create</span>(model<span class="op">=</span><span class="str">"gpt-4o"</span>, messages<span class="op">=</span>[...])</pre>
+
+      <p style="color:var(--muted); font-size:.82rem; margin-top:.75rem;">
+        Install:
+        <code style="font-family:monospace;">pip3.11 install "extremis[wrap-anthropic]"</code>
+        &nbsp;·&nbsp;
+        <code style="font-family:monospace;">pip3.11 install "extremis[wrap-openai]"</code>
+      </p>
+    </div>
+
+    <!-- Manual tab -->
+    <div id="tab-content-manual" style="display:none;">
+      <p style="color:var(--muted); font-size:.88rem; margin-bottom:.75rem;">
+        Full control — call remember, recall, and report_outcome yourself.
+      </p>
+      <pre><span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">Extremis</span>, <span class="fn">MemoryLayer</span>
+
+mem <span class="op">=</span> <span class="fn">Extremis</span>()
 
 <span class="cm"># Store</span>
-mem.<span class="fn">remember</span>(<span class="str">"User is building a WhatsApp AI"</span>, conversation_id=<span class="str">"c1"</span>)
-mem.<span class="fn">remember_now</span>(<span class="str">"Always ask about deadlines first"</span>, layer=MemoryLayer.PROCEDURAL)
+mem.<span class="fn">remember</span>(<span class="str">"User is building a WhatsApp AI"</span>, conversation_id<span class="op">=</span><span class="str">"c1"</span>)
+mem.<span class="fn">remember_now</span>(<span class="str">"Always ask about deadlines first"</span>, layer<span class="op">=</span>MemoryLayer.PROCEDURAL)
 
-<span class="cm"># Recall — every result explains why it ranked here</span>
+<span class="cm"># Recall — every result explains why it ranked</span>
 results <span class="op">=</span> mem.<span class="fn">recall</span>(<span class="str">"what is the user building?"</span>)
 <span class="kw">for</span> r <span class="kw">in</span> results:
     print(r.memory.content)
     print(r.reason)  <span class="cm"># "similarity 0.87 · score +2.0 · used 5× · 3d old"</span>
 
 <span class="cm"># Reinforcement — good memories surface first over time</span>
-mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</span> r <span class="kw">in</span> results[:<span class="num">2</span>]], success=<span class="kw">True</span>)
-
-<span class="cm"># Try the demo</span>
-<span class="cm"># $ extremis-demo</span></pre>
+mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</span> r <span class="kw">in</span> results[:<span class="num">2</span>]], success<span class="op">=</span><span class="kw">True</span>)</pre>
+    </div>
   </div>
 </section>
 
@@ -825,6 +875,22 @@ pip3.11 install <span class="str">"extremis[mcp]"</span>
 </footer>
 
 <script>
+function showTab(name) {
+  ['wrap','manual'].forEach(t => {
+    document.getElementById('tab-content-' + t).style.display = t === name ? '' : 'none';
+    const btn = document.getElementById('tab-' + t);
+    if (t === name) {
+      btn.style.background = 'var(--accent)';
+      btn.style.color = '#fff';
+      btn.style.border = 'none';
+    } else {
+      btn.style.background = 'var(--surface)';
+      btn.style.color = 'var(--muted)';
+      btn.style.border = '1px solid var(--border)';
+    }
+  });
+}
+
 function copy() {
   navigator.clipboard.writeText('pip3.11 install extremis');
   const btn = document.querySelector('.copy-btn');
