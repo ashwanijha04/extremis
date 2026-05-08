@@ -25,7 +25,10 @@
       --red:      #ff6b6b;
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden; /* prevent horizontal scroll on mobile */
+    }
     body {
       background: var(--bg);
       color: var(--text);
@@ -33,6 +36,8 @@
       font-size: 16px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      max-width: 100vw;
     }
 
     a { color: var(--accent); text-decoration: none; }
@@ -114,7 +119,8 @@
       display: inline-flex; align-items: center; gap: 1rem;
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 10px; padding: .85rem 1.5rem;
-      max-width: 100%;
+      max-width: calc(100vw - 3rem);
+      overflow: hidden;
     }
     .install code {
       font-family: 'JetBrains Mono', monospace;
@@ -160,8 +166,11 @@
       border-radius: 12px; padding: 1.5rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: .85rem; overflow-x: auto; line-height: 1.7;
+      max-width: 100%; word-break: break-all;
     }
-    @media (max-width: 640px) { pre { font-size: .78rem; padding: 1rem; border-radius: 8px; } }
+    @media (max-width: 640px) {
+      pre { font-size: .78rem; padding: 1rem; border-radius: 8px; word-break: normal; }
+    }
     .kw   { color: #c792ea; }
     .fn   { color: #82aaff; }
     .str  { color: #c3e88d; }
