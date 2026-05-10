@@ -13,12 +13,14 @@ if _sys.version_info < (3, 11):
 
 from . import wrap  # noqa: F401  — makes `from extremis.wrap import Anthropic` work
 from .api import Extremis
+from .async_api import AsyncExtremis
 from .client import HostedClient
 from .config import Config
 from .types import FeedbackSignal, LogEntry, Memory, MemoryLayer, RecallResult
 
 __all__ = [
     "Extremis",
+    "AsyncExtremis",
     "HostedClient",
     "Config",
     "Memory",

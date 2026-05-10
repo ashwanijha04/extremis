@@ -95,7 +95,11 @@ def judge_answer(client: anthropic.Anthropic, question: str, prediction: str, gr
                 f"Question: {question}\n"
                 f"Ground truth: {ground_truth}\n"
                 f"Predicted: {prediction}\n\n"
-                "Is the predicted answer correct or semantically equivalent to the ground truth? "
+                "Mark as correct (yes) if the predicted answer:\n"
+                "- Is semantically equivalent to the ground truth, OR\n"
+                "- Contains the ground truth as part of a longer correct answer, OR\n"
+                "- Expresses the same fact with different wording\n"
+                "Mark as incorrect (no) if the predicted answer contradicts, omits, or gets the ground truth wrong.\n"
                 "Reply with only 'yes' or 'no'."
             ),
         }],

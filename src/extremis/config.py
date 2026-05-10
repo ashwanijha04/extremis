@@ -43,6 +43,11 @@ class Config(BaseSettings):
     consolidation_daily_hour: int = 4
     consolidation_model: str = "claude-haiku-4-5-20251001"
     consolidation_hard_model: str = "claude-sonnet-4-6"
+    auto_consolidate: bool = True  # trigger consolidation in background automatically
+    auto_consolidate_every: int = 50  # trigger after every N remember() calls
+
+    # ── Chunking ─────────────────────────────────────────────────────
+    chunk_size: int = 200  # max tokens per memory chunk (0 = disabled)
 
     # ── Retrieval ranking ────────────────────────────────────────────
     rl_alpha: float = 0.5

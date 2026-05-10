@@ -99,6 +99,13 @@ class LLMConsolidator:
                         },
                         validity_start=datetime.now(tz=timezone.utc),
                     )
+
+                    # Contradiction detection: supersede conflicting existing memories
+                    if layer in (MemoryLayer.SEMANTIC, MemoryLayer.PROCEDURAL):
+                        superseded = self._supersede_contradictions(memory, embedding, consolidated, result)
+                        if superseded:
+                            continue  # supersede() already stored the new memory
+
                     consolidated.store(memory)
                     result.memories_created += 1
 
@@ -121,6 +128,64 @@ class LLMConsolidator:
     # ------------------------------------------------------------------ #
     # Internal helpers
     # ------------------------------------------------------------------ #
+
+    def _supersede_contradictions(
+        self,
+        new_memory: Memory,
+        embedding: list[float],
+        store: MemoryStore,
+        result: ConsolidationResult,
+    ) -> bool:
+        """Check existing memories for contradictions; supersede if found. Returns True if superseded."""
+        if not hasattr(store, "find_similar"):
+            return False
+        try:
+            similar = store.find_similar(  # type: ignore[union-attr]
+                embedding,
+                new_memory.layer,
+                threshold=0.80,
+                limit=3,
+            )
+        except Exception:
+            return False
+
+        for old_memory, similarity in similar:
+            if old_memory.id == new_memory.id:
+                continue
+            try:
+                verdict = self._check_contradiction(old_memory.content, new_memory.content)
+            except Exception:
+                continue
+            if verdict:
+                log.info(
+                    "Contradiction detected (sim=%.2f): superseding %r with %r",
+                    similarity,
+                    old_memory.content[:60],
+                    new_memory.content[:60],
+                )
+                store.supersede(old_memory.id, new_memory)
+                result.memories_superseded += 1
+                return True
+        return False
+
+    def _check_contradiction(self, old_content: str, new_content: str) -> bool:
+        """Return True if new_content contradicts old_content."""
+        response = self._client.messages.create(
+            model=self._config.consolidation_model,
+            max_tokens=5,
+            messages=[
+                {
+                    "role": "user",
+                    "content": (
+                        f"Old memory: {old_content}\n"
+                        f"New memory: {new_content}\n\n"
+                        "Does the new memory directly contradict or supersede the old memory? "
+                        "Reply only 'yes' or 'no'."
+                    ),
+                }
+            ],
+        )
+        return response.content[0].text.strip().lower().startswith("yes")
 
     def _extract(self, conv_id: str, entries: list[LogEntry]) -> list[dict]:
         log_text = "\n".join(f"[{e.role.upper()}] {e.content}" for e in entries)

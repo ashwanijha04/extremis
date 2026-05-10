@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+import re
+import threading
 from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
@@ -26,6 +29,29 @@ from .types import (
 )
 
 _NEGATIVE_WEIGHT_MULTIPLIER = 1.5  # match friday-saas asymmetric RL weighting
+_APPROX_CHARS_PER_TOKEN = 4
+
+
+def _chunk_content(content: str, chunk_size: int) -> list[str]:
+    """Split content at sentence boundaries into chunks of ~chunk_size tokens."""
+    if chunk_size <= 0 or len(content) <= chunk_size * _APPROX_CHARS_PER_TOKEN:
+        return [content]
+    sentences = re.split(r"(?<=[.!?])\s+", content.strip())
+    chunks: list[str] = []
+    current: list[str] = []
+    current_len = 0
+    max_chars = chunk_size * _APPROX_CHARS_PER_TOKEN
+    for sentence in sentences:
+        if current_len + len(sentence) > max_chars and current:
+            chunks.append(" ".join(current))
+            current = [sentence]
+            current_len = len(sentence)
+        else:
+            current.append(sentence)
+            current_len += len(sentence)
+    if current:
+        chunks.append(" ".join(current))
+    return chunks or [content]
 
 
 def _build_store(config: Config) -> MemoryStore:
@@ -90,6 +116,8 @@ class Extremis:
         self._kg = SQLiteKGStore(self._config.resolved_local_db_path(), self._config)
         self._observer = HeuristicObserver(namespace=self._config.namespace)
         self._attention = AttentionScorer(self._config)
+        self._remember_count = 0
+        self._consolidation_lock = threading.Lock()
 
     def remember(
         self,
@@ -101,6 +129,7 @@ class Extremis:
         """
         Append to the log. Cheap path — no LLM, no embedding.
         Also writes an episodic memory to the local store for immediate recall.
+        Long content is chunked at sentence boundaries for better retrieval granularity.
         """
         entry = LogEntry(
             role=role,
@@ -110,15 +139,38 @@ class Extremis:
         )
         self._log.append(entry)
 
-        embedding = self._embedder.embed(content)
-        memory = Memory(
-            layer=MemoryLayer.EPISODIC,
-            content=content,
-            embedding=embedding,
-            metadata={"conversation_id": conversation_id, "role": role, **(metadata or {})},
-            validity_start=datetime.now(tz=timezone.utc),
-        )
-        self._local.store(memory)
+        chunks = _chunk_content(content, self._config.chunk_size)
+        for chunk in chunks:
+            embedding = self._embedder.embed(chunk)
+            memory = Memory(
+                layer=MemoryLayer.EPISODIC,
+                content=chunk,
+                embedding=embedding,
+                metadata={"conversation_id": conversation_id, "role": role, **(metadata or {})},
+                validity_start=datetime.now(tz=timezone.utc),
+            )
+            self._local.store(memory)
+
+        self._remember_count += 1
+        if (
+            self._config.auto_consolidate
+            and self._remember_count % self._config.auto_consolidate_every == 0
+            and os.environ.get("ANTHROPIC_API_KEY")
+        ):
+            threading.Thread(target=self._background_consolidate, daemon=True).start()
+
+    def _background_consolidate(self) -> None:
+        if not self._consolidation_lock.acquire(blocking=False):
+            return  # another consolidation is already running
+        try:
+            from .consolidation.consolidator import LLMConsolidator
+
+            consolidator = LLMConsolidator(self._config, self._embedder)
+            consolidator.run_pass(self._log, self._local, self._local)
+        except Exception:
+            pass  # never crash the caller
+        finally:
+            self._consolidation_lock.release()
 
     def recall(
         self,
