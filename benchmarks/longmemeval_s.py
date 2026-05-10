@@ -23,6 +23,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+
+try:
+    import peekr
+    from peekr.exporters import JSONLExporter, add_exporter
+
+    _PEEKR = True
+except ImportError:
+    _PEEKR = False
 import sys
 import tempfile
 from pathlib import Path
@@ -32,8 +40,10 @@ import anthropic
 try:
     from tqdm import tqdm
 except ImportError:
+
     def tqdm(it, **_):  # type: ignore
         return it
+
 
 # ── make sure the local src/ tree is importable when run from the repo root ──
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -42,8 +52,8 @@ from extremis import Extremis
 from extremis.config import Config
 from extremis.consolidation.consolidator import LLMConsolidator
 
-
 # ── helpers ──────────────────────────────────────────────────────────────────
+
 
 def load_dataset(path: str) -> list[dict]:
     with open(path) as f:
@@ -62,25 +72,24 @@ def feed_sessions(mem: Extremis, sessions: list[list[dict]], session_ids: list[s
 
 
 def build_context(recall_results) -> str:
-    return "\n".join(
-        f"[{r.memory.layer.value}] {r.memory.content}"
-        for r in recall_results
-    )
+    return "\n".join(f"[{r.memory.layer.value}] {r.memory.content}" for r in recall_results)
 
 
 def answer_question(client: anthropic.Anthropic, context: str, question: str) -> str:
     resp = client.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=256,
-        messages=[{
-            "role": "user",
-            "content": (
-                f"You have access to the following memory context:\n\n{context}\n\n"
-                f"Answer this question using only the context above. "
-                f"If the answer is not in the context, say exactly: I don't know\n\n"
-                f"Question: {question}"
-            ),
-        }],
+        messages=[
+            {
+                "role": "user",
+                "content": (
+                    f"You have access to the following memory context:\n\n{context}\n\n"
+                    f"Answer this question using only the context above. "
+                    f"If the answer is not in the context, say exactly: I don't know\n\n"
+                    f"Question: {question}"
+                ),
+            }
+        ],
     )
     return resp.content[0].text.strip()
 
@@ -89,20 +98,22 @@ def judge_answer(client: anthropic.Anthropic, question: str, prediction: str, gr
     resp = client.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=5,
-        messages=[{
-            "role": "user",
-            "content": (
-                f"Question: {question}\n"
-                f"Ground truth: {ground_truth}\n"
-                f"Predicted: {prediction}\n\n"
-                "Mark as correct (yes) if the predicted answer:\n"
-                "- Is semantically equivalent to the ground truth, OR\n"
-                "- Contains the ground truth as part of a longer correct answer, OR\n"
-                "- Expresses the same fact with different wording\n"
-                "Mark as incorrect (no) if the predicted answer contradicts, omits, or gets the ground truth wrong.\n"
-                "Reply with only 'yes' or 'no'."
-            ),
-        }],
+        messages=[
+            {
+                "role": "user",
+                "content": (
+                    f"Question: {question}\n"
+                    f"Ground truth: {ground_truth}\n"
+                    f"Predicted: {prediction}\n\n"
+                    "Mark as correct (yes) if the predicted answer:\n"
+                    "- Is semantically equivalent to the ground truth, OR\n"
+                    "- Contains the ground truth as part of a longer correct answer, OR\n"
+                    "- Expresses the same fact with different wording\n"
+                    "Mark as incorrect (no) if it contradicts, omits, or gets the ground truth wrong.\n"
+                    "Reply with only 'yes' or 'no'."
+                ),
+            }
+        ],
     )
     return resp.content[0].text.strip().lower().startswith("yes")
 
@@ -111,10 +122,7 @@ def retrieval_hit(recall_results, answer_session_ids: list[str]) -> bool:
     """Return True if any recalled memory came from an answer session."""
     if not answer_session_ids:
         return False
-    recalled_sids = {
-        r.memory.metadata.get("conversation_id", "")
-        for r in recall_results
-    }
+    recalled_sids = {r.memory.metadata.get("conversation_id", "") for r in recall_results}
     return bool(recalled_sids & set(answer_session_ids))
 
 
@@ -132,6 +140,7 @@ def load_completed_ids(output_path: str) -> set[str]:
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
+
 
 def run(args: argparse.Namespace) -> None:
     client = anthropic.Anthropic()
@@ -151,8 +160,16 @@ def run(args: argparse.Namespace) -> None:
     ret_hits = 0
     evaluated = 0
 
+    # instrument LLM calls for real cost tracking
+    traces_path = args.output.replace(".jsonl", "_traces.jsonl")
+    if _PEEKR:
+        add_exporter(JSONLExporter(path=traces_path))
+        peekr.instrument(console=False, jsonl_path=None)
+        print(f"peekr instrumented — traces → {traces_path}")
+
     # load the embedding model once — reused across all instances
     from extremis.embeddings.sentence_transformers import SentenceTransformerEmbedder
+
     shared_embedder = SentenceTransformerEmbedder("all-MiniLM-L6-v2")
     print("Embedder loaded. Starting evaluation...")
 
@@ -161,11 +178,11 @@ def run(args: argparse.Namespace) -> None:
         if qid in completed:
             continue
 
-        question        = instance["question"]
-        ground_truth    = instance["answer"]
-        sessions        = instance["haystack_sessions"]
-        session_ids     = instance["haystack_session_ids"]
-        answer_sids     = instance.get("answer_session_ids", [])
+        question = instance["question"]
+        ground_truth = instance["answer"]
+        sessions = instance["haystack_sessions"]
+        session_ids = instance["haystack_session_ids"]
+        answer_sids = instance.get("answer_session_ids", [])
 
         with tempfile.TemporaryDirectory() as tmpdir:
             config = Config(namespace=qid, extremis_home=tmpdir)
@@ -181,8 +198,8 @@ def run(args: argparse.Namespace) -> None:
             context = build_context(recall_results)
 
             predicted = answer_question(client, context, question)
-            correct   = judge_answer(client, question, predicted, ground_truth)
-            hit       = retrieval_hit(recall_results, answer_sids)
+            correct = judge_answer(client, question, predicted, ground_truth)
+            hit = retrieval_hit(recall_results, answer_sids)
 
         if correct:
             qa_correct += 1
@@ -191,14 +208,14 @@ def run(args: argparse.Namespace) -> None:
         evaluated += 1
 
         row = {
-            "question_id":     qid,
-            "question":        question,
-            "ground_truth":    ground_truth,
-            "predicted":       predicted,
-            "correct":         correct,
-            "retrieval_hit":   hit,
-            "recalled":        [r.memory.content for r in recall_results],
-            "final_ranks":     [round(r.final_rank, 4) for r in recall_results],
+            "question_id": qid,
+            "question": question,
+            "ground_truth": ground_truth,
+            "predicted": predicted,
+            "correct": correct,
+            "retrieval_hit": hit,
+            "recalled": [r.memory.content for r in recall_results],
+            "final_ranks": [round(r.final_rank, 4) for r in recall_results],
         }
         out_file.write(json.dumps(row) + "\n")
         out_file.flush()
@@ -206,30 +223,52 @@ def run(args: argparse.Namespace) -> None:
         if evaluated % 50 == 0:
             print(
                 f"  [{evaluated}/{len(dataset)}] "
-                f"QA={qa_correct/evaluated:.1%}  "
-                f"R@{args.recall_k}={ret_hits/evaluated:.1%}"
+                f"QA={qa_correct / evaluated:.1%}  "
+                f"R@{args.recall_k}={ret_hits / evaluated:.1%}"
             )
 
     out_file.close()
 
+    # cost summary from peekr traces
+    total_input = total_output = 0
+    if _PEEKR and os.path.exists(traces_path):
+        for line in open(traces_path):
+            try:
+                span = json.loads(line)
+                attrs = span.get("attributes", {})
+                total_input += attrs.get("tokens_input", 0)
+                total_output += attrs.get("tokens_output", 0)
+            except (json.JSONDecodeError, KeyError):
+                pass
+
+    haiku_input_cost = total_input / 1_000_000 * 0.80
+    haiku_output_cost = total_output / 1_000_000 * 4.00
+    actual_cost = haiku_input_cost + haiku_output_cost
+
     print("\n" + "=" * 52)
-    print(f"  LongMemEval-S  —  extremis results")
+    print("  LongMemEval-S  —  extremis results")
     print("=" * 52)
     print(f"  Instances evaluated : {evaluated}")
-    print(f"  QA accuracy         : {qa_correct/evaluated:.1%}")
-    print(f"  Retrieval R@{args.recall_k:<2}       : {ret_hits/evaluated:.1%}")
+    print(f"  QA accuracy         : {qa_correct / evaluated:.1%}")
+    print(f"  Retrieval R@{args.recall_k:<2}       : {ret_hits / evaluated:.1%}")
+    if total_input:
+        print(f"  Input tokens        : {total_input:,}")
+        print(f"  Output tokens       : {total_output:,}")
+        print(f"  Actual API cost     : ${actual_cost:.4f}")
     print(f"  Output              : {args.output}")
+    if _PEEKR:
+        print(f"  Traces              : {traces_path}")
     print("=" * 52)
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="LongMemEval-S benchmark for extremis")
-    p.add_argument("--dataset",     required=True,  help="Path to longmemeval_s.json")
-    p.add_argument("--output",      default="results/longmemeval_s_results.jsonl")
-    p.add_argument("--recall-k",    type=int, default=5,   dest="recall_k")
-    p.add_argument("--limit",       type=int, default=None, help="Only run first N instances")
-    p.add_argument("--consolidate", action="store_true",   help="Run LLM consolidation pass per instance")
-    p.add_argument("--resume",      action="store_true",   help="Skip already-evaluated question_ids")
+    p.add_argument("--dataset", required=True, help="Path to longmemeval_s.json")
+    p.add_argument("--output", default="results/longmemeval_s_results.jsonl")
+    p.add_argument("--recall-k", type=int, default=5, dest="recall_k")
+    p.add_argument("--limit", type=int, default=None, help="Only run first N instances")
+    p.add_argument("--consolidate", action="store_true", help="Run LLM consolidation pass per instance")
+    p.add_argument("--resume", action="store_true", help="Skip already-evaluated question_ids")
     return p.parse_args()
 
 

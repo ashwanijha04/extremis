@@ -142,12 +142,85 @@ def _doctor(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
+def _traces(args: argparse.Namespace) -> None:
+    import json
+    from pathlib import Path
+
+    from extremis.config import Config
+
+    config = Config()
+    traces_path = Path(config.resolved_traces_path())
+
+    if not traces_path.exists():
+        print(f"\nNo traces file found at {traces_path}")
+        print("Enable observability: EXTREMIS_OBSERVE=true or Config(observe=True)\n")
+        return
+
+    spans = []
+    for line in traces_path.read_text().splitlines():
+        if line.strip():
+            try:
+                spans.append(json.loads(line))
+            except json.JSONDecodeError:
+                pass
+
+    if not spans:
+        print("\nNo spans recorded yet.\n")
+        return
+
+    total_input = total_output = 0
+    llm_calls: dict[str, dict] = {}
+    total_duration_ms = 0.0
+
+    for span in spans:
+        attrs = span.get("attributes", {})
+        name = span.get("name", "unknown")
+        dur = span.get("duration_ms") or 0.0
+        inp = attrs.get("tokens_input", 0)
+        out = attrs.get("tokens_output", 0)
+        total_input += inp
+        total_output += out
+        total_duration_ms += dur
+        if inp or out:
+            key = f"{name} ({attrs.get('model', '?')})"
+            if key not in llm_calls:
+                llm_calls[key] = {"calls": 0, "input": 0, "output": 0, "duration_ms": 0.0}
+            llm_calls[key]["calls"] += 1
+            llm_calls[key]["input"] += inp
+            llm_calls[key]["output"] += out
+            llm_calls[key]["duration_ms"] += dur
+
+    haiku_cost = (total_input / 1_000_000 * 0.80) + (total_output / 1_000_000 * 4.00)
+
+    print(f"\nTraces: {traces_path}")
+    print(f"Total spans     : {len(spans)}")
+    print(f"Total duration  : {total_duration_ms / 1000:.1f}s")
+    print("─" * 52)
+
+    if llm_calls:
+        print("\nLLM call breakdown:")
+        for name, stats in sorted(llm_calls.items(), key=lambda x: -x[1]["input"]):
+            cost = (stats["input"] / 1_000_000 * 0.80) + (stats["output"] / 1_000_000 * 4.00)
+            print(
+                f"  {name}\n"
+                f"    calls={stats['calls']}  "
+                f"in={stats['input']:,}  out={stats['output']:,}  "
+                f"cost=${cost:.4f}  avg={stats['duration_ms'] / max(stats['calls'], 1):.0f}ms"
+            )
+        print("─" * 52)
+        print(f"\nTotal tokens    : {total_input + total_output:,} ({total_input:,} in / {total_output:,} out)")
+        print(f"Estimated cost  : ${haiku_cost:.4f} (Haiku rates)\n")
+    else:
+        print("\nNo LLM calls traced yet.\n")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="extremis", description="extremis CLI")
     sub = parser.add_subparsers(dest="command")
 
     sub.add_parser("stats", help="Show memory counts, top memories, and log stats")
     sub.add_parser("doctor", help="Validate setup and diagnose common issues")
+    sub.add_parser("traces", help="Show LLM cost and timing summary from peekr traces")
 
     args = parser.parse_args()
 
@@ -155,5 +228,7 @@ def main() -> None:
         _stats(args)
     elif args.command == "doctor":
         _doctor(args)
+    elif args.command == "traces":
+        _traces(args)
     else:
         parser.print_help()

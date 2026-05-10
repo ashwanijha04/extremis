@@ -49,6 +49,10 @@ class Config(BaseSettings):
     # ── Chunking ─────────────────────────────────────────────────────
     chunk_size: int = 200  # max tokens per memory chunk (0 = disabled)
 
+    # ── Observability (peekr) ─────────────────────────────────────────
+    observe: bool = False  # set EXTREMIS_OBSERVE=true to enable
+    traces_path: str = ""  # defaults to {extremis_home}/traces.jsonl
+
     # ── Retrieval ranking ────────────────────────────────────────────
     rl_alpha: float = 0.5
     recency_half_life_days: int = 90
@@ -72,3 +76,6 @@ class Config(BaseSettings):
 
     def resolved_pinecone_score_db(self) -> str:
         return self.pinecone_score_db or f"{self.extremis_home}/pinecone_scores.db"
+
+    def resolved_traces_path(self) -> str:
+        return self.traces_path or f"{self.extremis_home}/traces.jsonl"

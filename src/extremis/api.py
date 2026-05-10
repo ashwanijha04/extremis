@@ -7,6 +7,17 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID
 
+try:
+    from peekr.decorators import trace as _trace
+except ImportError:
+
+    def _trace(_func=None, *, name=None, capture_io=True):  # type: ignore[misc]
+        def decorator(fn):
+            return fn
+
+        return decorator(_func) if _func is not None else decorator
+
+
 from .config import Config
 from .embeddings.sentence_transformers import SentenceTransformerEmbedder
 from .interfaces import Embedder, LogStore, MemoryStore
@@ -29,6 +40,27 @@ from .types import (
 )
 
 _NEGATIVE_WEIGHT_MULTIPLIER = 1.5  # match friday-saas asymmetric RL weighting
+_peekr_instrumented = False
+
+
+def _setup_observability(traces_path: str) -> None:
+    global _peekr_instrumented
+    if _peekr_instrumented:
+        return
+    try:
+        import pathlib
+
+        import peekr
+        from peekr.exporters import JSONLExporter, add_exporter
+
+        pathlib.Path(traces_path).parent.mkdir(parents=True, exist_ok=True)
+        add_exporter(JSONLExporter(path=traces_path))
+        peekr.instrument(console=False, jsonl_path=None)  # exporters already added above
+        _peekr_instrumented = True
+    except ImportError:
+        pass  # peekr not installed — observability silently disabled
+
+
 _APPROX_CHARS_PER_TOKEN = 4
 
 
@@ -118,7 +150,10 @@ class Extremis:
         self._attention = AttentionScorer(self._config)
         self._remember_count = 0
         self._consolidation_lock = threading.Lock()
+        if self._config.observe:
+            _setup_observability(self._config.resolved_traces_path())
 
+    @_trace(name="extremis.remember", capture_io=False)
     def remember(
         self,
         content: str,
@@ -172,6 +207,7 @@ class Extremis:
         finally:
             self._consolidation_lock.release()
 
+    @_trace(name="extremis.recall", capture_io=False)
     def recall(
         self,
         query: str,

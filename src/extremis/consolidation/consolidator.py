@@ -7,6 +7,17 @@ from itertools import islice
 
 import anthropic
 
+try:
+    from peekr.decorators import trace as _trace
+except ImportError:
+
+    def _trace(_func=None, *, name=None, capture_io=True):  # type: ignore[misc]
+        def decorator(fn):
+            return fn
+
+        return decorator(_func) if _func is not None else decorator
+
+
 from ..config import Config
 from ..interfaces import Embedder, LogStore, MemoryStore
 from ..types import ConsolidationResult, LogEntry, Memory, MemoryLayer
@@ -168,6 +179,7 @@ class LLMConsolidator:
                 return True
         return False
 
+    @_trace(name="extremis.consolidation.contradiction_check", capture_io=False)
     def _check_contradiction(self, old_content: str, new_content: str) -> bool:
         """Return True if new_content contradicts old_content."""
         response = self._client.messages.create(
@@ -187,6 +199,7 @@ class LLMConsolidator:
         )
         return response.content[0].text.strip().lower().startswith("yes")
 
+    @_trace(name="extremis.consolidation.extract", capture_io=False)
     def _extract(self, conv_id: str, entries: list[LogEntry]) -> list[dict]:
         log_text = "\n".join(f"[{e.role.upper()}] {e.content}" for e in entries)
         user_msg = EXTRACTION_USER_TEMPLATE.format(
