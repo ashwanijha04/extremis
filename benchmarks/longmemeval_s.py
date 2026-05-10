@@ -160,9 +160,10 @@ def run(args: argparse.Namespace) -> None:
     ret_hits = 0
     evaluated = 0
 
-    # instrument LLM calls for real cost tracking
+    # instrument LLM calls for real cost tracking — overwrite traces each run
     traces_path = args.output.replace(".jsonl", "_traces.jsonl")
     if _PEEKR:
+        Path(traces_path).unlink(missing_ok=True)
         add_exporter(JSONLExporter(path=traces_path))
         peekr.instrument(console=False, jsonl_path=None)
         print(f"peekr instrumented — traces → {traces_path}")
