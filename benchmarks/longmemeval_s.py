@@ -26,11 +26,20 @@ import os
 
 try:
     import peekr
+    from peekr.decorators import trace as _trace
     from peekr.exporters import JSONLExporter, add_exporter
 
     _PEEKR = True
 except ImportError:
     _PEEKR = False
+
+    def _trace(_func=None, *, name=None, capture_io=True):  # type: ignore[misc]
+        def decorator(fn):
+            return fn
+
+        return decorator(_func) if _func is not None else decorator
+
+
 import sys
 import tempfile
 from pathlib import Path
@@ -75,6 +84,7 @@ def build_context(recall_results) -> str:
     return "\n".join(f"[{r.memory.layer.value}] {r.memory.content}" for r in recall_results)
 
 
+@_trace(name="benchmark.answer_question", capture_io=False)
 def answer_question(client: anthropic.Anthropic, context: str, question: str) -> str:
     resp = client.messages.create(
         model="claude-haiku-4-5-20251001",
@@ -94,6 +104,7 @@ def answer_question(client: anthropic.Anthropic, context: str, question: str) ->
     return resp.content[0].text.strip()
 
 
+@_trace(name="benchmark.judge_answer", capture_io=False)
 def judge_answer(client: anthropic.Anthropic, question: str, prediction: str, ground_truth: str) -> bool:
     resp = client.messages.create(
         model="claude-haiku-4-5-20251001",
