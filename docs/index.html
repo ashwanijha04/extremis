@@ -371,6 +371,7 @@
   <div class="nav-links" id="nav-links">
     <a href="#how" class="hide-mobile">How it works</a>
     <a href="#install" class="hide-mobile">Install</a>
+    <a href="#benchmark" class="hide-mobile">Benchmark</a>
     <a href="#mcp" class="hide-mobile">MCP</a>
     <a href="#privacy" class="hide-mobile">Privacy</a>
     <a href="/extremis/docs/" class="hide-mobile">Docs</a>
@@ -622,6 +623,53 @@ mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</sp
         <tr><td>Open source (MIT)</td><td class="yes">✓</td><td class="partial">Partial</td><td class="yes">✓</td><td class="no">✗</td></tr>
       </tbody>
     </table>
+  </div>
+</section>
+
+<!-- Benchmark -->
+<section id="benchmark">
+  <h2>Benchmark results</h2>
+  <p class="section-sub">Evaluated on LongMemEval-S — the standard benchmark for long-term memory in LLM systems. 500 QA instances, each backed by ~53 timestamped conversation sessions.</p>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:1.5rem; margin-bottom:2.5rem;">
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2rem; text-align:center;">
+      <div style="font-size:3rem; font-weight:700; color:var(--green); letter-spacing:-.03em;">94.4%</div>
+      <div style="font-size:1rem; font-weight:600; margin:.5rem 0 .25rem;">Retrieval R@5</div>
+      <div style="font-size:.85rem; color:var(--muted);">Top-5 recalled memories include the answer session</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2rem; text-align:center;">
+      <div style="font-size:3rem; font-weight:700; color:var(--accent); letter-spacing:-.03em;">500</div>
+      <div style="font-size:1rem; font-weight:600; margin:.5rem 0 .25rem;">Instances evaluated</div>
+      <div style="font-size:.85rem; color:var(--muted);">Full LongMemEval-S dataset, no cherry-picking</div>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2rem; text-align:center;">
+      <div style="font-size:3rem; font-weight:700; color:var(--accent2); letter-spacing:-.03em;">38.8%</div>
+      <div style="font-size:1rem; font-weight:600; margin:.5rem 0 .25rem;">QA Accuracy</div>
+      <div style="font-size:.85rem; color:var(--muted);">Joint score with claude-haiku-4-5 as answerer</div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:2rem; font-size:.9rem; color:var(--muted); line-height:1.8;">
+    <strong style="color:var(--text);">Methodology.</strong>
+    For each instance, extremis ingests ~53 conversation sessions via <code>remember()</code>, then answers the question using only the top-5 recalled memories.
+    <strong style="color:var(--text);">Retrieval R@5</strong> measures whether the right session appears in the top-5 — this is what extremis controls.
+    <strong style="color:var(--text);">QA accuracy</strong> is a joint metric with the downstream LLM (claude-haiku-4-5); a stronger model raises it significantly.
+    Results are fully reproducible — every instance, prediction, and score is in the raw results file.
+  </div>
+
+  <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+    <a href="https://github.com/ashwanijha04/extremis/raw/main/results/longmemeval_s_results.jsonl"
+       style="display:inline-flex; align-items:center; gap:.5rem; background:var(--green); color:#000; font-weight:600; padding:.65rem 1.25rem; border-radius:8px; font-size:.9rem; text-decoration:none;">
+      ↓ Download raw results (JSONL)
+    </a>
+    <a href="https://github.com/ashwanijha04/extremis/blob/main/benchmarks/longmemeval_s.py"
+       style="display:inline-flex; align-items:center; gap:.5rem; background:var(--surface); color:var(--text); border:1px solid var(--border); font-weight:500; padding:.65rem 1.25rem; border-radius:8px; font-size:.9rem; text-decoration:none;">
+      View benchmark script
+    </a>
+    <a href="https://github.com/ashwanijha04/extremis/blob/main/benchmarks/README.md"
+       style="display:inline-flex; align-items:center; gap:.5rem; color:var(--muted); font-size:.9rem;">
+      Reproduce it yourself →
+    </a>
   </div>
 </section>
 
