@@ -173,6 +173,59 @@ class TestAnthropicWrapper:
         )
         assert result is expected
 
+    def test_streaming_saves_to_memory(self, mem):
+        client, mock_inner = self._make_client(mem)
+
+        def make_event(text):
+            event = MagicMock()
+            event.type = "content_block_delta"
+            event.delta = MagicMock()
+            event.delta.text = text
+            return event
+
+        stream = iter([make_event("Hello"), make_event(" world")])
+        mock_inner.messages.create.return_value = stream
+
+        result = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=10,
+            messages=[{"role": "user", "content": "say hello"}],
+            stream=True,
+        )
+        # consume the stream
+        chunks = list(result)
+        assert len(chunks) == 2
+
+        entries = mem.get_log().read_since(None)
+        contents = [e.content for e in entries]
+        assert any("say hello" in c for c in contents)
+        assert any("Hello world" in c for c in contents)
+
+    def test_streaming_context_manager(self, mem):
+        client, mock_inner = self._make_client(mem)
+
+        def make_event(text):
+            event = MagicMock()
+            event.type = "content_block_delta"
+            event.delta = MagicMock()
+            event.delta.text = text
+            return event
+
+        stream = iter([make_event("Hi")])
+        mock_inner.messages.create.return_value = stream
+
+        with client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=10,
+            messages=[{"role": "user", "content": "hi"}],
+            stream=True,
+        ) as s:
+            list(s)
+
+        entries = mem.get_log().read_since(None)
+        contents = [e.content for e in entries]
+        assert any("Hi" in c for c in contents)
+
     def test_passthrough_other_attributes(self, mem):
         client, mock_inner = self._make_client(mem)
         mock_inner.models = "models-obj"
@@ -249,3 +302,26 @@ class TestOpenAIWrapper:
         system_msgs = [m for m in msgs_sent if m.get("role") == "system"]
         assert system_msgs
         assert "Python" in system_msgs[0]["content"]
+
+    def test_streaming_saves_to_memory(self, mem):
+        client, mock_inner = self._make_client(mem)
+
+        def make_chunk(text):
+            chunk = MagicMock()
+            chunk.choices[0].delta.content = text
+            return chunk
+
+        stream = iter([make_chunk("Hello"), make_chunk(" world")])
+        mock_inner.chat.completions.create.return_value = stream
+
+        result = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": "say hello"}],
+            stream=True,
+        )
+        list(result)
+
+        entries = mem.get_log().read_since(None)
+        contents = [e.content for e in entries]
+        assert any("say hello" in c for c in contents)
+        assert any("Hello world" in c for c in contents)

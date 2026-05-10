@@ -45,6 +45,61 @@ def _extract_assistant_text(response: Any) -> str:
         return ""
 
 
+class _StreamWrapper:
+    """Wraps an OpenAI stream, collecting assistant text and saving to memory on exhaustion."""
+
+    def __init__(self, stream: Any, memory: Any, user_text: str, session_id: str) -> None:
+        self._stream = stream
+        self._memory = memory
+        self._user_text = user_text
+        self._session_id = session_id
+        self._collected: list[str] = []
+        self._saved = False
+
+    def __iter__(self) -> "_StreamWrapper":
+        return self
+
+    def __next__(self) -> Any:
+        try:
+            chunk = next(self._stream.__iter__() if not hasattr(self._stream, "__next__") else self._stream)
+            try:
+                delta_content = chunk.choices[0].delta.content
+                if delta_content:
+                    self._collected.append(delta_content)
+            except (AttributeError, IndexError):
+                pass
+            return chunk
+        except StopIteration:
+            self._flush()
+            raise
+
+    def _flush(self) -> None:
+        if self._saved or not self._memory:
+            return
+        self._saved = True
+        try:
+            self._memory.remember(self._user_text, role="user", conversation_id=self._session_id)
+            text = "".join(self._collected)
+            if text:
+                self._memory.remember(text, role="assistant", conversation_id=self._session_id)
+        except Exception:
+            pass
+
+    def __enter__(self) -> "_StreamWrapper":
+        if hasattr(self._stream, "__enter__"):
+            self._stream.__enter__()
+        return self
+
+    def __exit__(self, *args: Any) -> Any:
+        self._flush()
+        if hasattr(self._stream, "__exit__"):
+            return self._stream.__exit__(*args)
+        return None
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._stream, name)
+
+
 def _build_context_prefix(results: list) -> str:
     if not results:
         return ""
@@ -83,7 +138,11 @@ class _CompletionsWrapper:
             except Exception:
                 pass
 
+        stream = kwargs.get("stream", False)
         response = self._completions.create(messages=messages, **kwargs)
+
+        if stream and user_text and self._memory is not None:
+            return _StreamWrapper(response, self._memory, user_text, self._session_id)
 
         if user_text and self._memory is not None:
             try:

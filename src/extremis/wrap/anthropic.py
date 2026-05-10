@@ -52,6 +52,59 @@ def _extract_assistant_text(response: Any) -> str:
     return ""
 
 
+class _StreamWrapper:
+    """Wraps an Anthropic stream, collecting assistant text and saving to memory on exhaustion."""
+
+    def __init__(self, stream: Any, memory: Any, user_text: str, session_id: str) -> None:
+        self._stream = stream
+        self._memory = memory
+        self._user_text = user_text
+        self._session_id = session_id
+        self._collected: list[str] = []
+        self._saved = False
+
+    def __iter__(self) -> "_StreamWrapper":
+        return self
+
+    def __next__(self) -> Any:
+        try:
+            event = next(self._stream.__iter__() if not hasattr(self._stream, "__next__") else self._stream)
+            if getattr(event, "type", None) == "content_block_delta":
+                delta = getattr(event, "delta", None)
+                if delta and hasattr(delta, "text"):
+                    self._collected.append(delta.text)
+            return event
+        except StopIteration:
+            self._flush()
+            raise
+
+    def _flush(self) -> None:
+        if self._saved or not self._memory:
+            return
+        self._saved = True
+        try:
+            self._memory.remember(self._user_text, role="user", conversation_id=self._session_id)
+            text = "".join(self._collected)
+            if text:
+                self._memory.remember(text, role="assistant", conversation_id=self._session_id)
+        except Exception:
+            pass
+
+    def __enter__(self) -> "_StreamWrapper":
+        if hasattr(self._stream, "__enter__"):
+            self._stream.__enter__()
+        return self
+
+    def __exit__(self, *args: Any) -> Any:
+        self._flush()
+        if hasattr(self._stream, "__exit__"):
+            return self._stream.__exit__(*args)
+        return None
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._stream, name)
+
+
 def _build_context_prefix(results: list) -> str:
     """Format recalled memories as a readable context block."""
     if not results:
@@ -83,9 +136,13 @@ class _MessagesWrapper:
             except Exception:
                 pass  # memory failure must never break the LLM call
 
+        stream = kwargs.get("stream", False)
         response = self._messages.create(messages=messages, system=system, **kwargs)
 
-        # Persist conversation
+        if stream and user_text and self._memory is not None:
+            return _StreamWrapper(response, self._memory, user_text, self._session_id)
+
+        # Persist conversation for non-streaming responses
         if user_text and self._memory is not None:
             try:
                 self._memory.remember(user_text, role="user", conversation_id=self._session_id)
