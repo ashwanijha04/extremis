@@ -19,7 +19,7 @@ git clone https://github.com/xiaowu0162/LongMemEval /tmp/longmemeval
 ### 2. Install dependencies
 
 ```bash
-pip install "extremis[mcp]" tqdm anthropic
+pip install "extremis[mcp,observe]" tqdm anthropic
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
@@ -51,10 +51,14 @@ python benchmarks/longmemeval_s.py \
 
 ### Cost
 
-| Mode | API calls | Estimated cost |
-|------|-----------|----------------|
-| Default (500 instances) | 1000 Haiku calls | ~$2 |
-| With `--consolidate` | +500 Haiku consolidation calls | ~$7 |
+Measured with peekr on a 10-instance sample run:
+
+| Mode | LLM calls | Actual cost per instance |
+|------|-----------|--------------------------|
+| Default (auto_consolidate=off) | 2 Haiku calls | ~$0.003 |
+| With `--consolidate` | ~20 Haiku calls | ~$0.058 |
+
+Full 500-instance run: **~$1.50** default · **~$29** with consolidation.
 
 ### Flags
 

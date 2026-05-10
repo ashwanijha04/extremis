@@ -185,7 +185,7 @@ def run(args: argparse.Namespace) -> None:
         answer_sids = instance.get("answer_session_ids", [])
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            config = Config(namespace=qid, extremis_home=tmpdir)
+            config = Config(namespace=qid, extremis_home=tmpdir, auto_consolidate=False)
             mem = Extremis(config=config, embedder=shared_embedder)
 
             feed_sessions(mem, sessions, session_ids)
