@@ -102,6 +102,38 @@ class TestAutoConsolidation:
 
         assert len(triggered) == 0
 
+    def test_session_end_consolidation_triggers_on_conversation_change(self, tmp_path, mock_embedder, monkeypatch):
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+        config = Config(
+            extremis_home=str(tmp_path),
+            auto_consolidate=False,
+            consolidate_on_session_end=True,
+        )
+        mem = Extremis(config=config, embedder=mock_embedder)
+        triggered = []
+        mem._background_consolidate = lambda: triggered.append(1)
+
+        mem.remember("turn 1", conversation_id="session-a")
+        mem.remember("turn 2", conversation_id="session-a")
+        assert len(triggered) == 0  # same session — no trigger yet
+
+        mem.remember("turn 1", conversation_id="session-b")  # session changed
+        assert len(triggered) == 1  # fired exactly once on session end
+
+        mem.remember("turn 2", conversation_id="session-b")
+        assert len(triggered) == 1  # still same new session — no extra trigger
+
+    def test_session_end_consolidation_off_by_default(self, tmp_path, mock_embedder, monkeypatch):
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+        config = Config(extremis_home=str(tmp_path))
+        mem = Extremis(config=config, embedder=mock_embedder)
+        triggered = []
+        mem._background_consolidate = lambda: triggered.append(1)
+
+        mem.remember("turn 1", conversation_id="session-a")
+        mem.remember("turn 1", conversation_id="session-b")
+        assert len(triggered) == 0
+
 
 # ── #5 AsyncExtremis ──────────────────────────────────────────────────────────
 

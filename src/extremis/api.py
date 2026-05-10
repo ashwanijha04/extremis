@@ -149,6 +149,7 @@ class Extremis:
         self._observer = HeuristicObserver(namespace=self._config.namespace)
         self._attention = AttentionScorer(self._config)
         self._remember_count = 0
+        self._last_conversation_id: Optional[str] = None
         self._consolidation_lock = threading.Lock()
         if self._config.observe:
             _setup_observability(self._config.resolved_traces_path())
@@ -187,12 +188,25 @@ class Extremis:
             self._local.store(memory)
 
         self._remember_count += 1
+
+        # Counter-based trigger (off by default — see Config comment on cost)
         if (
             self._config.auto_consolidate
             and self._remember_count % self._config.auto_consolidate_every == 0
             and os.environ.get("ANTHROPIC_API_KEY")
         ):
             threading.Thread(target=self._background_consolidate, daemon=True).start()
+
+        # Session-end trigger: fires once when conversation_id changes
+        if (
+            self._config.consolidate_on_session_end
+            and self._last_conversation_id is not None
+            and conversation_id != self._last_conversation_id
+            and os.environ.get("ANTHROPIC_API_KEY")
+        ):
+            threading.Thread(target=self._background_consolidate, daemon=True).start()
+
+        self._last_conversation_id = conversation_id
 
     def _background_consolidate(self) -> None:
         if not self._consolidation_lock.acquire(blocking=False):

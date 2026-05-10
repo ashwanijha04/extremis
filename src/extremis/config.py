@@ -43,8 +43,20 @@ class Config(BaseSettings):
     consolidation_daily_hour: int = 4
     consolidation_model: str = "claude-haiku-4-5-20251001"
     consolidation_hard_model: str = "claude-sonnet-4-6"
-    auto_consolidate: bool = True  # trigger consolidation in background automatically
-    auto_consolidate_every: int = 50  # trigger after every N remember() calls
+
+    # Counter-based auto-consolidation — off by default.
+    # Fires every N remember() calls regardless of session boundaries.
+    # Cost warning: each run calls the LLM on batches of 30 log entries.
+    # A session with 500 turns will trigger ~10 consolidations at the default
+    # threshold of 50 — multiplying your LLM cost by ~10x. Use
+    # consolidate_on_session_end instead for predictable, session-scoped cost.
+    auto_consolidate: bool = False
+    auto_consolidate_every: int = 50
+
+    # Signal-based consolidation — fires once when conversation_id changes.
+    # One LLM consolidation pass per completed session. Predictable cost.
+    # Requires ANTHROPIC_API_KEY. Off by default — enable in production agents.
+    consolidate_on_session_end: bool = False
 
     # ── Chunking ─────────────────────────────────────────────────────
     chunk_size: int = 200  # max tokens per memory chunk (0 = disabled)
