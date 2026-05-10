@@ -10,7 +10,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
 authors = [{ name = "Ashwani Jha", email = "ashwanijha04@gmail.com" }]
-keywords = ["memory", "ai", "agents", "mcp", "rag", "embeddings"]
+keywords = ["memory", "ai", "agents", "mcp", "rag", "embeddings", "claude", "claude-code", "cursor", "openai", "llm", "agent-memory", "persistent-memory", "coding-agent"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

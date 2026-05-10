@@ -9,6 +9,7 @@ venv/
 .env
 *.db
 *.jsonl
+!results/*.jsonl
 ~/.friday/
 .mypy_cache/
 .ruff_cache/

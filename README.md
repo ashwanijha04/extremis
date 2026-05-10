@@ -2,15 +2,23 @@
 
 # 🧠 extremis
 
-**Memory that gets smarter the more your agent uses it**
+**Your AI agent finally remembers. No more re-explaining your project.**
+
+Session 1: you describe your stack, your auth setup, your preferences.<br>
+Session 2: your agent already knows — because it learned.
 
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/extremis?logo=pypi&logoColor=white&color=orange)](https://pypi.org/project/extremis)
 [![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/extremis/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/extremis/actions)
-[![MCP](https://img.shields.io/badge/MCP-compatible-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
+[![MCP](https://img.shields.io/badge/MCP-native-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
 [![Cloud](https://img.shields.io/badge/hosted%20cloud-waitlist-blue)](https://github.com/ashwanijha04/extremis/issues/1)
 [![Glama](https://glama.ai/mcp/servers/ashwanijha04/extremis/badges/score.svg)](https://glama.ai/mcp/servers/ashwanijha04/extremis)
+[![LongMemEval-S R@5](https://img.shields.io/badge/LongMemEval--S%20R%405-94.4%25-brightgreen)](results/longmemeval_s_results.jsonl)
+
+<br/>
+
+**Works with:** Claude Code &nbsp;·&nbsp; Cursor &nbsp;·&nbsp; Windsurf &nbsp;·&nbsp; Claude Desktop &nbsp;·&nbsp; OpenAI &nbsp;·&nbsp; Gemini CLI &nbsp;·&nbsp; any MCP agent
 
 <br/>
 
@@ -19,6 +27,21 @@
 <sub>One click · auto-provisions Postgres · memory persists across restarts</sub>
 
 </div>
+
+---
+
+## Benchmark results
+
+Evaluated on [LongMemEval-S](https://github.com/xiaowu0162/LongMemEval) — 500 QA instances, each backed by ~53 timestamped conversation sessions.
+
+| Metric | Score | What it measures |
+|---|---|---|
+| **Retrieval R@5** | **94.4%** | Top-5 recalled memories include the answer session |
+| QA accuracy | 38.8% | Correct answer given recalled context (claude-haiku-4-5 judge) |
+
+The retrieval number is the meaningful one — it measures what extremis controls. QA accuracy is a joint score with the downstream LLM; replacing Haiku with a stronger model raises it significantly.
+
+[Raw results (500 instances)](results/longmemeval_s_results.jsonl) · [Benchmark script](benchmarks/longmemeval_s.py) · [Reproduce it yourself](benchmarks/README.md)
 
 ---
 
@@ -70,9 +93,13 @@ pip3.11 install "extremis[wrap-openai]"      # for OpenAI
 
 ## The problem
 
+You're building a coding agent. Session 1: you explain your project structure, your auth setup using jose middleware, your preferred patterns. Session 2: the agent asks you to explain everything again.
+
+Or you're building a support agent. It learned a customer hates terse responses. Next conversation: terse again. The learning is gone.
+
 Every team building an AI agent hits the same wall.
 
-Your agent forgets everything the moment a conversation ends. So you add memory. You set up a vector database, write chunking logic, figure out retrieval ranking, handle stale entries, add multi-user isolation. Three weeks later you've built a half-working RAG pipeline and still haven't shipped the actual feature.
+Your agent forgets everything the moment a session ends. So you add memory. You set up a vector database, write chunking logic, figure out retrieval ranking, handle stale entries, add multi-user isolation. Three weeks later you've built a half-working RAG pipeline and still haven't shipped the actual feature.
 
 And even when you ship it — **it doesn't learn**. Every memory is treated identically. The fact your agent recalled a hundred times and the user loved sits next to one it got wrong once. Nothing improves. There's no feedback loop. You're running the same dumb cosine search forever.
 
@@ -217,6 +244,22 @@ mem = Extremis(profile=SalesAgent())
 ```
 
 ---
+
+## How extremis compares
+
+| | extremis | Mem0 | LangChain | Zep | Raw Pinecone |
+|--|---------|------|-----------|-----|-------------|
+| Self-hostable | ✅ | ❌ cloud only | ✅ | ✅ | ✅ |
+| Backend-agnostic | ✅ 4 backends | ❌ | ⚠️ manual | ❌ | — |
+| RL-scored retrieval | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Asymmetric feedback (1.5×) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Intelligent forgetting | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Knowledge graph | ✅ | ❌ | ❌ | ✅ | ❌ |
+| 5-layer memory | ✅ | ⚠️ basic | ⚠️ basic | ⚠️ basic | ❌ |
+| Log-first durability | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Migration CLI | ✅ | ❌ | ❌ | ❌ | — |
+| MCP server (Claude Code / Cursor) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Open source | ✅ MIT | ⚠️ partial | ✅ | ✅ | — |
 
 ---
 
@@ -790,25 +833,6 @@ All settings via `EXTREMIS_` environment variables or a `.env` file:
 | `EXTREMIS_ATTENTION_FULL_THRESHOLD` | `75` | Score ≥ this → full attention |
 | `EXTREMIS_ATTENTION_STANDARD_THRESHOLD` | `50` | Score ≥ this → standard |
 | `EXTREMIS_ATTENTION_MINIMAL_THRESHOLD` | `25` | Score ≥ this → minimal |
-
----
-
-## How it compares
-
-| | extremis | Mem0 | LangChain | Zep | Raw Pinecone |
-|--|---------|------|-----------|-----|-------------|
-| Self-hostable | ✅ | ❌ cloud only | ✅ | ✅ | ✅ |
-| Backend-agnostic | ✅ 4 backends | ❌ | ⚠️ manual | ❌ | — |
-| RL-scored retrieval | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Asymmetric feedback (1.5×) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Knowledge graph | ✅ | ❌ | ❌ | ✅ | ❌ |
-| 5-layer memory | ✅ | ⚠️ basic | ⚠️ basic | ⚠️ basic | ❌ |
-| Log-first durability | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Migration CLI | ✅ | ❌ | ❌ | ❌ | — |
-| Attention scoring | ✅ | ❌ | ❌ | ❌ | ❌ |
-| MCP server (Claude) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Hosted API | ✅ self-host | ✅ | ❌ | ✅ | — |
-| Open source | ✅ MIT | ⚠️ partial | ✅ | ✅ | — |
 
 ---
 
