@@ -42,6 +42,17 @@ from .types import (
 _NEGATIVE_WEIGHT_MULTIPLIER = 1.5  # match friday-saas asymmetric RL weighting
 _peekr_instrumented = False
 
+# Layer trust weights from the production hallucination-detection stack.
+# Identity > semantic > procedural > episodic > working. Folded into
+# effective_confidence at recall time so callers can hedge ("as of …").
+_LAYER_WEIGHTS: dict[MemoryLayer, float] = {
+    MemoryLayer.IDENTITY: 0.95,
+    MemoryLayer.SEMANTIC: 0.80,
+    MemoryLayer.PROCEDURAL: 0.70,
+    MemoryLayer.EPISODIC: 0.60,
+    MemoryLayer.WORKING: 0.40,
+}
+
 
 def _setup_observability(traces_path: str) -> None:
     global _peekr_instrumented
@@ -126,6 +137,50 @@ def _build_store(config: Config) -> MemoryStore:
             score_db_path=config.resolved_s3_vectors_score_db(),
         )
     return SQLiteMemoryStore(config.resolved_local_db_path(), config)
+
+
+def _compute_effective_confidence(memory: Memory, now: datetime, half_life_days: int) -> float:
+    """confidence × layer_weight × 2^(-age_days / half_life).
+
+    Memories past validity_end decay to 0 immediately.
+    """
+    if memory.validity_end is not None and memory.validity_end < now:
+        return 0.0
+    layer_weight = _LAYER_WEIGHTS.get(memory.layer, 0.5)
+    created = memory.created_at
+    # created_at may be naive (utcnow). Treat as UTC.
+    if created.tzinfo is None:
+        created = created.replace(tzinfo=timezone.utc)
+    age_days = max((now - created).total_seconds() / 86400.0, 0.0)
+    decay = 2.0 ** (-age_days / half_life_days)
+    return round(memory.confidence * layer_weight * decay, 4)
+
+
+def _build_sources(
+    memory: Memory,
+    effective_confidence: float,
+    now: datetime,
+) -> dict:
+    """Project memory provenance into a flat dict for RecallResult.sources.
+
+    Includes recall-time recommendations (stale/expired/contradicted-but-surfacing)
+    in addition to any write-time recommendations stamped in metadata.
+    """
+    from .verification import recommend_for_recall, recommendations_to_metadata
+
+    meta = memory.metadata or {}
+    write_recs = meta.get("recommendations") or []
+    runtime_recs = recommendations_to_metadata(recommend_for_recall(memory, effective_confidence, now=now))
+    return {
+        "conversation_id": meta.get("conversation_id"),
+        "source_message_ids": meta.get("source_message_ids", []),
+        "source_memory_ids": [str(mid) for mid in memory.source_memory_ids],
+        "layer": memory.layer.value,
+        "created_at": memory.created_at.isoformat() if memory.created_at else None,
+        "verification": meta.get("verification"),
+        "consistency": meta.get("consistency"),
+        "recommendations": write_recs + runtime_recs,
+    }
 
 
 def _build_embedder(config: Config) -> Embedder:
@@ -289,6 +344,15 @@ class Extremis:
             if r.memory.id not in seen:
                 seen.add(r.memory.id)
                 results.append(r)
+
+        # Annotate with effective_confidence (hedging signal) and a
+        # structured sources trail (provenance) so callers don't have to
+        # rummage through Memory.metadata.
+        now = datetime.now(tz=timezone.utc)
+        half_life = max(self._config.confidence_half_life_days, 1)
+        for r in results:
+            r.effective_confidence = _compute_effective_confidence(r.memory, now, half_life)
+            r.sources = _build_sources(r.memory, r.effective_confidence, now)
 
         return results[:limit]
 

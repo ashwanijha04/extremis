@@ -42,6 +42,7 @@ client        = ["httpx>=0.27"]
 wrap-anthropic = ["anthropic>=0.40"]
 wrap-openai    = ["openai>=1.0"]
 observe        = ["peekr>=0.1"]
+verification   = ["transformers>=4.40", "torch>=2.0"]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
@@ -52,7 +53,7 @@ dev = [
     "mypy>=1.10",
     "chromadb>=0.5",
 ]
-all = ["extremis[mcp,postgres,chroma,pinecone,s3-vectors,openai,server,client,wrap-anthropic,wrap-openai,observe]"]
+all = ["extremis[mcp,postgres,chroma,pinecone,s3-vectors,openai,server,client,wrap-anthropic,wrap-openai,observe,verification]"]
 
 [project.scripts]
 extremis-mcp     = "extremis.mcp.server:main"

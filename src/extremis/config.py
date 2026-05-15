@@ -84,6 +84,29 @@ class Config(BaseSettings):
     attention_standard_threshold: int = 50
     attention_minimal_threshold: int = 25
 
+    # ── Hallucination detection ──────────────────────────────────────
+    # Tiered write-time check: extracted memories are verified against the
+    # source conversation. NLI runs first; if score lands in the grey zone
+    # the LLM judge is invoked. Failing memories are tagged + downranked,
+    # never silently dropped — compaction can revisit them later.
+    enable_faithfulness_check: bool = True
+    faithfulness_nli_model: str = "cross-encoder/nli-deberta-v3-small"
+    faithfulness_pass_threshold: float = 0.85  # ≥ this → store as-is
+    faithfulness_grey_zone_low: float = 0.5  # below this → skip judge, mark unverified
+
+    # Self-consistency: re-sample extraction N times for high-stakes layers
+    # and keep only claims that converge in embedding space.
+    # Set self_consistency_n=0 to disable entirely.
+    self_consistency_n: int = 3
+    self_consistency_temperature: float = 0.7
+    consistency_threshold: float = 0.85
+    # Layers that get self-consistency. Comma-separated env var: identity,semantic
+    self_consistency_layers: str = "identity,semantic"
+
+    # Half-life (days) for confidence temporal decay at recall time.
+    # effective_confidence = confidence × layer_weight × 2^(-age_days/half_life)
+    confidence_half_life_days: int = 180
+
     # ── Resolved paths ───────────────────────────────────────────────
     def resolved_log_dir(self) -> str:
         return self.log_dir or f"{self.extremis_home}/log"

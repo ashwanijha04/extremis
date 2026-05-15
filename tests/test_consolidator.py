@@ -16,10 +16,16 @@ from extremis.types import LogEntry, MemoryLayer
 
 @pytest.fixture
 def config(tmp_path):
+    # Disable faithfulness + self-consistency by default in consolidator
+    # tests — they assert mock-call counts that those features would change.
+    # Specific tests that exercise the new behavior override via their own
+    # Config(...).
     return Config(
         extremis_home=str(tmp_path),
         log_dir=str(tmp_path / "log"),
         local_db_path=str(tmp_path / "local.db"),
+        enable_faithfulness_check=False,
+        self_consistency_n=0,
     )
 
 
@@ -164,3 +170,161 @@ class TestLLMConsolidator:
         assert len(semantics) == 1
         assert semantics[0].layer == MemoryLayer.SEMANTIC
         assert semantics[0].confidence == 0.95
+
+
+class TestVerificationIntegration:
+    """End-to-end: faithfulness check downranks unsupported claims and stamps metadata."""
+
+    def _make_consolidator(self, config, embedder):
+        with patch("extremis.consolidation.consolidator.anthropic.Anthropic"):
+            c = LLMConsolidator(config, embedder)
+        return c
+
+    def test_contradicted_claim_gets_recommendations_stamped(self, tmp_path, log_store, memory_store, mock_embedder):
+        """Operators should see actionable recommendations on every flagged memory."""
+        config = Config(
+            extremis_home=str(tmp_path),
+            log_dir=str(tmp_path / "log"),
+            local_db_path=str(tmp_path / "local.db"),
+            enable_faithfulness_check=True,
+            self_consistency_n=0,
+        )
+        for role, content in [("user", "I work at Acme"), ("assistant", "Nice.")]:
+            log_store.append(LogEntry(role=role, content=content, conversation_id="c"))
+
+        consolidator = self._make_consolidator(config, mock_embedder)
+        consolidator._client.messages.create.return_value = make_llm_response(
+            [{"layer": "semantic", "content": "User works at Globex", "confidence": 0.9}]
+        )
+
+        fake_nli = MagicMock()
+        fake_nli.entailment_score.return_value = type(
+            "R", (), {"score": 0.1, "label": "CONTRADICTION", "best_source_idx": 0}
+        )()
+        consolidator._nli = fake_nli
+
+        consolidator.run_pass(log_store, memory_store, memory_store)
+
+        stored = memory_store.list_recent(layer=MemoryLayer.SEMANTIC)
+        recs = stored[0].metadata.get("recommendations") or []
+        assert len(recs) >= 1
+        issues = [r["issue"] for r in recs]
+        assert "claim_contradicts_source" in issues
+        # Recommendations carry actionable text and refs
+        rec = next(r for r in recs if r["issue"] == "claim_contradicts_source")
+        assert rec["severity"] == "high"
+        assert rec["action"]
+        assert rec["suggestion"]
+
+    def test_unsupported_claim_is_downranked_and_tagged(self, tmp_path, log_store, memory_store, mock_embedder):
+        # Faithfulness on, self-consistency off (avoid N×extract scheduling)
+        config = Config(
+            extremis_home=str(tmp_path),
+            log_dir=str(tmp_path / "log"),
+            local_db_path=str(tmp_path / "local.db"),
+            enable_faithfulness_check=True,
+            self_consistency_n=0,
+        )
+        for role, content in [
+            ("user", "I work at Acme Corp."),
+            ("assistant", "Nice."),
+        ]:
+            log_store.append(LogEntry(role=role, content=content, conversation_id="c"))
+
+        consolidator = self._make_consolidator(config, mock_embedder)
+        consolidator._client.messages.create.return_value = make_llm_response(
+            [{"layer": "semantic", "content": "User works at Globex", "confidence": 0.95}]
+        )
+
+        fake_nli = MagicMock()
+        fake_nli.entailment_score.return_value = type(
+            "R", (), {"score": 0.1, "label": "CONTRADICTION", "best_source_idx": 0}
+        )()
+        consolidator._nli = fake_nli
+
+        consolidator.run_pass(log_store, memory_store, memory_store)
+
+        stored = memory_store.list_recent(layer=MemoryLayer.SEMANTIC)
+        assert len(stored) == 1
+        memory = stored[0]
+        # Confidence downranked to min(0.95, 0.1) = 0.1
+        assert memory.confidence == pytest.approx(0.1)
+        assert memory.metadata.get("verification", {}).get("verdict") == "CONTRADICTED"
+        assert memory.metadata["verification"]["method"] == "nli"
+
+    def test_supported_claim_keeps_confidence(self, tmp_path, log_store, memory_store, mock_embedder):
+        config = Config(
+            extremis_home=str(tmp_path),
+            log_dir=str(tmp_path / "log"),
+            local_db_path=str(tmp_path / "local.db"),
+            enable_faithfulness_check=True,
+            self_consistency_n=0,
+        )
+        for role, content in [
+            ("user", "I work at Acme Corp."),
+            ("assistant", "Nice."),
+        ]:
+            log_store.append(LogEntry(role=role, content=content, conversation_id="c"))
+
+        consolidator = self._make_consolidator(config, mock_embedder)
+        consolidator._client.messages.create.return_value = make_llm_response(
+            [{"layer": "semantic", "content": "User works at Acme Corp", "confidence": 0.95}]
+        )
+
+        fake_nli = MagicMock()
+        fake_nli.entailment_score.return_value = type(
+            "R", (), {"score": 0.94, "label": "ENTAILMENT", "best_source_idx": 0}
+        )()
+        consolidator._nli = fake_nli
+
+        consolidator.run_pass(log_store, memory_store, memory_store)
+
+        stored = memory_store.list_recent(layer=MemoryLayer.SEMANTIC)
+        assert len(stored) == 1
+        memory = stored[0]
+        # min(0.95, 0.94) — slightly downranked, but still high
+        assert memory.confidence == pytest.approx(0.94)
+        assert memory.metadata["verification"]["verdict"] == "SUPPORTED"
+        # source_message_ids populated from best_source_idx
+        assert len(memory.metadata.get("source_message_ids", [])) == 1
+
+    def test_parent_child_lineage_populated(self, tmp_path, log_store, memory_store, mock_embedder):
+        """Consolidated semantic memories link back to episodic ancestors from the same conv."""
+        config = Config(
+            extremis_home=str(tmp_path),
+            log_dir=str(tmp_path / "log"),
+            local_db_path=str(tmp_path / "local.db"),
+            enable_faithfulness_check=False,
+            self_consistency_n=0,
+        )
+        # Pre-seed an episodic memory tagged with conversation_id="c"
+        from datetime import datetime, timezone
+
+        from extremis.types import Memory
+
+        episodic = Memory(
+            layer=MemoryLayer.EPISODIC,
+            content="User said: I work at Acme",
+            embedding=[0.1] * 384,
+            metadata={"conversation_id": "c"},
+            validity_start=datetime.now(tz=timezone.utc),
+        )
+        memory_store.store(episodic)
+
+        for role, content in [
+            ("user", "I work at Acme"),
+            ("assistant", "Got it."),
+        ]:
+            log_store.append(LogEntry(role=role, content=content, conversation_id="c"))
+
+        consolidator = self._make_consolidator(config, mock_embedder)
+        consolidator._client.messages.create.return_value = make_llm_response(
+            [{"layer": "semantic", "content": "User works at Acme", "confidence": 0.9}]
+        )
+
+        consolidator.run_pass(log_store, memory_store, memory_store)
+
+        semantics = memory_store.list_recent(layer=MemoryLayer.SEMANTIC)
+        assert len(semantics) == 1
+        # Parent-child link: semantic memory points back to the episodic ancestor
+        assert episodic.id in semantics[0].source_memory_ids

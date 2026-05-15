@@ -53,6 +53,13 @@ class RecallResult(BaseModel):
     relevance: float  # raw cosine similarity
     final_rank: float  # relevance × utility × recency
     reason: str = ""  # human-readable explanation of why this memory ranked here
+    # confidence × layer_weight × exp(-age/half_life). Hedging signal for
+    # callers; not folded into final_rank in v1. None when not computed.
+    effective_confidence: Optional[float] = None
+    # Structured "where did this memory come from" trail. Pure projection
+    # over Memory.metadata + source_memory_ids so callers don't have to
+    # rummage. Walk source_memory_ids backwards to find ancestor memories.
+    sources: Optional[dict] = None
 
 
 class ConsolidationResult(BaseModel):
