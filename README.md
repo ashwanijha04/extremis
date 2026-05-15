@@ -10,6 +10,7 @@ Session 2: your agent already knows — because it learned.
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/extremis?logo=pypi&logoColor=white&color=orange)](https://pypi.org/project/extremis)
+[![npm](https://img.shields.io/npm/v/@extremis/sdk?logo=npm&logoColor=white&color=cb3837)](https://www.npmjs.com/package/@extremis/sdk)
 [![CI](https://img.shields.io/github/actions/workflow/status/ashwanijha04/extremis/ci.yml?label=CI&logo=github)](https://github.com/ashwanijha04/extremis/actions)
 [![MCP](https://img.shields.io/badge/MCP-native-purple?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
 [![Cloud](https://img.shields.io/badge/hosted%20cloud-waitlist-blue)](https://github.com/ashwanijha04/extremis/issues/1)
@@ -430,6 +431,59 @@ pip3.11 install "extremis[all]"
 **Requires Python 3.11+**
 
 > **First run note** — `sentence-transformers` downloads `all-MiniLM-L6-v2` (~90 MB) on first use. One-time, cached to `~/.cache/huggingface/`. To skip it, use OpenAI embeddings: `EXTREMIS_EMBEDDER=text-embedding-3-small`.
+
+---
+
+## SDKs
+
+| Language | Package | Source |
+|---|---|---|
+| Python | [`pip install extremis`](https://pypi.org/project/extremis/) | [`src/extremis/`](src/extremis/) |
+| TypeScript | [`npm install @extremis/sdk`](https://www.npmjs.com/package/@extremis/sdk) | [`sdk/typescript/`](sdk/typescript/) |
+
+All SDKs talk to the same `/v1/*` HTTP API and expose the same hallucination-detection signals — `effective_confidence`, `verification.verdict`, and per-issue `recommendations` — as first-class typed fields.
+
+### TypeScript quick start
+
+```ts
+import { ExtremisClient } from "@extremis/sdk";
+
+const mem = new ExtremisClient({ apiKey: "extremis_sk_..." });
+await mem.remember("User is building a WhatsApp AI product");
+const results = await mem.recall("WhatsApp product");
+
+for (const r of results) {
+  console.log(r.memory.content, r.effective_confidence);
+  for (const rec of r.sources?.recommendations ?? []) {
+    console.warn(`[${rec.severity}] ${rec.issue} — ${rec.action}`);
+  }
+}
+```
+
+Zero runtime dependencies. Node 18+, Bun, Deno, Cloudflare Workers, browsers. [Full TypeScript SDK docs →](sdk/typescript/README.md)
+
+---
+
+## Hallucination detection
+
+Production memory systems need to know when an extracted "fact" is actually a hallucination. extremis runs a three-layer detection stack at consolidation time:
+
+1. **NLI faithfulness** — local cross-encoder checks whether each extracted memory is entailed by the source conversation
+2. **LLM-as-judge** — escalates borderline (0.5–0.85) scores to a Claude Haiku judge for a structured verdict
+3. **Self-consistency** — for IDENTITY and SEMANTIC layers, samples the extractor N times and keeps only claims that converge in embedding space
+
+Failing memories are **tagged and downranked, never silently dropped**. Every flagged memory carries actionable `recommendations` — what to do now (`action`) and how to fix the cause (`suggestion`) — surfaced through both Python and TypeScript SDKs.
+
+```python
+results = mem.recall("Where does the user work?")
+for r in results:
+    for rec in r.sources["recommendations"]:
+        print(f"[{rec['severity']}] {rec['issue']}")
+        print("  Action:    ", rec["action"])
+        print("  Suggestion:", rec["suggestion"])
+```
+
+Install with `pip install "extremis[verification]"` to enable the local NLI check. Without the extra, the stack falls back to judge-only.
 
 ---
 

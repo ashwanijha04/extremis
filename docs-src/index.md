@@ -81,16 +81,27 @@ Change one import. Get persistent, learning memory for free.
 
 ## Install
 
-```bash
-pip3.11 install extremis                    # core
-pip3.11 install "extremis[wrap-anthropic]"  # + Claude wrapper
-pip3.11 install "extremis[wrap-openai]"     # + OpenAI wrapper
-pip3.11 install "extremis[mcp]"             # + Claude Desktop MCP
-```
+=== "Python"
 
-!!! warning "Python 3.11+ required"
-    If `pip install` says "no matching distribution found", your `pip` points to Python 3.9.
-    Run `python3 --version` to check. Fix: `brew install python@3.11` then use `pip3.11`.
+    ```bash
+    pip3.11 install extremis                    # core
+    pip3.11 install "extremis[wrap-anthropic]"  # + Claude wrapper
+    pip3.11 install "extremis[wrap-openai]"     # + OpenAI wrapper
+    pip3.11 install "extremis[mcp]"             # + Claude Desktop MCP
+    pip3.11 install "extremis[verification]"    # + local NLI for hallucination detection
+    ```
+
+    !!! warning "Python 3.11+ required"
+        If `pip install` says "no matching distribution found", your `pip` points to Python 3.9.
+        Run `python3 --version` to check. Fix: `brew install python@3.11` then use `pip3.11`.
+
+=== "TypeScript"
+
+    ```bash
+    npm install @extremis/sdk
+    ```
+
+    Zero runtime dependencies. Works on Node 18+, Bun, Deno, Cloudflare Workers, browsers. See the [TypeScript SDK guide](sdks/typescript.md).
 
 ---
 
@@ -105,6 +116,14 @@ pip3.11 install "extremis[mcp]"             # + Claude Desktop MCP
 -   :material-swap-horizontal: **[Wrap your existing app](wrap/index.md)**
 
     One import change for Claude or OpenAI
+
+-   :material-language-typescript: **[TypeScript SDK](sdks/typescript.md)**
+
+    `npm install @extremis/sdk` — same surface as Python
+
+-   :material-shield-check: **[Hallucination detection](concepts/hallucination-detection.md)**
+
+    Runtime NLI + judge + self-consistency on every consolidation
 
 -   :material-brain: **[Core concepts](concepts/memory-layers.md)**
 

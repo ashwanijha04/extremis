@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Extremis — Memory for AI Agents</title>
-  <meta name="description" content="Layered, learning memory for AI agents. RL-scored, log-first, backend-agnostic. pip install extremis." />
+  <meta name="description" content="Layered, learning memory for AI agents with runtime hallucination detection. Python + TypeScript SDKs. pip install extremis · npm install @extremis/sdk." />
   <meta property="og:title" content="Extremis — Memory for AI Agents" />
   <meta property="og:description" content="Memory that gets smarter the more your agent uses it." />
   <meta property="og:type" content="website" />
@@ -371,6 +371,7 @@
   <div class="nav-links" id="nav-links">
     <a href="#how" class="hide-mobile">How it works</a>
     <a href="#install" class="hide-mobile">Install</a>
+    <a href="#sdks" class="hide-mobile">SDKs</a>
     <a href="#benchmark" class="hide-mobile">Benchmark</a>
     <a href="#mcp" class="hide-mobile">MCP</a>
     <a href="#privacy" class="hide-mobile">Privacy</a>
@@ -387,6 +388,7 @@
 <div id="mobile-menu">
   <a href="#how" onclick="closeMenu()">How it works</a>
   <a href="#install" onclick="closeMenu()">Install</a>
+  <a href="#sdks" onclick="closeMenu()">SDKs</a>
   <a href="#mcp" onclick="closeMenu()">MCP</a>
   <a href="#privacy" onclick="closeMenu()">Privacy</a>
   <a href="/extremis/docs/" onclick="closeMenu()">📖 Docs</a>
@@ -408,12 +410,19 @@
     <a href="#waitlist" class="btn-ghost">Get hosted version →</a>
     <a href="https://github.com/ashwanijha04/extremis" target="_blank" class="btn-ghost">GitHub →</a>
   </div>
-  <div style="margin-top:2rem; display:flex; justify-content:center;">
+  <div style="margin-top:2rem; display:flex; justify-content:center; gap:.75rem; flex-wrap:wrap;">
     <div class="install">
       <code id="install-cmd">pip3.11 install extremis</code>
       <button class="copy-btn" onclick="copy()">copy</button>
     </div>
+    <div class="install">
+      <code id="install-cmd-npm">npm install @extremis/sdk</code>
+      <button class="copy-btn" onclick="copyNpm()">copy</button>
+    </div>
   </div>
+  <p style="margin-top:.6rem; font-size:.8rem; color:var(--muted);">
+    Python &nbsp;·&nbsp; TypeScript &nbsp;·&nbsp; <a href="#sdks">all SDKs →</a>
+  </p>
   <div style="margin-top:1.25rem; display:flex; flex-direction:column; align-items:center; gap:.4rem;">
     <a href="https://render.com/deploy?repo=https://github.com/ashwanijha04/extremis"
        target="_blank"
@@ -557,6 +566,56 @@ results <span class="op">=</span> mem.<span class="fn">recall</span>(<span class
 mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</span> r <span class="kw">in</span> results[:<span class="num">2</span>]], success<span class="op">=</span><span class="kw">True</span>)</pre>
     </div>
   </div>
+</section>
+
+<!-- SDKs -->
+<section id="sdks">
+  <h2>SDKs</h2>
+  <p class="section-sub">Same <code>/v1/*</code> HTTP API. Same hallucination-detection signals — verification verdicts, effective confidence, actionable recommendations — surfaced as first-class typed fields in every SDK.</p>
+
+  <div class="diffs">
+    <div class="diff-card">
+      <div class="diff-icon">🐍</div>
+      <h3>Python</h3>
+      <p style="margin-bottom:.75rem;"><code style="font-family:monospace;">pip install extremis</code></p>
+      <pre style="margin-top:.5rem;"><span class="kw">from</span> extremis <span class="kw">import</span> <span class="fn">Extremis</span>
+
+mem <span class="op">=</span> <span class="fn">Extremis</span>()
+mem.<span class="fn">remember</span>(<span class="str">"User builds WhatsApp AI"</span>)
+results <span class="op">=</span> mem.<span class="fn">recall</span>(<span class="str">"WhatsApp"</span>)
+
+<span class="kw">for</span> r <span class="kw">in</span> results:
+    <span class="kw">for</span> rec <span class="kw">in</span> r.sources[<span class="str">"recommendations"</span>]:
+        print(rec[<span class="str">"action"</span>])</pre>
+      <p style="margin-top:.75rem;"><a href="https://pypi.org/project/extremis/" target="_blank">PyPI ↗</a> &nbsp;·&nbsp; <a href="https://github.com/ashwanijha04/extremis/tree/main/src/extremis" target="_blank">Source ↗</a></p>
+    </div>
+
+    <div class="diff-card">
+      <div class="diff-icon">📘</div>
+      <h3>TypeScript</h3>
+      <p style="margin-bottom:.75rem;"><code style="font-family:monospace;">npm install @extremis/sdk</code></p>
+      <pre style="margin-top:.5rem;"><span class="kw">import</span> { <span class="fn">ExtremisClient</span> } <span class="kw">from</span> <span class="str">"@extremis/sdk"</span>;
+
+<span class="kw">const</span> mem <span class="op">=</span> <span class="kw">new</span> <span class="fn">ExtremisClient</span>({ apiKey: <span class="str">"..."</span> });
+<span class="kw">await</span> mem.<span class="fn">remember</span>(<span class="str">"User builds WhatsApp AI"</span>);
+<span class="kw">const</span> results <span class="op">=</span> <span class="kw">await</span> mem.<span class="fn">recall</span>(<span class="str">"WhatsApp"</span>);
+
+<span class="kw">for</span> (<span class="kw">const</span> r <span class="kw">of</span> results) {
+  <span class="kw">for</span> (<span class="kw">const</span> rec <span class="kw">of</span> r.sources?.recommendations ?? []) {
+    console.warn(rec.action);
+  }
+}</pre>
+      <p style="margin-top:.75rem;">
+        <a href="https://www.npmjs.com/package/@extremis/sdk" target="_blank">npm ↗</a> &nbsp;·&nbsp;
+        <a href="https://github.com/ashwanijha04/extremis/tree/main/sdk/typescript" target="_blank">Source ↗</a> &nbsp;·&nbsp;
+        <a href="https://github.com/ashwanijha04/extremis/blob/main/sdk/typescript/README.md" target="_blank">Docs ↗</a>
+      </p>
+    </div>
+  </div>
+
+  <p class="section-sub" style="margin-top:2rem; font-size:.9rem;">
+    Need a language we don't have? <a href="https://github.com/ashwanijha04/extremis/issues">Open an issue</a> — the <code>/v1/*</code> HTTP API is documented and ready to wrap.
+  </p>
 </section>
 
 <!-- Differentiators -->
@@ -1017,7 +1076,14 @@ function showTab(name) {
 
 function copy() {
   navigator.clipboard.writeText('pip3.11 install extremis');
-  const btn = document.querySelector('.copy-btn');
+  const btn = document.querySelectorAll('.copy-btn')[0];
+  btn.textContent = 'copied!';
+  setTimeout(() => btn.textContent = 'copy', 1500);
+}
+
+function copyNpm() {
+  navigator.clipboard.writeText('npm install @extremis/sdk');
+  const btn = document.querySelectorAll('.copy-btn')[1];
   btn.textContent = 'copied!';
   setTimeout(() => btn.textContent = 'copy', 1500);
 }

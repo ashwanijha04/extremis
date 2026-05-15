@@ -87,11 +87,16 @@ nav:
     - Overview: wrap/index.md
     - Anthropic / Claude: wrap/anthropic.md
     - OpenAI: wrap/openai.md
+  - SDKs:
+    - Overview: sdks/index.md
+    - TypeScript: sdks/typescript.md
+    - Python (HostedClient): api/hosted-client.md
   - Core Concepts:
     - Memory layers: concepts/memory-layers.md
     - RL scoring: concepts/rl-scoring.md
     - Knowledge graph: concepts/knowledge-graph.md
     - Consolidation: concepts/consolidation.md
+    - Hallucination detection: concepts/hallucination-detection.md
     - Attention scoring: concepts/attention-scoring.md
     - Namespaces: concepts/namespaces.md
   - Backends:
