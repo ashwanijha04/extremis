@@ -401,7 +401,7 @@
   <h1>Memory that gets <em>smarter</em><br/>the more your agent uses it</h1>
   <p class="sub">
     Stop rebuilding RAG pipelines. Extremis gives any AI agent layered, learning memory
-    in two lines of config — local SQLite, Postgres, Chroma, or Pinecone.
+    in two lines of config — local SQLite, Postgres, Chroma, Pinecone, or Amazon S3 Vectors.
   </p>
   <div class="hero-actions">
     <a href="#install" class="btn-primary">Get started</a>
@@ -482,7 +482,7 @@ pip3.11 install extremis
 <span class="cm"># + MCP server for Claude Desktop / Code</span>
 pip3.11 install <span class="str">"extremis[mcp]"</span>
 
-<span class="cm"># + Postgres, Chroma, Pinecone, OpenAI embeddings, hosted server</span>
+<span class="cm"># + Postgres, Chroma, Pinecone, S3 Vectors, OpenAI embeddings, hosted server</span>
 pip3.11 install <span class="str">"extremis[all]"</span></pre>
 
   <div style="margin-top:2rem;">
@@ -582,7 +582,7 @@ mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</sp
     <div class="diff-card">
       <div class="diff-icon">🔌</div>
       <h3>Backend-agnostic</h3>
-      <p>SQLite locally. Postgres in staging. Pinecone in production. One env var. Migrate between any two with <code style="font-family:monospace;font-size:.85rem;">extremis-migrate</code>.</p>
+      <p>SQLite locally. Postgres in staging. Pinecone or Amazon S3 Vectors in production. One env var. Migrate between any two with <code style="font-family:monospace;font-size:.85rem;">extremis-migrate</code>.</p>
     </div>
     <div class="diff-card">
       <div class="diff-icon">🕸️</div>
@@ -616,7 +616,7 @@ mem.<span class="fn">report_outcome</span>([r.memory.id <span class="kw">for</sp
         <tr class="row-us"><td>RL-scored retrieval</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
         <tr><td>Memory explains itself</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
         <tr class="row-us"><td>Knowledge graph</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
-        <tr><td>Backend-agnostic</td><td class="yes">✓ 4 backends</td><td class="no">Cloud only</td><td class="partial">Manual</td><td class="no">—</td></tr>
+        <tr><td>Backend-agnostic</td><td class="yes">✓ 5 backends</td><td class="no">Cloud only</td><td class="partial">Manual</td><td class="no">—</td></tr>
         <tr class="row-us"><td>MCP server</td><td class="yes">✓ 9 tools</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
         <tr><td>Self-hostable</td><td class="yes">✓</td><td class="no">✗</td><td class="yes">✓</td><td class="yes">✓</td></tr>
         <tr class="row-us"><td>Migration CLI</td><td class="yes">✓</td><td class="no">✗</td><td class="no">✗</td><td class="no">—</td></tr>
@@ -709,6 +709,17 @@ EXTREMIS_STORE<span class="op">=</span>pinecone
 EXTREMIS_PINECONE_API_KEY<span class="op">=</span><span class="str">pk_...</span></pre>
     </div>
 
+    <div class="storage-card">
+      <div class="storage-badge storage-badge-cloud">Cheap at scale</div>
+      <h3>🪣 Amazon S3 Vectors</h3>
+      <p>Cheap, durable, large-scale vector storage on AWS. Best as the archival/cold tier — pair with Pinecone for hot recall. Credentials use the standard boto3 chain.</p>
+      <pre style="margin-top:.75rem;">pip3.11 install <span class="str">"extremis[s3-vectors]"</span>
+
+EXTREMIS_STORE<span class="op">=</span>s3_vectors
+EXTREMIS_S3_VECTORS_BUCKET<span class="op">=</span><span class="str">extremis-vectors</span>
+EXTREMIS_S3_VECTORS_INDEX<span class="op">=</span><span class="str">extremis</span></pre>
+    </div>
+
     <div class="storage-card storage-railway">
       <div class="storage-badge storage-badge-cloud">Zero footprint</div>
       <h3>☁️ extremis-server on Render</h3>
@@ -738,7 +749,7 @@ mem <span class="op">=</span> <span class="fn">HostedClient</span>(
   </div>
 
   <div style="margin-top:1.5rem; padding:1rem 1.25rem; background:rgba(78,205,196,.05); border:1px solid rgba(78,205,196,.2); border-radius:8px; font-size:.88rem; color:var(--muted);">
-    All four options use the same API — <code style="font-family:monospace;">remember()</code>, <code style="font-family:monospace;">recall()</code>, <code style="font-family:monospace;">report_outcome()</code>.
+    All five options use the same API — <code style="font-family:monospace;">remember()</code>, <code style="font-family:monospace;">recall()</code>, <code style="font-family:monospace;">report_outcome()</code>.
     Switch backends with one env var. Migrate between any two with <code style="font-family:monospace;">extremis-migrate</code>.
   </div>
 </section>
@@ -824,7 +835,7 @@ pip3.11 install <span class="str">"extremis[mcp]"</span>
       <div class="privacy-icon">🏗️</div>
       <h3>You choose your backend</h3>
       <p>
-        Switch to Postgres, Chroma, or Pinecone when you need scale — or keep SQLite forever.
+        Switch to Postgres, Chroma, Pinecone, or Amazon S3 Vectors when you need scale — or keep SQLite forever.
         If you use an external backend, your data goes there under your own credentials.
         Extremis itself never sees it.
       </p>

@@ -5,12 +5,12 @@ Move all memories between backends in one command. extremis re-embeds automatica
 ## Basic migration
 
 ```bash
-pip3.11 install "extremis[postgres,chroma,pinecone]"
+pip3.11 install "extremis[postgres,chroma,pinecone,s3-vectors]"
 
 extremis-migrate --from <source> --to <dest>
 ```
 
-Supported backends: `sqlite`, `postgres`, `chroma`, `pinecone`
+Supported backends: `sqlite`, `postgres`, `chroma`, `pinecone`, `s3_vectors`
 
 ## Examples
 
@@ -27,6 +27,12 @@ extremis-migrate --from sqlite --to postgres \
 # Switch embedding models at the same time
 extremis-migrate --from sqlite --to chroma \
   --dest-embedder text-embedding-3-small
+
+# Tier down to Amazon S3 Vectors (cheap, durable archival)
+extremis-migrate --from pinecone --to s3_vectors \
+  --source-pinecone-api-key pk_... --source-pinecone-index my-index \
+  --dest-s3-vectors-bucket extremis-vectors \
+  --dest-s3-vectors-index extremis --dest-s3-vectors-region us-east-1
 
 # Dry run — count without writing
 extremis-migrate --from pinecone --to sqlite \

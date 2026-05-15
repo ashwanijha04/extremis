@@ -494,6 +494,7 @@ Three options — all work out of the box:
 |--------|----------------|------|
 | **Postgres on Supabase / Neon** | None | Free tier available |
 | **Pinecone** | RL score sidecar only (~KB) | Free tier available |
+| **Amazon S3 Vectors** | RL score sidecar only (~KB) | Pay-per-use, cheap at scale |
 | **HostedClient** (your own server) | None at all | Your hosting cost |
 
 **Quickest: free Postgres on Supabase**
@@ -556,6 +557,30 @@ pc.create_index("extremis", dimension=384, metric="cosine",
                 spec=ServerlessSpec(cloud="aws", region="us-east-1"))
 ```
 
+### Amazon S3 Vectors — cheap, durable, large-scale archival tier
+
+```bash
+pip3.11 install "extremis[s3-vectors]"
+EXTREMIS_STORE=s3_vectors
+EXTREMIS_S3_VECTORS_BUCKET=extremis-vectors
+EXTREMIS_S3_VECTORS_INDEX=extremis
+EXTREMIS_S3_VECTORS_REGION=us-east-1   # optional; AWS_REGION also works
+```
+
+Credentials come from the standard AWS boto3 chain (env vars / `~/.aws` / IAM
+role) — no API key flag. Create the vector bucket + index once:
+
+```bash
+aws s3vectors create-vector-bucket --vector-bucket-name extremis-vectors
+aws s3vectors create-index \
+    --vector-bucket-name extremis-vectors --index-name extremis \
+    --data-type float32 --dimension 384 --distance-metric cosine \
+    --metadata-configuration 'nonFilterableMetadataKeys=["content","extra_metadata","source_memory_ids","confidence","created_at","validity_start","last_accessed_at","access_count","do_not_consolidate"]'
+```
+
+Best for cold/archival or extreme-scale workloads — query latency is ~100s of
+ms vs Pinecone's ~10s. Pair it with a hot tier when you need chat-rate recall.
+
 ### OpenAI embeddings — no model download
 
 ```bash
@@ -588,6 +613,12 @@ extremis-migrate --from sqlite --to postgres \
 # Switch to OpenAI embeddings while migrating
 extremis-migrate --from sqlite --to chroma \
   --dest-embedder text-embedding-3-small
+
+# Tier down to S3 Vectors for cheap, durable archival
+extremis-migrate --from pinecone --to s3_vectors \
+  --source-pinecone-api-key pk_... --source-pinecone-index my-index \
+  --dest-s3-vectors-bucket extremis-vectors \
+  --dest-s3-vectors-index extremis --dest-s3-vectors-region us-east-1
 
 # Dry run — count what would be migrated
 extremis-migrate --from sqlite --to chroma --dry-run

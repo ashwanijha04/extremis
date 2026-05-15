@@ -7,7 +7,7 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="EXTREMIS_", env_file=".env")
 
     # ── Backend ─────────────────────────────────────────────────────
-    # "sqlite" | "postgres" | "chroma" | "pinecone"
+    # "sqlite" | "postgres" | "chroma" | "pinecone" | "s3_vectors" | "supabase"
     store: str = "sqlite"
 
     # ── Namespace ────────────────────────────────────────────────────
@@ -30,6 +30,14 @@ class Config(BaseSettings):
     pinecone_api_key: str = ""
     pinecone_index: str = "extremis"
     pinecone_score_db: str = ""  # defaults to {extremis_home}/pinecone_scores.db
+
+    # ── Amazon S3 Vectors ───────────────────────────────────────────
+    # Credentials come from the standard boto3 chain (env vars, ~/.aws,
+    # IAM role). Only the bucket/index/region need explicit config.
+    s3_vectors_bucket: str = ""
+    s3_vectors_index: str = "extremis"
+    s3_vectors_region: str = ""  # falls back to AWS_REGION / boto3 default
+    s3_vectors_score_db: str = ""  # defaults to {extremis_home}/s3_vectors_scores.db
 
     # ── Embeddings ───────────────────────────────────────────────────
     # sentence-transformers model name  OR  OpenAI model name
@@ -88,6 +96,9 @@ class Config(BaseSettings):
 
     def resolved_pinecone_score_db(self) -> str:
         return self.pinecone_score_db or f"{self.extremis_home}/pinecone_scores.db"
+
+    def resolved_s3_vectors_score_db(self) -> str:
+        return self.s3_vectors_score_db or f"{self.extremis_home}/s3_vectors_scores.db"
 
     def resolved_traces_path(self) -> str:
         return self.traces_path or f"{self.extremis_home}/traces.jsonl"

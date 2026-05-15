@@ -101,6 +101,7 @@ nav:
     - Postgres + pgvector: backends/postgres.md
     - Chroma: backends/chroma.md
     - Pinecone: backends/pinecone.md
+    - Amazon S3 Vectors: backends/s3-vectors.md
     - Migrating: backends/migration.md
   - Integrations:
     - n8n: integrations/n8n.md

@@ -113,6 +113,18 @@ def _build_store(config: Config) -> MemoryStore:
         from .storage.supabase_store import SupabaseMemoryStore
 
         return SupabaseMemoryStore(config)
+    if config.store == "s3_vectors":
+        if not config.s3_vectors_bucket:
+            raise ValueError("EXTREMIS_STORE=s3_vectors requires EXTREMIS_S3_VECTORS_BUCKET to be set.")
+        from .storage.s3_vectors import S3VectorsMemoryStore
+
+        return S3VectorsMemoryStore(
+            config.s3_vectors_bucket,
+            config.s3_vectors_index,
+            config,
+            region=config.s3_vectors_region,
+            score_db_path=config.resolved_s3_vectors_score_db(),
+        )
     return SQLiteMemoryStore(config.resolved_local_db_path(), config)
 
 

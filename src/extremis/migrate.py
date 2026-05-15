@@ -8,6 +8,9 @@ CLI:
     extremis-migrate --from sqlite --to chroma
     extremis-migrate --from sqlite --to pinecone --pinecone-api-key pk_... --pinecone-index my-index
     extremis-migrate --from chroma --to postgres --postgres-url postgresql://...
+    extremis-migrate --from pinecone --to s3_vectors \\
+        --source-pinecone-api-key pk_... --dest-s3-vectors-bucket extremis-vectors \\
+        --dest-s3-vectors-index extremis --dest-s3-vectors-region us-east-1
 
 Python:
     from extremis.migrate import Migrator
@@ -128,14 +131,14 @@ def cli() -> None:
         "--from",
         dest="source",
         required=True,
-        choices=["sqlite", "postgres", "chroma", "pinecone"],
+        choices=["sqlite", "postgres", "chroma", "pinecone", "s3_vectors"],
         help="Source backend",
     )
     parser.add_argument(
         "--to",
         dest="dest",
         required=True,
-        choices=["sqlite", "postgres", "chroma", "pinecone"],
+        choices=["sqlite", "postgres", "chroma", "pinecone", "s3_vectors"],
         help="Destination backend",
     )
     parser.add_argument("--namespace", default="default", help="Namespace to migrate")
@@ -154,6 +157,14 @@ def cli() -> None:
     parser.add_argument("--dest-pinecone-api-key", default="")
     parser.add_argument("--source-pinecone-index", default="extremis")
     parser.add_argument("--dest-pinecone-index", default="extremis")
+
+    # Amazon S3 Vectors (boto3 credentials chain — no API key flag)
+    parser.add_argument("--source-s3-vectors-bucket", default="")
+    parser.add_argument("--dest-s3-vectors-bucket", default="")
+    parser.add_argument("--source-s3-vectors-index", default="extremis")
+    parser.add_argument("--dest-s3-vectors-index", default="extremis")
+    parser.add_argument("--source-s3-vectors-region", default="")
+    parser.add_argument("--dest-s3-vectors-region", default="")
 
     # Embedder override
     parser.add_argument("--dest-embedder", default="", help="Re-embed with this model (e.g. text-embedding-3-small)")
@@ -216,6 +227,15 @@ def _make_store(backend: str, args, config: Config, role: str):
         api_key = getattr(args, f"{role}_pinecone_api_key")
         index = getattr(args, f"{role}_pinecone_index")
         return PineconeMemoryStore(api_key, index, config)
+    elif backend == "s3_vectors":
+        from .storage.s3_vectors import S3VectorsMemoryStore
+
+        bucket = getattr(args, f"{role}_s3_vectors_bucket") or config.s3_vectors_bucket
+        index = getattr(args, f"{role}_s3_vectors_index") or config.s3_vectors_index
+        region = getattr(args, f"{role}_s3_vectors_region") or config.s3_vectors_region
+        if not bucket:
+            raise ValueError(f"--{role}-s3-vectors-bucket is required when {role} backend is s3_vectors")
+        return S3VectorsMemoryStore(bucket, index, config, region=region)
     raise ValueError(f"Unknown backend: {backend}")
 
 
