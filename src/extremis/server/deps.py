@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, status
@@ -9,6 +10,9 @@ from fastapi import Depends, Header, HTTPException, status
 from ..api import Extremis
 from ..config import Config
 from .auth import KeyStore, PostgresKeyStore
+from .tenancy import tenant_home
+
+_SERVER_HOME = os.environ.get("EXTREMIS_SERVER_HOME", "~/.extremis/server")
 
 # ── singletons ───────────────────────────────────────────────────────────────
 _key_store: KeyStore | PostgresKeyStore | None = None
@@ -47,7 +51,12 @@ Namespace = Annotated[str, Depends(_get_namespace)]
 def get_memory(namespace: Namespace) -> Extremis:
     if namespace not in _instances:
         assert _server_config is not None
-        cfg = _server_config.model_copy(update={"namespace": namespace})
+        # Tenant isolation: route each namespace's storage into its own
+        # subtree under EXTREMIS_SERVER_HOME so two tenants never share a
+        # sqlite file (defense-in-depth on top of the WHERE namespace = ?
+        # clauses in the storage layer).
+        per_tenant_home = str(tenant_home(_SERVER_HOME, namespace))
+        cfg = _server_config.model_copy(update={"namespace": namespace, "extremis_home": per_tenant_home})
         _instances[namespace] = Extremis(config=cfg)
     return _instances[namespace]
 

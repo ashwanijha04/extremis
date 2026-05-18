@@ -212,9 +212,11 @@ class HostedClient:
         context: Optional[dict] = None,
     ) -> AttentionResult:
         ctx = context or {}
-        data = self._get(
+        # POST with query params (no body) — matches TS SDK and is the
+        # canonical method documented by the server route.
+        resp = self._http.post(
             "/v1/attention/score",
-            {
+            params={
                 "message": message,
                 "sender": sender,
                 "channel": channel,
@@ -224,7 +226,8 @@ class HostedClient:
                 "already_answered": str(ctx.get("already_answered", False)).lower(),
             },
         )
-        return AttentionResult(**data)
+        resp.raise_for_status()
+        return AttentionResult(**resp.json())
 
     # ── HTTP helpers ─────────────────────────────────────────────────────────
 

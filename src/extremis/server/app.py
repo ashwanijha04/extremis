@@ -27,7 +27,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .auth import make_key_store
 from .deps import init
-from .routes import health, kg, memories
+from .routes import attention, health, kg, memories
 
 log = logging.getLogger(__name__)
 
@@ -54,19 +54,25 @@ async def lifespan(app: FastAPI):
 
     log.info("extremis server started  store=%s  home=%s", server_cfg.store, str(home))
 
-    # Pre-warm: create the default Extremis instance and load the embedding model
-    # at startup so the first API call doesn't time out doing this lazily.
-    log.info("Pre-warming Extremis instance and embedding model…")
+    # Pre-warm: load the embedding model at startup so the first API call
+    # doesn't time out doing it lazily. We deliberately do NOT pre-warm a
+    # per-tenant Extremis instance here — those are constructed lazily by
+    # deps.get_memory() with a tenant-scoped extremis_home, so creating one
+    # eagerly at startup would either pick the wrong storage path or leak
+    # bytes into ~/.extremis (the user's local store).
+    log.info("Pre-warming embedding model…")
     from ..api import Extremis
-    from ..server.deps import _instances
 
-    _default = Extremis(config=server_cfg.model_copy(update={"namespace": "default"}))
+    _warmup_home = home / "warmup"
+    _warmup_home.mkdir(parents=True, exist_ok=True)
+    _warmup = Extremis(
+        config=server_cfg.model_copy(update={"namespace": "_warmup", "extremis_home": str(_warmup_home)})
+    )
     try:
-        _default._embedder.embed("warmup")
+        _warmup._embedder.embed("warmup")
         log.info("Embedding model loaded ✓")
     except Exception as exc:
         log.warning("Embedder warmup failed (non-fatal): %s", exc)
-    _instances["default"] = _default
 
     # On first start, if no keys exist, auto-generate one and print it clearly.
     # Users find this in their hosting provider's logs tab (Render, Railway, Fly, etc.)
@@ -105,6 +111,7 @@ def create_app() -> FastAPI:
 
     app.include_router(memories.router, prefix="/v1/memories")
     app.include_router(kg.router, prefix="/v1/kg")
+    app.include_router(attention.router, prefix="/v1/attention")
     app.include_router(health.router, prefix="/v1")
 
     return app
