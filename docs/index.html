@@ -54,7 +54,10 @@
     a:hover { color: var(--text); }
     code, pre { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 640px) {
+      .wrap { padding: 0 24px; }
+    }
 
     /* ── Top cross-link banner ─────────────────────────────────────── */
     .topbar {
@@ -110,6 +113,8 @@
     }
     .gh-link { color: var(--muted); display: none; }
     .gh-link:hover { color: var(--text); }
+    .nav-cta-short { display: inline; }
+    .nav-cta-long { display: none; }
     .btn-primary {
       background: var(--brand); color: #fff;
       padding: 6px 14px; border-radius: 999px;
@@ -119,24 +124,31 @@
     }
     .btn-primary:hover { background: var(--brand-soft); color: #fff; }
 
+    @media (min-width: 640px) {
+      .nav-cta-short { display: none; }
+      .nav-cta-long { display: inline; }
+      .topbar-text .hide-sm { display: inline; }
+    }
     @media (min-width: 768px) {
       .nav-links { display: flex; }
       .gh-link { display: inline; }
-      .topbar-text .hide-sm { display: inline; }
     }
 
     /* ── Hero ────────────────────────────────────────────────────────── */
     section.hero {
       border-bottom: 1px solid rgba(15, 23, 42, 0.8);
-      padding: 80px 0;
+      padding: 48px 0;
     }
     .hero-grid {
-      display: grid; gap: 40px;
+      display: grid; gap: 32px;
       grid-template-columns: 1fr;
       align-items: center;
     }
+    @media (min-width: 640px) {
+      section.hero { padding: 64px 0; }
+    }
     @media (min-width: 900px) {
-      .hero-grid { grid-template-columns: 1.1fr 1fr; padding: 32px 0; }
+      .hero-grid { grid-template-columns: 1.1fr 1fr; padding: 32px 0; gap: 40px; }
       section.hero { padding: 110px 0; }
     }
     .chip {
@@ -148,8 +160,8 @@
     }
     h1.headline {
       margin-top: 24px;
-      font-size: clamp(2.4rem, 5vw, 3.4rem);
-      line-height: 1.05; letter-spacing: -0.025em;
+      font-size: clamp(1.95rem, 6vw, 3.4rem);
+      line-height: 1.1; letter-spacing: -0.025em;
       font-weight: 600; color: var(--text);
     }
     h1.headline .grad {
@@ -219,7 +231,13 @@
     /* ── Section base ─────────────────────────────────────────────────── */
     section.std {
       border-bottom: 1px solid rgba(15, 23, 42, 0.8);
-      padding: 80px 0;
+      padding: 48px 0;
+    }
+    @media (min-width: 640px) {
+      section.std { padding: 64px 0; }
+    }
+    @media (min-width: 900px) {
+      section.std { padding: 80px 0; }
     }
     section.std.soft { background: rgba(10, 14, 26, 0.4); }
     .eyebrow {
@@ -492,10 +510,13 @@
 
     /* ── Bottom CTA ───────────────────────────────────────────────────── */
     .cta-section {
-      padding: 96px 0;
+      padding: 64px 0;
       border-bottom: 1px solid rgba(15, 23, 42, 0.8);
       background: linear-gradient(180deg, var(--bg), var(--bg) 50%, rgba(76, 29, 149, 0.2));
       text-align: center;
+    }
+    @media (min-width: 900px) {
+      .cta-section { padding: 96px 0; }
     }
     .cta-section h2 {
       font-size: clamp(1.75rem, 4vw, 2.25rem);
@@ -568,7 +589,10 @@
     </div>
     <div class="nav-right">
       <a class="gh-link" href="https://github.com/ashwanijha04/extremis" target="_blank" rel="noreferrer">GitHub →</a>
-      <a class="btn-primary" href="https://cloud.extremis.ashwanijha.dev">Use the hosted version</a>
+      <a class="btn-primary" href="https://cloud.extremis.ashwanijha.dev">
+        <span class="nav-cta-short">Cloud →</span>
+        <span class="nav-cta-long">Use the hosted version</span>
+      </a>
     </div>
   </div>
 </nav>
