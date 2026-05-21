@@ -18,6 +18,11 @@ class RememberRequest(BaseModel):
     role: str = "user"
     conversation_id: str = "default"
     metadata: dict = {}
+    # Identity scope — who's the end-user this memory belongs to, and which
+    # agent in the tenant's stack stored it. Both optional; both flow into
+    # Memory.metadata so recall() can filter by them.
+    user_id: Optional[str] = None
+    agent_id: Optional[str] = None
 
 
 class RecallRequest(BaseModel):
@@ -25,6 +30,10 @@ class RecallRequest(BaseModel):
     limit: int = 10
     layers: Optional[list[str]] = None
     min_score: float = 0.0
+    # Identity-scoped recall. Strict equality on metadata; memories without
+    # the corresponding key are excluded when the filter is set.
+    user_id: Optional[str] = None
+    agent_id: Optional[str] = None
 
 
 class ReportRequest(BaseModel):
@@ -50,13 +59,27 @@ class ConsolidateResponse(BaseModel):
 
 @router.post("/remember", status_code=204)
 def remember(req: RememberRequest, mem: Memory) -> None:
-    mem.remember(req.content, role=req.role, conversation_id=req.conversation_id, metadata=req.metadata)
+    mem.remember(
+        req.content,
+        role=req.role,
+        conversation_id=req.conversation_id,
+        metadata=req.metadata,
+        user_id=req.user_id,
+        agent_id=req.agent_id,
+    )
 
 
 @router.post("/recall")
 def recall(req: RecallRequest, mem: Memory) -> dict:
     layers = [MemoryLayer(lyr) for lyr in req.layers] if req.layers else None
-    results = mem.recall(req.query, limit=req.limit, layers=layers, min_score=req.min_score)
+    results = mem.recall(
+        req.query,
+        limit=req.limit,
+        layers=layers,
+        min_score=req.min_score,
+        user_id=req.user_id,
+        agent_id=req.agent_id,
+    )
     return {"results": [r.model_dump(mode="json") for r in results]}
 
 

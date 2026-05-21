@@ -228,17 +228,32 @@ class Extremis:
         role: str = "user",
         conversation_id: str = "default",
         metadata: Optional[dict] = None,
+        user_id: Optional[str] = None,
+        agent_id: Optional[str] = None,
     ) -> None:
         """
         Append to the log. Cheap path — no LLM, no embedding.
         Also writes an episodic memory to the local store for immediate recall.
         Long content is chunked at sentence boundaries for better retrieval granularity.
+
+        ``user_id`` and ``agent_id`` identify *who* the memory belongs to within
+        the namespace — the end-user the agent is serving and the agent doing
+        the serving. Both are stored on every chunk's metadata so recall() can
+        filter ("show me only Alice's memories" / "what did support-bot say").
         """
+        merged_metadata: dict = {"conversation_id": conversation_id, "role": role}
+        if metadata:
+            merged_metadata.update(metadata)
+        if user_id is not None:
+            merged_metadata["user_id"] = user_id
+        if agent_id is not None:
+            merged_metadata["agent_id"] = agent_id
+
         entry = LogEntry(
             role=role,
             content=content,
             conversation_id=conversation_id,
-            metadata=metadata or {},
+            metadata={k: v for k, v in merged_metadata.items() if k not in ("conversation_id", "role")},
         )
         self._log.append(entry)
 
@@ -249,7 +264,7 @@ class Extremis:
                 layer=MemoryLayer.EPISODIC,
                 content=chunk,
                 embedding=embedding,
-                metadata={"conversation_id": conversation_id, "role": role, **(metadata or {})},
+                metadata=dict(merged_metadata),
                 validity_start=datetime.now(tz=timezone.utc),
             )
             self._local.store(memory)
@@ -295,34 +310,40 @@ class Extremis:
         limit: int = 10,
         layers: Optional[list[MemoryLayer]] = None,
         min_score: Optional[float] = None,
+        user_id: Optional[str] = None,
+        agent_id: Optional[str] = None,
     ) -> list[RecallResult]:
         """
         Layered retrieval:
         - Identity layer always included (who the user is, invariants)
         - Procedural layer always included (behavioral rules)
         - Semantic + Episodic ranked by relevance × utility × recency
+
+        When ``user_id`` and/or ``agent_id`` are passed, results are filtered to
+        memories whose metadata matches exactly. Use these to scope a recall
+        to a specific end-user the agent serves, a specific agent in the
+        tenant's stack, or both. Memories stored without the corresponding
+        metadata key are excluded — pass ``None`` (the default) to see them.
         """
         # Use configured floor if caller didn't specify — prevents near-zero noise
         effective_min = min_score if min_score is not None else self._config.recall_min_relevance
 
+        # When filtering, over-fetch so the post-filter step still has a
+        # chance to return ``limit`` matching results.
+        over_fetch = 3 if (user_id is not None or agent_id is not None) else 1
+        fetch_limit = limit * over_fetch
+
         query_embedding = self._embedder.embed(query)
 
         # Always pull identity + procedural regardless of layer filter.
-        # Use min_score=0 for pinned layers so identity/procedural always surface
-        # even when they're not a strong semantic match.
         pinned_layers = [MemoryLayer.IDENTITY, MemoryLayer.PROCEDURAL]
         pinned = self._local.search(
             query_embedding,
             layers=pinned_layers,
-            limit=5,
+            limit=5 * over_fetch,
             min_score=0.0,
         )
 
-        # Ranked recall for semantic + episodic (or the caller's custom filter).
-        # Remove pinned layers — they're already covered above.
-        # If the caller asked only for pinned layers (e.g. layers=["identity"]),
-        # search_layers becomes [] and we skip the ranked search entirely
-        # rather than falling back to all layers.
         search_layers = layers or [MemoryLayer.SEMANTIC, MemoryLayer.EPISODIC]
         search_layers = [layer for layer in search_layers if layer not in pinned_layers]
 
@@ -330,7 +351,7 @@ class Extremis:
             self._local.search(
                 query_embedding,
                 layers=search_layers,
-                limit=limit,
+                limit=fetch_limit,
                 min_score=effective_min,
             )
             if search_layers
@@ -344,6 +365,15 @@ class Extremis:
             if r.memory.id not in seen:
                 seen.add(r.memory.id)
                 results.append(r)
+
+        # Identity-scope filter — strict equality on metadata. Memories
+        # without the key are excluded (they're "tenant-default" memories,
+        # which a per-user lens shouldn't surface). Applied before
+        # truncation so the caller still gets up to ``limit`` matches.
+        if user_id is not None:
+            results = [r for r in results if r.memory.metadata.get("user_id") == user_id]
+        if agent_id is not None:
+            results = [r for r in results if r.memory.metadata.get("agent_id") == agent_id]
 
         # Annotate with effective_confidence (hedging signal) and a
         # structured sources trail (provenance) so callers don't have to

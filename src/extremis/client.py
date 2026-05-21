@@ -75,7 +75,15 @@ class HostedClient:
         role: str = "user",
         conversation_id: str = "default",
         metadata: Optional[dict] = None,
+        user_id: Optional[str] = None,
+        agent_id: Optional[str] = None,
     ) -> None:
+        """
+        Store a memory. ``user_id`` and ``agent_id`` identify *who* the memory
+        belongs to within the namespace — the end-user the agent is serving
+        and the agent in the tenant's stack doing the serving. Both flow into
+        Memory.metadata so recall() can filter by them later.
+        """
         self._post(
             "/v1/memories/remember",
             {
@@ -83,6 +91,8 @@ class HostedClient:
                 "role": role,
                 "conversation_id": conversation_id,
                 "metadata": metadata or {},
+                "user_id": user_id,
+                "agent_id": agent_id,
             },
         )
 
@@ -92,7 +102,14 @@ class HostedClient:
         limit: int = 10,
         layers: Optional[list[MemoryLayer]] = None,
         min_score: float = 0.0,
+        user_id: Optional[str] = None,
+        agent_id: Optional[str] = None,
     ) -> list[RecallResult]:
+        """
+        Ranked recall. When ``user_id`` and/or ``agent_id`` are set, results
+        are scoped to memories whose metadata matches exactly — memories
+        without those keys are excluded.
+        """
         data = self._post(
             "/v1/memories/recall",
             {
@@ -100,6 +117,8 @@ class HostedClient:
                 "limit": limit,
                 "layers": [layer.value for layer in layers] if layers else None,
                 "min_score": min_score,
+                "user_id": user_id,
+                "agent_id": agent_id,
             },
         )
         return [RecallResult(**r) for r in data["results"]]
