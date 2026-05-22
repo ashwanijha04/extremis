@@ -144,6 +144,7 @@
       grid-template-columns: 1fr;
       align-items: center;
     }
+    .hero-grid > * { min-width: 0; }
     @media (min-width: 640px) {
       section.hero { padding: 64px 0; }
     }
@@ -160,9 +161,11 @@
     }
     h1.headline {
       margin-top: 24px;
-      font-size: clamp(1.95rem, 6vw, 3.4rem);
+      font-size: clamp(1.65rem, 6vw, 3.4rem);
       line-height: 1.1; letter-spacing: -0.025em;
       font-weight: 600; color: var(--text);
+      overflow-wrap: anywhere;
+      hyphens: auto;
     }
     h1.headline .grad {
       background: linear-gradient(135deg, var(--brand-soft), var(--brand-deep));
@@ -221,6 +224,7 @@
       overflow-x: auto; font-family: 'JetBrains Mono', monospace;
       font-size: 12px; line-height: 1.6;
       color: var(--text);
+      max-width: 100%;
     }
     .cmt { color: var(--muted-deep); }
     .kw  { color: var(--brand-soft); }
@@ -546,6 +550,25 @@
     .foot-left { display: flex; align-items: center; gap: 8px; }
     .foot-right { display: flex; gap: 20px; }
     .foot-right a:hover { color: var(--text-dim); }
+
+    /* ── Narrow-screen overrides (≤480px) ─────────────────────────────── */
+    @media (max-width: 480px) {
+      section.hero { padding: 36px 0; }
+      section.std  { padding: 40px 0; }
+      .cta-section { padding: 48px 0; }
+      p.lead { font-size: 1rem; }
+      .hero-ctas { flex-direction: column; align-items: stretch; }
+      .hero-ctas .btn-primary,
+      .hero-ctas .btn-secondary { width: 100%; justify-content: center; }
+      .cta-buttons { flex-direction: column; align-items: stretch; }
+      .cta-buttons .btn-primary,
+      .cta-buttons .btn-secondary { width: 100%; justify-content: center; }
+      .topbar-inner { font-size: 11px; gap: 8px; padding: 6px 16px; }
+      .topbar-btn { padding: 4px 10px; font-size: 11px; }
+      .pick-card, .reason-card, .trace-panel, .step, .metric { padding: 18px; }
+      table.cmp th, table.cmp td { padding: 10px 14px; }
+      .foot-inner { padding: 0 16px; }
+    }
 
   </style>
 </head>
