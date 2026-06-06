@@ -6,7 +6,7 @@ Add to claude_desktop_config.json:
   "mcpServers": {
     "extremis": {
       "command": "extremis-mcp",
-      "env": { "FRIDAY_HOME": "~/.friday" }
+      "env": { "EXTREMIS_EXTREMIS_HOME": "~/.extremis" }
     }
   }
 
@@ -16,16 +16,26 @@ Or with a custom db path:
     "extremis": {
       "command": "extremis-mcp",
       "env": {
-        "FRIDAY_LOCAL_DB_PATH": "/path/to/local.db",
-        "FRIDAY_LOG_DIR": "/path/to/logs"
+        "EXTREMIS_LOCAL_DB_PATH": "/path/to/local.db",
+        "EXTREMIS_LOG_DIR": "/path/to/logs"
       }
     }
+  }
+
+To consolidate automatically when each session ends (requires ANTHROPIC_API_KEY):
+
+  "env": {
+    "EXTREMIS_CONSOLIDATE_ON_SESSION_END": "true",
+    "ANTHROPIC_API_KEY": "sk-ant-..."
   }
 """
 
 from __future__ import annotations
 
+import atexit
 import logging
+import os
+import threading
 from datetime import datetime
 from uuid import UUID
 
@@ -42,6 +52,34 @@ log = logging.getLogger(__name__)
 def create_server(config: Config | None = None) -> FastMCP:
     cfg = config or Config()
     mem = Extremis(config=cfg)
+
+    # Session-end consolidation for the stdio topology: each MCP process IS
+    # one session, so the in-process conversation_id-change trigger in
+    # api.remember() can never fire here. Instead, run a checkpoint-guarded
+    # pass in the background at startup (catches up on prior sessions — robust
+    # even when the previous shutdown was abrupt) and a best-effort pass at
+    # process exit. Both no-op when there are no new log entries, so idle
+    # sessions cost nothing.
+    if cfg.consolidate_on_session_end and os.environ.get("ANTHROPIC_API_KEY"):
+        consolidation_lock = threading.Lock()
+
+        def _session_consolidate() -> None:
+            if not consolidation_lock.acquire(blocking=False):
+                return  # a pass is already running; the next session catches up
+            try:
+                consolidator = LLMConsolidator(cfg, mem._embedder)
+                consolidator.run_pass(
+                    mem.get_log(),
+                    mem.get_local_store(),
+                    mem.get_local_store(),
+                )
+            except Exception:
+                log.exception("Session-end consolidation failed")
+            finally:
+                consolidation_lock.release()
+
+        threading.Thread(target=_session_consolidate, name="extremis-consolidate", daemon=True).start()
+        atexit.register(_session_consolidate)
 
     mcp = FastMCP(
         "extremis",
@@ -450,7 +488,6 @@ def create_server(config: Config | None = None) -> FastMCP:
 
 def main() -> None:
     import argparse
-    import os
 
     parser = argparse.ArgumentParser(description="Friday Memory MCP server")
     parser.add_argument(
@@ -467,8 +504,6 @@ def main() -> None:
     server = create_server()
 
     if args.transport == "sse":
-        import os
-
         os.environ.setdefault("HOST", args.host)
         os.environ.setdefault("PORT", str(args.port))
         log.info("Starting extremis MCP server on http://%s:%d", args.host, args.port)
