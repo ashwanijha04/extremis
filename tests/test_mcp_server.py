@@ -9,8 +9,10 @@ import threading
 
 import pytest
 
+pytest.importorskip("mcp", reason="requires the mcp extra: pip install extremis[mcp]")
+
 from extremis.config import Config
-from extremis.mcp.server import create_server
+from extremis.mcp.server import create_server  # noqa: E402
 
 EXPECTED_TOOLS = {
     "memory_remember",
