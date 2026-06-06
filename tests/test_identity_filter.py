@@ -12,7 +12,6 @@ into a per-user lens.
 from __future__ import annotations
 
 import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -52,9 +51,7 @@ def test_recall_filters_by_agent_id(mem: Extremis) -> None:
     mem.remember("Support handled refund for customer", user_id="alice", agent_id="support-bot")
     mem.remember("Sales pitched upgrade to customer", user_id="alice", agent_id="sales-bot")
 
-    support_only = _contents(
-        mem.recall("customer interaction", agent_id="support-bot", min_score=0.0)
-    )
+    support_only = _contents(mem.recall("customer interaction", agent_id="support-bot", min_score=0.0))
     assert any("Support" in c for c in support_only)
     assert all("Sales" not in c for c in support_only)
 
