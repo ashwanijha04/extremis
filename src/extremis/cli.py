@@ -50,9 +50,9 @@ def _stats(args: argparse.Namespace) -> None:
         print("\nTop memories by RL score:")
         for r in top:
             score = f"{r.memory.score:+.1f}"
-            layer = r.memory.layer.value
+            layer_name = r.memory.layer.value
             content = r.memory.content[:72]
-            print(f"  {score:>5}  [{layer}] {content}")
+            print(f"  {score:>5}  [{layer_name}] {content}")
     print()
 
 
