@@ -24,6 +24,26 @@ def _fake_response(text: str, input_tokens: int = 50, output_tokens: int = 20) -
     return resp
 
 
+@pytest.fixture(autouse=True)
+def _isolate_peekr_globals():
+    """Snapshot/restore peekr's global exporter registry around each test.
+
+    Instrumenting inside a test registers exporters that point at tmp_path
+    files; without cleanup they outlive the test and every traced call in
+    LATER tests exports through them — crashing on the deleted tmp dirs.
+    """
+    peekr_exporters = pytest.importorskip("peekr.exporters")
+    import extremis.api as api_mod
+
+    saved_exporters = list(peekr_exporters._exporters)
+    saved_flag = api_mod._peekr_instrumented
+    peekr_exporters._exporters.clear()
+    api_mod._peekr_instrumented = False
+    yield
+    peekr_exporters._exporters[:] = saved_exporters
+    api_mod._peekr_instrumented = saved_flag
+
+
 class TestPeekrObservability:
     def test_observe_false_creates_no_traces(self, tmp_path, mock_embedder):
         config = Config(extremis_home=str(tmp_path), observe=False)
@@ -35,11 +55,6 @@ class TestPeekrObservability:
 
     def test_observe_true_creates_traces_file(self, tmp_path, mock_embedder):
         config = Config(extremis_home=str(tmp_path), observe=True)
-        # reset global peekr state so it re-instruments
-        import extremis.api as api_mod
-
-        api_mod._peekr_instrumented = False
-
         mem = Extremis(config=config, embedder=mock_embedder)
         mem.remember("user builds AI agents", conversation_id="c1")
         mem.recall("AI agents", limit=3)
@@ -53,10 +68,6 @@ class TestPeekrObservability:
 
     def test_spans_have_duration(self, tmp_path, mock_embedder):
         config = Config(extremis_home=str(tmp_path), observe=True)
-        import extremis.api as api_mod
-
-        api_mod._peekr_instrumented = False
-
         mem = Extremis(config=config, embedder=mock_embedder)
         mem.remember("some fact", conversation_id="c1")
 
@@ -70,10 +81,6 @@ class TestPeekrObservability:
     def test_consolidation_spans_captured(self, tmp_path, mock_embedder):
         """Consolidation LLM calls should produce spans with token counts."""
         config = Config(extremis_home=str(tmp_path), observe=True)
-        import extremis.api as api_mod
-
-        api_mod._peekr_instrumented = False
-
         mem = Extremis(config=config, embedder=mock_embedder)
 
         with patch("anthropic.Anthropic") as mock_cls:

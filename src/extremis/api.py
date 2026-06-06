@@ -62,11 +62,14 @@ def _setup_observability(traces_path: str) -> None:
         import pathlib
 
         import peekr
-        from peekr.exporters import JSONLExporter, add_exporter
+        from peekr.exporters import JSONLExporter
 
         pathlib.Path(traces_path).parent.mkdir(parents=True, exist_ok=True)
-        add_exporter(JSONLExporter(path=traces_path))
-        peekr.instrument(console=False, jsonl_path=None)  # exporters already added above
+        # Pass the exporter through instrument() — an explicit exporter
+        # suppresses the default storage pipeline. (Passing jsonl_path=None
+        # instead would register a broken JSONLExporter(None) that raises on
+        # every span export.)
+        peekr.instrument(console=False, exporter=JSONLExporter(path=traces_path))
         _peekr_instrumented = True
     except ImportError:
         pass  # peekr not installed — observability silently disabled
