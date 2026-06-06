@@ -56,7 +56,7 @@ class NLIChecker:
         self._pipeline = pipeline(
             "text-classification",
             model=self._model_name,
-            return_all_scores=True,
+            top_k=None,  # all label scores; return_all_scores was removed in transformers 5.x
         )
         return self._pipeline
 
@@ -88,8 +88,14 @@ class NLIChecker:
                 log.debug("NLI inference failed on source %d: %s", idx, exc)
                 continue
 
-            # return_all_scores=True returns list of dicts, one per label
-            scores = outputs[0] if outputs and isinstance(outputs[0], list) else outputs
+            # Output shape varies by transformers version and input form:
+            # {"label": ...}, [{"label": ...}, ...], or [[{"label": ...}, ...]].
+            if isinstance(outputs, dict):
+                scores = [outputs]
+            elif outputs and isinstance(outputs[0], list):
+                scores = outputs[0]
+            else:
+                scores = outputs
             entail = 0.0
             contradict = 0.0
             for item in scores:
