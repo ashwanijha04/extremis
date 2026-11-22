@@ -28,7 +28,9 @@ dependencies = [
 ]
 
 [project.urls]
+Homepage = "https://extremis.starkspherelabs.com"
 Repository = "https://github.com/ashwanijha04/extremis"
+"Built by" = "https://www.starkspherelabs.com"
 
 [project.optional-dependencies]
 mcp           = ["mcp>=1.0"]

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "TypeScript SDK for extremis — layered memory platform for AI agents, with built-in hallucination detection",
   "license": "MIT",
+  "homepage": "https://extremis.starkspherelabs.com",
   "author": "Ashwani Jha <ashwanijha04@gmail.com>",
   "repository": {
     "type": "git",
