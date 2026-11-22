@@ -974,7 +974,7 @@ See [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 
 ## License
 
-[MIT](LICENSE) · Built by [Ashwani Jha](https://github.com/ashwanijha04)
+[MIT](LICENSE) · Built by [Ashwani Jha](https://github.com/ashwanijha04) at [StarkSphere Labs](https://www.starkspherelabs.com), an applied AI company in Dubai · [extremis cloud](https://extremis.starkspherelabs.com)
 
 ---
 
